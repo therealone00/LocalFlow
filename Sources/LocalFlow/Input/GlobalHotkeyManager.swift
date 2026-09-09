@@ -64,7 +64,7 @@ public final class GlobalHotkeyManager: ObservableObject {
         let observer = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
         
         guard let tap = CGEvent.tapCreate(
-            tap: .cghidEventTap,
+            tap: .cgSessionEventTap,
             place: .headInsertEventTap,
             options: .defaultTap,
             eventsOfInterest: mask,
@@ -139,36 +139,54 @@ public final class GlobalHotkeyManager: ObservableObject {
         processInput(type: type, keyCode: keyCode, cgFlags: nil, nsModifierFlags: event.modifierFlags)
     }
     
+    private var isHandsFreeMode = false
+    private var keyDownTime: Date?
+    
+    public func resetHandsFreeState() {
+        isHandsFreeMode = false
+        isKeyDown = false
+        keyDownTime = nil
+    }
+    
     private func processInput(type: CGEventType, keyCode: Int, cgFlags: CGEventFlags?, nsModifierFlags: NSEvent.ModifierFlags?) {
         let settings = SettingsManager.shared.settings
         
         // Check for ESC key to cancel dictation
         if type == .keyDown && keyCode == 53 {
+            isHandsFreeMode = false
+            isKeyDown = false
             DispatchQueue.main.async { [weak self] in
                 self?.onAction?(.cancelSession)
             }
             return
         }
         
+        // If in hands-free mode, pressing Return/Enter stops and processes
+        if isHandsFreeMode && type == .keyDown && (keyCode == 36 || keyCode == 76) {
+            isHandsFreeMode = false
+            isKeyDown = false
+            DispatchQueue.main.async { [weak self] in
+                self?.onAction?(.pushToTalkUp)
+            }
+            return
+        }
+        
         switch settings.shortcutMode {
         case .holdFn:
-            // Check flagsChanged for Fn key
             if type == .flagsChanged {
                 let isFnActive: Bool
                 if let flags = cgFlags {
-                    isFnActive = flags.contains(.maskSecondaryFn) || keyCode == 63
+                    isFnActive = flags.contains(.maskSecondaryFn)
                 } else if let mod = nsModifierFlags {
-                    isFnActive = mod.contains(.function) || keyCode == 63
+                    isFnActive = mod.contains(.function)
                 } else {
                     isFnActive = false
                 }
-                
                 handlePushToTalkState(isPressed: isFnActive)
             }
             
         case .rightOption:
             if type == .flagsChanged {
-                // KeyCode 61 is Right Option (Alt) on macOS
                 let isOptActive: Bool
                 if let flags = cgFlags {
                     isOptActive = flags.contains(.maskAlternate) && (keyCode == 61 || keyCode == 58)
@@ -224,23 +242,38 @@ public final class GlobalHotkeyManager: ObservableObject {
         if isPressed && !isKeyDown {
             isKeyDown = true
             let now = Date()
-            let settings = SettingsManager.shared.settings
+            keyDownTime = now
             
-            if settings.doubleTapHandsFree, let last = lastKeyDownTime, now.timeIntervalSince(last) < 0.35 {
-                lastKeyDownTime = nil
+            // If already in hands-free mode, pressing the hotkey again completes and inserts!
+            if isHandsFreeMode {
+                isHandsFreeMode = false
+                DispatchQueue.main.async { [weak self] in
+                    self?.onAction?(.pushToTalkUp)
+                }
+                return
+            }
+            
+            DispatchQueue.main.async { [weak self] in
+                self?.onAction?(.pushToTalkDown)
+            }
+        } else if !isPressed && isKeyDown {
+            isKeyDown = false
+            guard !isHandsFreeMode else { return }
+            
+            let now = Date()
+            let duration = keyDownTime.map { now.timeIntervalSince($0) } ?? 1.0
+            
+            if duration < 0.35 {
+                // Quick tap: switch to hands-free toggle mode so user doesn't need to keep holding!
+                isHandsFreeMode = true
                 DispatchQueue.main.async { [weak self] in
                     self?.onAction?(.toggleHandsFree)
                 }
             } else {
-                lastKeyDownTime = now
+                // Held down: push-to-talk release -> stop and insert!
                 DispatchQueue.main.async { [weak self] in
-                    self?.onAction?(.pushToTalkDown)
+                    self?.onAction?(.pushToTalkUp)
                 }
-            }
-        } else if !isPressed && isKeyDown {
-            isKeyDown = false
-            DispatchQueue.main.async { [weak self] in
-                self?.onAction?(.pushToTalkUp)
             }
         }
     }

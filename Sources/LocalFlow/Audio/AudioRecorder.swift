@@ -2,30 +2,40 @@ import Foundation
 @preconcurrency import AVFoundation
 import Accelerate
 
-/// Thread-safe sample storage actor.
-public actor AudioBufferStore {
+/// Thread-safe synchronized sample storage using os_unfair_lock for real-time audio callbacks.
+public final class SynchronizedAudioBuffer: @unchecked Sendable {
     private var samples: [Float] = []
+    private var lock = os_unfair_lock_s()
     
     public init() {
         samples.reserveCapacity(16000 * 30) // Pre-allocate 30 seconds
     }
     
     public func append(_ newSamples: [Float]) {
+        os_unfair_lock_lock(&lock)
         samples.append(contentsOf: newSamples)
+        os_unfair_lock_unlock(&lock)
     }
     
     public func retrieveAndClear() -> [Float] {
+        os_unfair_lock_lock(&lock)
         let result = samples
         samples.removeAll(keepingCapacity: true)
+        os_unfair_lock_unlock(&lock)
         return result
     }
     
     public func clear() {
+        os_unfair_lock_lock(&lock)
         samples.removeAll(keepingCapacity: true)
+        os_unfair_lock_unlock(&lock)
     }
     
     public var count: Int {
-        samples.count
+        os_unfair_lock_lock(&lock)
+        let c = samples.count
+        os_unfair_lock_unlock(&lock)
+        return c
     }
 }
 
@@ -33,7 +43,7 @@ public actor AudioBufferStore {
 public final class AudioRecorder: @unchecked Sendable {
     private var audioEngine: AVAudioEngine?
     private var converter: AVAudioConverter?
-    private let bufferStore = AudioBufferStore()
+    private let bufferStore = SynchronizedAudioBuffer()
     
     public var onLevelUpdate: (@Sendable (Float) -> Void)?
     public var onVoiceActivity: (@Sendable (Bool) -> Void)?
@@ -62,9 +72,7 @@ public final class AudioRecorder: @unchecked Sendable {
         
         guard shouldProceed else { return }
         
-        Task {
-            await bufferStore.clear()
-        }
+        bufferStore.clear()
         
         let engine = AVAudioEngine()
         self.audioEngine = engine
@@ -123,7 +131,7 @@ public final class AudioRecorder: @unchecked Sendable {
         audioEngine = nil
         converter = nil
         
-        let samples = await bufferStore.retrieveAndClear()
+        let samples = bufferStore.retrieveAndClear()
         AppLogger.audio.info("Audio recording stopped. Captured \(samples.count) samples (\(Double(samples.count) / 16000.0, format: .fixed(precision: 2))s).")
         return samples
     }
@@ -141,9 +149,7 @@ public final class AudioRecorder: @unchecked Sendable {
         audioEngine = nil
         converter = nil
         
-        Task {
-            await bufferStore.clear()
-        }
+        bufferStore.clear()
         AppLogger.audio.info("Audio recording cancelled.")
     }
     
@@ -192,8 +198,7 @@ public final class AudioRecorder: @unchecked Sendable {
         let normalizedLevel = min(max((rms - 0.005) * 4.0, 0.0), 1.0)
         self.onLevelUpdate?(normalizedLevel)
         
-        Task {
-            await bufferStore.append(samples)
-        }
+        // Synchronously append to buffer without async Task allocation
+        bufferStore.append(samples)
     }
 }

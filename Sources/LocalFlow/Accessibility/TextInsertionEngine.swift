@@ -9,20 +9,37 @@ public final class TextInsertionEngine: @unchecked Sendable {
     
     /// Inserts text into the currently active/focused application at the current cursor position.
     @MainActor
-    public func insertText(_ text: String) async -> Bool {
+    public func insertText(_ text: String, targetApp: NSRunningApplication? = nil) async -> Bool {
         guard !text.isEmpty else { return true }
         
         AppLogger.accessibility.info("Attempting text insertion of length: \(text.count)")
         
-        // Strategy 1: Direct Accessibility Injection
-        if insertViaAccessibility(text) {
+        // 1. Reactivate the target application if needed (e.g. if dictation was triggered from menu bar)
+        if let app = targetApp, app.bundleIdentifier != Bundle.main.bundleIdentifier {
+            app.activate()
+            // Allow window server a brief moment to restore keyboard focus
+            try? await Task.sleep(nanoseconds: 70_000_000) // 70ms
+        }
+        
+        // 2. Always put target text on pasteboard as universal baseline
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
+        
+        // 3. Strategy 1: Direct Accessibility Injection
+        if AccessibilityManager.shared.isTrusted && insertViaAccessibility(text) {
             AppLogger.accessibility.info("Direct Accessibility insertion succeeded.")
             return true
         }
         
-        // Strategy 2: Universal Clipboard Fallback
-        AppLogger.accessibility.info("Direct Accessibility fallback needed. Initiating clipboard injection.")
-        return await insertViaClipboardFallback(text)
+        // 4. Strategy 2: Universal Synthesized Cmd+V Fallback
+        if AccessibilityManager.shared.isTrusted {
+            AppLogger.accessibility.info("Direct Accessibility fallback needed. Initiating clipboard Cmd+V injection.")
+            return await insertViaClipboardFallback()
+        } else {
+            AppLogger.accessibility.warning("Accessibility permission missing. Text copied to clipboard for manual paste.")
+            return false
+        }
     }
     
     private func insertViaAccessibility(_ text: String) -> Bool {
@@ -57,34 +74,13 @@ public final class TextInsertionEngine: @unchecked Sendable {
     }
     
     @MainActor
-    private func insertViaClipboardFallback(_ text: String) async -> Bool {
-        let pasteboard = NSPasteboard.general
-        
-        // 1. Backup existing pasteboard contents
-        var backupItems: [(NSPasteboard.PasteboardType, Data)] = []
-        if let items = pasteboard.pasteboardItems {
-            for item in items {
-                for type in item.types {
-                    if let data = item.data(forType: type) {
-                        backupItems.append((type, data))
-                    }
-                }
-            }
-        }
-        
-        // 2. Put target text on pasteboard
-        pasteboard.clearContents()
-        pasteboard.setString(text, forType: .string)
-        
-        // 3. Synthesize Command+V key events explicitly
+    private func insertViaClipboardFallback() async -> Bool {
+        // Synthesize Command+V key events explicitly
         let src = CGEventSource(stateID: .combinedSessionState)
-        let cmdKeyCode: CGKeyCode = 0x37 // Command key
         let vKeyCode: CGKeyCode = 0x09   // 'v' key
         
-        guard let cmdDown = CGEvent(keyboardEventSource: src, virtualKey: cmdKeyCode, keyDown: true),
-              let vDown = CGEvent(keyboardEventSource: src, virtualKey: vKeyCode, keyDown: true),
-              let vUp = CGEvent(keyboardEventSource: src, virtualKey: vKeyCode, keyDown: false),
-              let cmdUp = CGEvent(keyboardEventSource: src, virtualKey: cmdKeyCode, keyDown: false) else {
+        guard let vDown = CGEvent(keyboardEventSource: src, virtualKey: vKeyCode, keyDown: true),
+              let vUp = CGEvent(keyboardEventSource: src, virtualKey: vKeyCode, keyDown: false) else {
             AppLogger.accessibility.error("Failed to create keyboard events for Cmd+V.")
             return false
         }
@@ -93,22 +89,10 @@ public final class TextInsertionEngine: @unchecked Sendable {
         vUp.flags = .maskCommand
         
         // Post to .cgSessionEventTap for user session GUI event delivery
-        cmdDown.post(tap: .cgSessionEventTap)
         vDown.post(tap: .cgSessionEventTap)
         vUp.post(tap: .cgSessionEventTap)
-        cmdUp.post(tap: .cgSessionEventTap)
         
-        // 4. Safe delay before restoring pasteboard to allow target application (Safari, VS Code, Slack, Notes) to process the paste
-        try? await Task.sleep(nanoseconds: 150_000_000) // 150 ms
-        
-        // 5. Restore original pasteboard items
-        if !backupItems.isEmpty {
-            pasteboard.clearContents()
-            for (type, data) in backupItems {
-                pasteboard.setData(data, forType: type)
-            }
-        }
-        
+        AppLogger.accessibility.info("Synthesized Cmd+V event posted successfully.")
         return true
     }
 }

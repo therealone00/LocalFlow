@@ -94,8 +94,18 @@ if [ -f "/tmp/LocalFlow_512.png" ]; then
     rm -rf "${ICONSET_DIR}" /tmp/LocalFlow_512.png /tmp/generate_icon.swift
 fi
 
+echo "==> Resolving code signing identity..."
+SIGNING_IDENTITY=$(security find-identity -p codesigning -v 2>/dev/null | grep "Apple Development" | head -n 1 | sed -n 's/.*"\(.*\)".*/\1/p')
+
+if [ -n "${SIGNING_IDENTITY}" ]; then
+    echo "==> Using detected developer identity: ${SIGNING_IDENTITY}"
+else
+    echo "==> No Apple Development identity found, using ad-hoc signing (-)..."
+    SIGNING_IDENTITY="-"
+fi
+
 echo "==> Signing application bundle..."
-codesign --force --deep --sign - --entitlements "${ROOT_DIR}/Config/LocalFlow.entitlements" "${APP_BUNDLE}"
+codesign --force --deep --sign "${SIGNING_IDENTITY}" --entitlements "${ROOT_DIR}/Config/LocalFlow.entitlements" "${APP_BUNDLE}"
 
 echo ""
 echo "=================================================="

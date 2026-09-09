@@ -57,4 +57,15 @@ final class RuleBasedCleanerTests: XCTestCase {
         XCTAssertFalse(output.contains(" um "))
         XCTAssertTrue(output.contains("report, thanks"))
     }
+    
+    func testWhisperHallucinationStripping() {
+        let music = cleaner.clean("* Musik *", language: "de")
+        XCTAssertEqual(music, "")
+        
+        let bracketMusic = cleaner.clean("[Music] Hello world", language: "en")
+        XCTAssertEqual(bracketMusic, "Hello world")
+        
+        let subtitle = cleaner.clean("Untertitel der Amara.org-Community", language: "de")
+        XCTAssertEqual(subtitle, "")
+    }
 }

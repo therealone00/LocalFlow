@@ -15,7 +15,7 @@ public final class RuleBasedCleaner: Sendable {
         formatPunctuation: Bool = true,
         formatLists: Bool = true
     ) -> String {
-        var result = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        var result = stripHallucinations(text.trimmingCharacters(in: .whitespacesAndNewlines))
         guard !result.isEmpty else { return "" }
         
         let isGerman = (language == "de" || (language == nil && looksLikeGerman(result)))
@@ -51,6 +51,37 @@ public final class RuleBasedCleaner: Sendable {
         result = inferQuestionPunctuation(result, isGerman: isGerman)
         
         return result
+    }
+    
+    // MARK: - Hallucination Filtering
+    
+    public func stripHallucinations(_ text: String) -> String {
+        var str = text
+        let patterns = [
+            "\\*\\s*musik\\s*\\*",
+            "\\[musik\\]",
+            "\\(musik\\)",
+            "\\[music\\]",
+            "\\*\\s*music\\s*\\*",
+            "\\(music\\)",
+            "\\[geräusche\\]",
+            "\\[applaus\\]",
+            "\\[applause\\]",
+            "\\[silence\\]",
+            "\\(silence\\)",
+            "(?i)untertitel von.*",
+            "(?i)untertitel der amara\\.org.*",
+            "(?i)subtitles by the amara\\.org.*",
+            "(?i)vielen dank für das zuschauen.*",
+            "(?i)thank you for watching.*"
+        ]
+        for pat in patterns {
+            if let regex = try? NSRegularExpression(pattern: pat, options: [.caseInsensitive]) {
+                let range = NSRange(location: 0, length: (str as NSString).length)
+                str = regex.stringByReplacingMatches(in: str, options: [], range: range, withTemplate: "")
+            }
+        }
+        return str.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     // MARK: - Self Correction

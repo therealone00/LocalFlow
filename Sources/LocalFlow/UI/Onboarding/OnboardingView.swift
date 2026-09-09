@@ -263,15 +263,31 @@ public struct OnboardingView: View {
                 .tint(appState.dictationState == .listening ? .red : .accentColor)
             }
             
-            TextEditor(text: $testInputText)
-                .frame(width: 400, height: 90)
-                .padding(6)
-                .background(Color(nsColor: .textBackgroundColor))
-                .cornerRadius(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                )
+            ZStack(alignment: .topLeading) {
+                TextEditor(text: $testInputText)
+                    .frame(width: 400, height: 90)
+                    .padding(6)
+                    .background(Color(nsColor: .textBackgroundColor))
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                    )
+                
+                if testInputText.isEmpty {
+                    Text("Your spoken text will appear here automatically…")
+                        .font(.body)
+                        .foregroundColor(.secondary.opacity(0.6))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 14)
+                        .allowsHitTesting(false)
+                }
+            }
+            .onReceive(appState.$lastTranscribedText) { newText in
+                if !newText.isEmpty {
+                    testInputText = newText
+                }
+            }
         }
     }
     
