@@ -197,9 +197,9 @@ public final class AppState: ObservableObject {
                     
                     self.scheduleDismiss(after: 0.8)
                 } else {
-                    // Copied to clipboard fallback
-                    self.dictationState = .error(message: "Copied to Clipboard")
-                    self.scheduleDismiss(after: 1.8)
+                    // Accessibility required to type directly into target text field
+                    self.dictationState = .error(message: "Bedienungshilfen erforderlich")
+                    self.scheduleDismiss(after: 3.5)
                 }
             } catch {
                 AppLogger.transcription.error("Transcription pipeline failed: \(error.localizedDescription)")

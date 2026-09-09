@@ -6,8 +6,29 @@ public struct AudioWaveformView: View {
     
     @State private var phase: CGFloat = 0.0
     
-    private let barCount = 5
-    private let multipliers: [CGFloat] = [0.4, 0.8, 1.0, 0.7, 0.5]
+    private let barCount = 7
+    private let multipliers: [CGFloat] = [0.35, 0.65, 0.95, 1.0, 0.85, 0.55, 0.3]
+    
+    // Dynamic Apple Intelligence / Wispr Flow gradient
+    private let gradient = LinearGradient(
+        colors: [
+            Color(red: 1.0, green: 0.42, blue: 0.28), // Vibrant Coral
+            Color(red: 0.72, green: 0.25, blue: 1.0),  // Neon Violet
+            Color(red: 0.15, green: 0.78, blue: 1.0)   // Electric Cyan
+        ],
+        startPoint: .bottom,
+        endPoint: .top
+    )
+    
+    private let processingGradient = LinearGradient(
+        colors: [
+            Color(red: 0.2, green: 0.8, blue: 1.0),
+            Color(red: 0.65, green: 0.35, blue: 1.0),
+            Color(red: 1.0, green: 0.3, blue: 0.6)
+        ],
+        startPoint: .leading,
+        endPoint: .trailing
+    )
     
     public init(level: Float, isProcessing: Bool = false) {
         self.level = level
@@ -17,31 +38,31 @@ public struct AudioWaveformView: View {
     public var body: some View {
         HStack(spacing: 3) {
             ForEach(0..<barCount, id: \.self) { index in
-                RoundedRectangle(cornerRadius: 1.5)
-                    .fill(Color.white.opacity(0.9))
-                    .frame(width: 3, height: barHeight(for: index))
-                    .animation(.spring(response: 0.15, dampingFraction: 0.6), value: level)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .fill(isProcessing ? AnyShapeStyle(processingGradient) : AnyShapeStyle(gradient))
+                    .frame(width: 3.5, height: barHeight(for: index))
+                    .shadow(color: isProcessing ? Color.purple.opacity(0.4) : Color(red: 1.0, green: 0.4, blue: 0.3).opacity(0.4), radius: 3, x: 0, y: 0)
+                    .animation(.spring(response: 0.18, dampingFraction: 0.58), value: level)
             }
         }
-        .frame(height: 20)
+        .frame(height: 24)
         .onAppear {
             if isProcessing {
-                withAnimation(.linear(duration: 1.0).repeatForever(autoreverses: false)) {
+                withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
                     phase = 1.0
                 }
             }
         }
     }
     
-    private func barHeight(for index: CGFloat.IntegerLiteralType) -> CGFloat {
+    private func barHeight(for index: Int) -> CGFloat {
         if isProcessing {
-            // Pulsing wave during processing
-            let wave = sin(Double(index) * 0.8 + Double(phase * .pi * 2))
-            return CGFloat(6 + wave * 4)
+            let offset = sin(Double(index) * 0.9 + Double(phase * .pi * 2))
+            return CGFloat(7 + offset * 6)
         }
         
-        let baseHeight: CGFloat = 4
-        let dynamicHeight = CGFloat(level) * 16 * multipliers[index]
-        return min(20, max(baseHeight, dynamicHeight))
+        let baseHeight: CGFloat = 5
+        let dynamicHeight = CGFloat(level) * 20 * multipliers[index]
+        return min(24, max(baseHeight, dynamicHeight))
     }
 }

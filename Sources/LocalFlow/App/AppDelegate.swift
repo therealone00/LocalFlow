@@ -22,6 +22,11 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate 
         setupSleepWakeObservers()
         prewarmSpeechEngine()
         
+        // Verify Accessibility permission and register app with macOS Accessibility list
+        if !AccessibilityManager.shared.checkPermission() {
+            AccessibilityManager.shared.promptForAccessibility()
+        }
+        
         // Check if onboarding needs to be shown
         if !SettingsManager.shared.settings.hasCompletedOnboarding {
             showOnboarding()

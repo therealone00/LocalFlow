@@ -53,12 +53,14 @@ public final class FloatingBarPanel: NSPanel {
                         }
                     }
                 } else {
-                    self.updatePosition()
-                    self.alphaValue = 0.0
-                    self.orderFrontRegardless()
-                    NSAnimationContext.runAnimationGroup { context in
-                        context.duration = 0.2
-                        self.animator().alphaValue = 1.0
+                    self.updatePosition(for: state)
+                    if !self.isVisible {
+                        self.alphaValue = 0.0
+                        self.orderFrontRegardless()
+                        NSAnimationContext.runAnimationGroup { context in
+                            context.duration = 0.2
+                            self.animator().alphaValue = 1.0
+                        }
                     }
                 }
             }
@@ -66,15 +68,40 @@ public final class FloatingBarPanel: NSPanel {
     }
     
     public func updatePosition() {
+        updatePosition(for: AppState.shared.dictationState)
+    }
+    
+    public func updatePosition(for state: DictationState) {
         guard let screen = NSScreen.main else { return }
         let screenRect = screen.visibleFrame
         
-        let panelWidth: CGFloat = 260
-        let panelHeight: CGFloat = 44
+        let panelWidth: CGFloat
+        switch state {
+        case .idle:
+            panelWidth = 240
+        case .preparing:
+            panelWidth = 220
+        case .listening:
+            panelWidth = 340
+        case .processing:
+            panelWidth = 300
+        case .success:
+            panelWidth = 200
+        case .error(let msg):
+            if msg.localizedCaseInsensitiveContains("Bedienungshilfen") || msg.localizedCaseInsensitiveContains("Accessibility") {
+                panelWidth = 390
+            } else {
+                panelWidth = 280
+            }
+        case .cancelled:
+            panelWidth = 200
+        }
         
+        let panelHeight: CGFloat = 48
         let x = screenRect.origin.x + (screenRect.width - panelWidth) / 2
-        let y = screenRect.origin.y + 70 // 70pt above dock/bottom margin
+        let y = screenRect.origin.y + 68
         
-        self.setFrame(NSRect(x: x, y: y, width: panelWidth, height: panelHeight), display: true)
+        let targetFrame = NSRect(x: x, y: y, width: panelWidth, height: panelHeight)
+        self.setFrame(targetFrame, display: true, animate: self.isVisible)
     }
 }

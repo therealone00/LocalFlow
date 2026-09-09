@@ -26,18 +26,25 @@ public final class TextInsertionEngine: @unchecked Sendable {
         pasteboard.clearContents()
         pasteboard.setString(text, forType: .string)
         
-        // 3. Strategy 1: Direct Accessibility Injection
-        if AccessibilityManager.shared.isTrusted && insertViaAccessibility(text) {
+        // 3. Live check of Accessibility trust status
+        let isTrusted = AXIsProcessTrusted()
+        
+        // 4. Strategy 1: Direct Accessibility Injection
+        if isTrusted && insertViaAccessibility(text) {
             AppLogger.accessibility.info("Direct Accessibility insertion succeeded.")
             return true
         }
         
-        // 4. Strategy 2: Universal Synthesized Cmd+V Fallback
-        if AccessibilityManager.shared.isTrusted {
-            AppLogger.accessibility.info("Direct Accessibility fallback needed. Initiating clipboard Cmd+V injection.")
-            return await insertViaClipboardFallback()
+        // 5. Strategy 2: Universal Synthesized Cmd+V Fallback
+        AppLogger.accessibility.info("Direct Accessibility fallback needed. Initiating clipboard Cmd+V injection.")
+        _ = await insertViaClipboardFallback()
+        
+        if isTrusted {
+            return true
         } else {
-            AppLogger.accessibility.warning("Accessibility permission missing. Text copied to clipboard for manual paste.")
+            // Prompt macOS permission dialog so user can activate with 1 click
+            AccessibilityManager.shared.promptForAccessibility()
+            AppLogger.accessibility.warning("Accessibility permission missing. Prompted user and copied to clipboard.")
             return false
         }
     }
@@ -76,7 +83,7 @@ public final class TextInsertionEngine: @unchecked Sendable {
     @MainActor
     private func insertViaClipboardFallback() async -> Bool {
         // Synthesize Command+V key events explicitly
-        let src = CGEventSource(stateID: .combinedSessionState)
+        let src = CGEventSource(stateID: .hidSystemState)
         let vKeyCode: CGKeyCode = 0x09   // 'v' key
         
         guard let vDown = CGEvent(keyboardEventSource: src, virtualKey: vKeyCode, keyDown: true),
@@ -90,7 +97,15 @@ public final class TextInsertionEngine: @unchecked Sendable {
         
         // Post to .cgSessionEventTap for user session GUI event delivery
         vDown.post(tap: .cgSessionEventTap)
+        try? await Task.sleep(nanoseconds: 25_000_000) // 25ms human-like keypress duration
         vUp.post(tap: .cgSessionEventTap)
+        
+        // Also trigger AppleScript fallback if possible
+        let script = "tell application \"System Events\" to keystroke \"v\" using command down"
+        if let appleScript = NSAppleScript(source: script) {
+            var errorDict: NSDictionary?
+            appleScript.executeAndReturnError(&errorDict)
+        }
         
         AppLogger.accessibility.info("Synthesized Cmd+V event posted successfully.")
         return true
