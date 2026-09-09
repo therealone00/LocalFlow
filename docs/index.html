@@ -3,36 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LocalFlow — 100% Offline AI Diktat für macOS</title>
-  <meta name="description" content="LocalFlow ist die ultraschnelle, private AI-Diktier-App für macOS. Lokale Transkription auf der Apple Neural Engine in unter 0,8 Sekunden. Kein Cloud-Upload, kein Abo.">
+  <title>LocalFlow — Lokales KI-Diktat für macOS</title>
+  <meta name="description" content="LocalFlow ist ein natives macOS-Diktierwerkzeug. WhisperKit-Inferenz auf der Apple Neural Engine in unter 0,8 Sekunden. 100% offline, kein Cloud-Upload, kein Abonnement.">
   
-  <!-- OpenGraph / Social -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="LocalFlow — 100% Offline AI Diktat für macOS">
-  <meta property="og:description" content="Tippe mit deiner Stimme direkt in jede Mac-App. Lokale Whisper Neural Engine Transkription. Null Cloud, null Abo.">
+  <meta property="og:title" content="LocalFlow — Lokales KI-Diktat für macOS">
+  <meta property="og:description" content="Native Spracheingabe direkt in jedes Textfeld. 100% lokal auf Apple Silicon. Keine Cloud, kein Abo.">
   <meta property="og:image" content="assets/hero.jpg">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   
   <style>
     :root {
       --bg: #070709;
-      --bg-subtle: #0d0e12;
-      --card-bg: rgba(22, 23, 29, 0.7);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --card-hover: rgba(255, 255, 255, 0.14);
-      --text: #F3F4F6;
-      --text-muted: #9CA3AF;
-      --accent-coral: #FF6B4A;
-      --accent-violet: #B740FF;
-      --accent-cyan: #00D2FF;
-      --gradient-brand: linear-gradient(135deg, #FF6B4A 0%, #B740FF 50%, #00D2FF 100%);
-      --gradient-glow: radial-gradient(circle at 50% 50%, rgba(183, 64, 255, 0.15), transparent 70%);
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 22px;
+      --bg-panel: #0D0E12;
+      --card-bg: rgba(16, 17, 22, 0.85);
+      --card-border: rgba(255, 255, 255, 0.07);
+      --card-border-hover: rgba(255, 255, 255, 0.16);
+      --text: #EDEDED;
+      --text-muted: #8E8E93;
+      --text-subtle: #55555C;
+      --accent: #FFFFFF;
+      --accent-dim: rgba(255, 255, 255, 0.08);
+      --highlight: #00D2FF;
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
       --radius-full: 9999px;
     }
 
@@ -46,70 +44,46 @@
     body {
       background-color: var(--bg);
       color: var(--text);
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
       overflow-x: hidden;
-      line-height: 1.6;
+      line-height: 1.55;
     }
 
-    /* Ambient dynamic glow in background */
-    .ambient-glow {
+    /* Subtle technical grid background instead of blurry AI orbs */
+    .bg-grid {
       position: fixed;
       top: 0;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 0;
       width: 100vw;
       height: 100vh;
       pointer-events: none;
       z-index: 0;
-      overflow: hidden;
-    }
-    .glow-orb-1 {
-      position: absolute;
-      top: -15%;
-      left: 20%;
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(183, 64, 255, 0.18) 0%, rgba(0,0,0,0) 70%);
-      filter: blur(80px);
-    }
-    .glow-orb-2 {
-      position: absolute;
-      top: 10%;
-      right: 15%;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(0, 210, 255, 0.14) 0%, rgba(0,0,0,0) 70%);
-      filter: blur(90px);
-    }
-    .glow-orb-3 {
-      position: absolute;
-      bottom: 20%;
-      left: 30%;
-      width: 700px;
-      height: 700px;
-      background: radial-gradient(circle, rgba(255, 107, 74, 0.12) 0%, rgba(0,0,0,0) 70%);
-      filter: blur(100px);
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      mask-image: radial-gradient(ellipse at 50% 15%, black 40%, transparent 80%);
+      -webkit-mask-image: radial-gradient(ellipse at 50% 15%, black 40%, transparent 80%);
     }
 
-    /* Container */
     .container {
-      max-width: 1200px;
+      max-width: 1140px;
       margin: 0 auto;
       padding: 0 24px;
       position: relative;
       z-index: 1;
     }
 
-    /* Header / Nav */
+    /* Header */
     header {
       position: sticky;
       top: 0;
-      z-index: 50;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      background: rgba(7, 7, 9, 0.75);
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(7, 7, 9, 0.85);
       border-bottom: 1px solid var(--card-border);
-      padding: 16px 0;
+      padding: 14px 0;
     }
     .nav-wrap {
       display: flex;
@@ -119,38 +93,39 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       text-decoration: none;
       color: var(--text);
-      font-weight: 700;
-      font-size: 1.25rem;
+      font-weight: 600;
+      font-size: 1.05rem;
+      letter-spacing: -0.01em;
     }
     .brand-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #1A1B22, #0D0E12);
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: #14151A;
       border: 1px solid rgba(255, 255, 255, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     }
     .brand-icon svg {
-      width: 20px;
-      height: 20px;
+      width: 15px;
+      height: 15px;
+      color: #EDEDED;
     }
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: 20px;
     }
     .nav-link {
       color: var(--text-muted);
       text-decoration: none;
-      font-size: 0.95rem;
+      font-size: 0.88rem;
       font-weight: 500;
-      transition: color 0.2s;
+      transition: color 0.15s;
     }
     .nav-link:hover {
       color: var(--text);
@@ -158,399 +133,323 @@
     .btn-nav-download {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      background: rgba(255, 255, 255, 0.08);
+      gap: 7px;
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--card-border);
       border-radius: var(--radius-full);
       color: var(--text);
       text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: all 0.2s;
+      font-size: 0.84rem;
+      font-weight: 500;
+      transition: all 0.15s;
     }
     .btn-nav-download:hover {
-      background: rgba(255, 255, 255, 0.15);
-      border-color: rgba(255, 255, 255, 0.25);
-      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
-    /* Hero Section */
+    /* Hero */
     .hero {
-      padding: 90px 0 60px;
+      padding: 80px 0 50px;
       text-align: center;
     }
     .badge-pill {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 14px;
+      padding: 4px 12px;
       border-radius: var(--radius-full);
-      background: rgba(183, 64, 255, 0.1);
-      border: 1px solid rgba(183, 64, 255, 0.3);
-      color: #D88BFF;
-      font-size: 0.85rem;
-      font-weight: 600;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 500;
       margin-bottom: 24px;
-      box-shadow: 0 0 20px rgba(183, 64, 255, 0.15);
     }
-    .badge-pill .pulse-dot {
-      width: 8px;
-      height: 8px;
+    .badge-pill .status-indicator {
+      width: 6px;
+      height: 6px;
       background: #34C759;
       border-radius: 50%;
-      box-shadow: 0 0 8px #34C759;
     }
     .hero-title {
-      font-size: clamp(2.5rem, 5.5vw, 4.5rem);
-      font-weight: 800;
+      font-size: clamp(2.3rem, 4.8vw, 3.8rem);
+      font-weight: 700;
       letter-spacing: -0.04em;
-      line-height: 1.1;
-      margin-bottom: 24px;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      color: #FFFFFF;
     }
     .hero-title span {
-      background: var(--gradient-brand);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text-muted);
+      font-weight: 400;
     }
     .hero-desc {
-      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      font-size: clamp(1rem, 1.6vw, 1.15rem);
       color: var(--text-muted);
-      max-width: 780px;
-      margin: 0 auto 36px;
+      max-width: 680px;
+      margin: 0 auto 34px;
       font-weight: 400;
-      line-height: 1.5;
+      line-height: 1.6;
     }
     .hero-cta-group {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 16px;
+      gap: 12px;
       flex-wrap: wrap;
-      margin-bottom: 16px;
     }
     .btn-primary {
       display: inline-flex;
       align-items: center;
-      gap: 12px;
-      padding: 16px 32px;
-      border-radius: var(--radius-full);
-      background: #FFFFFF;
+      gap: 10px;
+      padding: 12px 24px;
+      border-radius: var(--radius-md);
+      background: #EDEDED;
       color: #070709;
       text-decoration: none;
-      font-size: 1.05rem;
-      font-weight: 700;
-      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.3);
-      transition: all 0.25s ease;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
     }
     .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 40px rgba(255, 255, 255, 0.3);
-      background: #F3F4F6;
+      background: #FFFFFF;
+      transform: translateY(-1px);
     }
     .btn-secondary {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      padding: 16px 28px;
-      border-radius: var(--radius-full);
-      background: rgba(255, 255, 255, 0.05);
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--card-border);
       color: var(--text);
       text-decoration: none;
-      font-size: 1.05rem;
-      font-weight: 600;
-      backdrop-filter: blur(10px);
-      transition: all 0.25s ease;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.15s ease;
     }
     .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.2);
-      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.18);
     }
     .hero-meta {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      margin-top: 8px;
+      font-size: 0.8rem;
+      color: var(--text-subtle);
+      margin-top: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 16px;
     }
-    .hero-meta span {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
 
-    /* Hero Showcase Image & Live Pill */
-    .hero-visual-wrap {
-      margin: 50px auto 0;
-      max-width: 1000px;
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--card-border);
-      position: relative;
+    /* Showcase Image Box */
+    .showcase-frame {
+      margin: 44px auto 0;
+      max-width: 960px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       background: #0D0E12;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
     }
-    .hero-visual-wrap img {
+    .showcase-frame img {
       width: 100%;
       height: auto;
       display: block;
     }
 
-    /* Interactive Floating Bar Simulator */
-    .interactive-demo-section {
-      padding: 70px 0;
+    /* Section Typography */
+    .section-wrap {
+      padding: 80px 0 30px;
     }
     .section-header {
-      text-align: center;
-      margin-bottom: 48px;
+      margin-bottom: 40px;
     }
     .section-tag {
-      font-size: 0.85rem;
-      font-weight: 700;
+      font-size: 0.76rem;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--accent-cyan);
-      margin-bottom: 12px;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
     }
     .section-title {
-      font-size: clamp(2rem, 3.5vw, 2.8rem);
-      font-weight: 800;
+      font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+      font-weight: 700;
       letter-spacing: -0.03em;
-      margin-bottom: 16px;
+      color: #FFFFFF;
+      margin-bottom: 10px;
     }
     .section-desc {
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       color: var(--text-muted);
-      max-width: 650px;
-      margin: 0 auto;
+      max-width: 600px;
     }
 
-    .demo-card {
-      background: var(--card-bg);
+    /* Interactive Demo Sandbox */
+    .demo-sandbox {
+      background: var(--bg-panel);
       border: 1px solid var(--card-border);
       border-radius: var(--radius-lg);
-      padding: 36px;
-      backdrop-filter: blur(24px);
-      max-width: 860px;
-      margin: 0 auto;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      padding: 28px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
     }
-    .demo-simulator {
+    .sandbox-top {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 28px;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
     }
-    
-    /* The Obsidian Floating Bar Replica */
-    .floating-bar-replica {
-      background: rgba(18, 19, 24, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+    .sandbox-pill-state {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(22, 23, 29, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: var(--radius-full);
-      padding: 8px 18px 8px 14px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      backdrop-filter: blur(28px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(183, 64, 255, 0.15);
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      padding: 6px 14px;
     }
     .rec-indicator {
       position: relative;
-      width: 14px;
-      height: 14px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      background: #FF3B30;
-      box-shadow: 0 0 10px #FF3B30;
+      background: #FF453A;
     }
-    .rec-pulse-ring {
-      position: absolute;
-      top: -4px;
-      left: -4px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(255, 59, 48, 0.5);
-      animation: pulseAnim 1.8s infinite ease-out;
-    }
-    @keyframes pulseAnim {
-      0% { transform: scale(0.8); opacity: 1; }
-      100% { transform: scale(1.6); opacity: 0; }
-    }
-    .app-badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: var(--radius-full);
-      background: rgba(255, 255, 255, 0.06);
-      font-size: 0.82rem;
-      font-weight: 600;
+    .app-tag {
+      font-size: 0.75rem;
+      font-weight: 500;
       color: var(--text-muted);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      padding-left: 8px;
     }
-    /* Equalizer Bars */
+    /* Minimalist Equalizer */
     .eq-bars {
       display: flex;
       align-items: center;
-      gap: 4px;
-      height: 24px;
+      gap: 3px;
+      height: 16px;
     }
     .eq-bar {
-      width: 3.5px;
-      border-radius: 2px;
+      width: 2.5px;
+      border-radius: 1px;
       background: linear-gradient(180deg, #FF6B4A, #B740FF 60%, #00D2FF);
       animation: eqBounce 1.2s infinite ease-in-out alternate;
     }
-    .eq-bar:nth-child(1) { height: 8px; animation-delay: 0.1s; }
-    .eq-bar:nth-child(2) { height: 16px; animation-delay: 0.25s; }
-    .eq-bar:nth-child(3) { height: 22px; animation-delay: 0.4s; }
-    .eq-bar:nth-child(4) { height: 24px; animation-delay: 0.15s; }
-    .eq-bar:nth-child(5) { height: 18px; animation-delay: 0.5s; }
-    .eq-bar:nth-child(6) { height: 14px; animation-delay: 0.3s; }
-    .eq-bar:nth-child(7) { height: 7px; animation-delay: 0.6s; }
+    .eq-bar:nth-child(1) { height: 6px; animation-delay: 0.1s; }
+    .eq-bar:nth-child(2) { height: 12px; animation-delay: 0.25s; }
+    .eq-bar:nth-child(3) { height: 16px; animation-delay: 0.4s; }
+    .eq-bar:nth-child(4) { height: 14px; animation-delay: 0.15s; }
+    .eq-bar:nth-child(5) { height: 10px; animation-delay: 0.5s; }
+    .eq-bar:nth-child(6) { height: 8px; animation-delay: 0.3s; }
+    .eq-bar:nth-child(7) { height: 5px; animation-delay: 0.6s; }
 
     @keyframes eqBounce {
       0% { transform: scaleY(0.3); }
       100% { transform: scaleY(1.0); }
     }
 
-    .demo-editor {
-      width: 100%;
-      background: #090A0E;
-      border: 1px solid var(--card-border);
+    .editor-terminal {
+      background: #070709;
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: var(--radius-md);
-      padding: 20px;
+      padding: 18px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.95rem;
-      line-height: 1.7;
-      color: #E2E8F0;
-      min-height: 140px;
-      position: relative;
-    }
-    .demo-editor-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      padding-bottom: 12px;
-      margin-bottom: 14px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    .demo-window-dots {
-      display: flex;
-      gap: 6px;
-    }
-    .demo-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-    .dot-red { background: #FF5F56; }
-    .dot-yellow { background: #FFBD2E; }
-    .dot-green { background: #27C93F; }
-
-    .typing-cursor {
-      display: inline-block;
-      width: 2px;
-      height: 1.1em;
-      background: var(--accent-cyan);
-      vertical-align: text-bottom;
-      animation: blink 1s infinite;
-      margin-left: 2px;
-    }
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-    .demo-controls {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .btn-demo-phrase {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
-      color: var(--text-muted);
-      border-radius: var(--radius-full);
-      padding: 8px 16px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-demo-phrase:hover, .btn-demo-phrase.active {
-      background: rgba(255, 255, 255, 0.12);
-      color: var(--text);
-      border-color: rgba(255, 255, 255, 0.25);
-    }
-
-    /* Features Grid */
-    .features-section {
-      padding: 90px 0;
-    }
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 24px;
-    }
-    .feature-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-lg);
-      padding: 32px;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .feature-card:hover {
-      border-color: var(--card-hover);
-      transform: translateY(-4px);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
-    }
-    .feature-icon-wrap {
-      width: 48px;
-      height: 48px;
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      font-size: 1.4rem;
-    }
-    .icon-ane { background: rgba(183, 64, 255, 0.15); color: #B740FF; }
-    .icon-privacy { background: rgba(52, 199, 89, 0.15); color: #34C759; }
-    .icon-speed { background: rgba(0, 210, 255, 0.15); color: #00D2FF; }
-    .icon-polish { background: rgba(255, 107, 74, 0.15); color: #FF6B4A; }
-    .icon-glass { background: rgba(255, 255, 255, 0.12); color: #FFFFFF; }
-    .icon-free { background: rgba(255, 214, 10, 0.15); color: #FFD60A; }
-
-    .feature-card h3 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-    .feature-card p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
+      font-size: 0.88rem;
+      min-height: 110px;
+      color: #D4D4D8;
       line-height: 1.6;
     }
-
-    /* Comparison Table */
-    .comparison-section {
-      padding: 80px 0;
+    .cursor-caret {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: #00D2FF;
+      vertical-align: text-bottom;
+      margin-left: 2px;
+      animation: blink 1s infinite;
     }
-    .comp-table-wrap {
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    .sample-triggers {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+    .btn-sample {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-sample:hover, .btn-sample.active {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    /* Technical Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 16px;
+    }
+    .spec-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .spec-card:hover {
+      border-color: var(--card-border-hover);
+    }
+    .spec-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      color: #EDEDED;
+    }
+    .spec-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+    .spec-card h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #FFFFFF;
+    }
+    .spec-card p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    /* Comparison Matrix */
+    .matrix-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
       overflow-x: auto;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     }
     table {
       width: 100%;
@@ -558,170 +457,171 @@
       text-align: left;
     }
     th, td {
-      padding: 18px 24px;
+      padding: 14px 20px;
       border-bottom: 1px solid var(--card-border);
+      font-size: 0.88rem;
     }
     th {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      background: rgba(255, 255, 255, 0.02);
-    }
-    th.highlight, td.highlight {
-      background: rgba(183, 64, 255, 0.08);
-      color: var(--text);
       font-weight: 600;
-      border-left: 1px solid rgba(183, 64, 255, 0.2);
-      border-right: 1px solid rgba(183, 64, 255, 0.2);
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+    }
+    th.col-focus, td.col-focus {
+      background: rgba(255, 255, 255, 0.02);
+      color: #FFFFFF;
+      font-weight: 500;
     }
     td {
-      font-size: 0.92rem;
       color: var(--text-muted);
     }
-    .check-icon {
+    .tag-yes {
       color: #34C759;
-      font-weight: bold;
+      font-weight: 500;
     }
-    .cross-icon {
-      color: #FF453A;
+    .tag-no {
+      color: #71717A;
     }
 
-    /* GitHub Sponsors & Monetization Section */
-    .sponsors-section {
-      padding: 90px 0;
-      position: relative;
+    /* GitHub Sponsors Section — Clean Monochrome & Subtle Graphite */
+    .sponsors-wrap {
+      padding: 80px 0 100px;
     }
-    .sponsors-banner {
-      background: linear-gradient(135deg, rgba(234, 74, 170, 0.1) 0%, rgba(183, 64, 255, 0.1) 50%, rgba(0, 210, 255, 0.05) 100%);
-      border: 1px solid rgba(234, 74, 170, 0.25);
+    .sponsors-card {
+      background: #0C0D11;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: var(--radius-lg);
-      padding: 50px 40px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(234, 74, 170, 0.15);
+      padding: 44px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     }
-    .sponsor-heart {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: rgba(234, 74, 170, 0.15);
-      border: 1px solid rgba(234, 74, 170, 0.35);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      font-size: 2rem;
-      color: #EA4AAA;
-      box-shadow: 0 0 25px rgba(234, 74, 170, 0.3);
-    }
-    .sponsor-title {
-      font-size: 2.2rem;
-      font-weight: 800;
-      margin-bottom: 12px;
-    }
-    .sponsor-desc {
-      max-width: 640px;
-      margin: 0 auto 36px;
-      color: var(--text-muted);
-      font-size: 1.05rem;
-    }
-    .tier-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
+    .sponsors-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 32px;
       margin-bottom: 36px;
-      text-align: left;
+      flex-wrap: wrap;
     }
-    .tier-card {
-      background: rgba(18, 19, 24, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: var(--radius-md);
-      padding: 24px;
-      transition: all 0.2s;
-    }
-    .tier-card:hover {
-      border-color: rgba(234, 74, 170, 0.4);
-      transform: translateY(-3px);
-    }
-    .tier-price {
-      font-size: 1.7rem;
-      font-weight: 800;
-      color: #FFFFFF;
-      margin: 8px 0;
-    }
-    .tier-name {
-      font-size: 0.95rem;
+    .sponsors-info h2 {
+      font-size: 1.8rem;
       font-weight: 700;
-      color: #EA4AAA;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      margin-bottom: 8px;
     }
-    .tier-card p {
-      font-size: 0.85rem;
+    .sponsors-info p {
       color: var(--text-muted);
-      margin-top: 8px;
+      font-size: 0.95rem;
+      max-width: 580px;
+      line-height: 1.6;
     }
-    .btn-sponsor {
+    .btn-gh-sponsor {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      padding: 16px 36px;
-      border-radius: var(--radius-full);
-      background: #EA4AAA;
-      color: #FFFFFF;
+      padding: 12px 22px;
+      border-radius: var(--radius-md);
+      background: #21262D;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #EDEDED;
       text-decoration: none;
-      font-size: 1.1rem;
-      font-weight: 700;
-      box-shadow: 0 10px 30px rgba(234, 74, 170, 0.4);
-      transition: all 0.25s;
+      font-size: 0.92rem;
+      font-weight: 600;
+      transition: all 0.15s;
     }
-    .btn-sponsor:hover {
-      background: #FF5BBF;
-      transform: translateY(-2px);
-      box-shadow: 0 14px 40px rgba(234, 74, 170, 0.6);
+    .btn-gh-sponsor:hover {
+      background: #30363D;
+      border-color: rgba(255, 255, 255, 0.28);
+      color: #FFFFFF;
+    }
+    .btn-gh-sponsor svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    .tier-matrix {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      padding-top: 24px;
+      border-top: 1px solid var(--card-border);
+    }
+    .tier-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      transition: border-color 0.15s;
+    }
+    .tier-item:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .tier-badge {
+      font-size: 0.74rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .tier-amount {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-bottom: 8px;
+    }
+    .tier-amount span {
+      font-size: 0.85rem;
+      color: var(--text-subtle);
+      font-weight: 400;
+    }
+    .tier-desc {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.5;
     }
 
     /* Footer */
     footer {
       border-top: 1px solid var(--card-border);
-      padding: 50px 0;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      text-align: center;
+      padding: 40px 0;
+      color: var(--text-subtle);
+      font-size: 0.85rem;
+    }
+    .footer-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
     }
     .footer-links {
       display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin-bottom: 20px;
+      gap: 20px;
     }
     .footer-links a {
       color: var(--text-muted);
       text-decoration: none;
-      transition: color 0.2s;
+      transition: color 0.15s;
     }
     .footer-links a:hover {
       color: var(--text);
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
-      .hero { padding: 60px 0 40px; }
+      .hero { padding: 50px 0 30px; }
       .hero-cta-group { flex-direction: column; }
       .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
-      .nav-links .nav-link { display: none; }
-      .demo-card { padding: 20px; }
-      .sponsors-banner { padding: 30px 20px; }
+      .sponsors-card { padding: 24px; }
+      .footer-content { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Background Ambient Glow -->
-  <div class="ambient-glow">
-    <div class="glow-orb-1"></div>
-    <div class="glow-orb-2"></div>
-    <div class="glow-orb-3"></div>
-  </div>
+  <div class="bg-grid"></div>
 
   <!-- Header -->
   <header>
@@ -729,290 +629,271 @@
       <a href="#" class="brand">
         <div class="brand-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" fill="url(#micGrad)"></path>
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-            <line x1="12" x2="12" y1="19" y2="22"></line>
-            <defs>
-              <linearGradient id="micGrad" x1="9" y1="2" x2="15" y2="12" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#FF6B4A"/>
-                <stop offset="0.5" stop-color="#B740FF"/>
-                <stop offset="1" stop-color="#00D2FF"/>
-              </linearGradient>
-            </defs>
+            <line x1="12" y1="19" x2="12" y2="22"></line>
           </svg>
         </div>
         <span>LocalFlow</span>
       </a>
       <div class="nav-links">
-        <a href="#features" class="nav-link">Features</a>
-        <a href="#demo" class="nav-link">Live Demo</a>
-        <a href="#comparison" class="nav-link">Vergleich</a>
+        <a href="#features" class="nav-link">Architektur</a>
+        <a href="#demo" class="nav-link">Simulator</a>
+        <a href="#matrix" class="nav-link">Vergleich</a>
         <a href="#sponsors" class="nav-link">Sponsoring</a>
         <a href="https://github.com/therealone00/LocalFlow" target="_blank" class="nav-link">GitHub</a>
         <a href="https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow-v1.0.0.dmg" class="btn-nav-download">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-1.08 1.73-.95 2.76 1.01.08 2.05-.51 2.68-1.26z"/></svg>
-          Download DMG
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-1.08 1.73-.95 2.76 1.01.08 2.05-.51 2.68-1.26z"/></svg>
+          Download .dmg
         </a>
       </div>
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <main>
+  <main class="container">
+    <!-- Hero Section -->
     <section class="hero">
-      <div class="container">
-        <div class="badge-pill">
-          <span class="pulse-dot"></span>
-          100% On-Device • Apple Neural Engine • Kein Abo
+      <div class="badge-pill">
+        <span class="status-indicator"></span>
+        <span>Local Neural Engine • Zero Cloud • macOS 14.0+</span>
+      </div>
+
+      <h1 class="hero-title">
+        Native Spracheingabe.<br>
+        <span>Vollständig lokal auf deinem Mac.</span>
+      </h1>
+
+      <p class="hero-desc">
+        LocalFlow transkribiert gesprochene Sprache über WhisperKit auf der Apple Silicon Neural Engine in unter 0,8 Sekunden. Der bereinigte Text wird direkt in die aktive Anwendung eingefügt — ohne Cloud-Server, ohne Latenz und ohne monatliche Gebühren.
+      </p>
+
+      <div class="hero-cta-group">
+        <a href="https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow-v1.0.0.dmg" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-1.08 1.73-.95 2.76 1.01.08 2.05-.51 2.68-1.26z"/></svg>
+          Installer herunterladen (v1.0.0 DMG)
+        </a>
+        <a href="https://github.com/therealone00/LocalFlow" target="_blank" class="btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          Quellcode auf GitHub
+        </a>
+      </div>
+
+      <div class="hero-meta">
+        <span>macOS 14.0+</span>
+        <span>•</span>
+        <span>Apple Silicon M1/M2/M3/M4</span>
+        <span>•</span>
+        <span>2,3 MB DMG</span>
+      </div>
+
+      <div class="showcase-frame">
+        <img src="assets/hero.jpg" alt="LocalFlow macOS Benutzeroberfläche">
+      </div>
+    </section>
+
+    <!-- Interactive Simulator -->
+    <section id="demo" class="section-wrap">
+      <div class="section-header">
+        <div class="section-tag">Simulator</div>
+        <h2 class="section-title">Echtzeit-Textinjektion & Bereinigung</h2>
+        <p class="section-desc">Testen Sie, wie LocalFlow gesprochene Füllwörter und Versprecher lokal herausfiltert, bevor der finale Text im Zielprogramm erscheint.</p>
+      </div>
+
+      <div class="demo-sandbox">
+        <div class="sandbox-top">
+          <div class="sandbox-pill-state">
+            <div class="rec-indicator"></div>
+            <div class="eq-bars">
+              <div class="eq-bar"></div>
+              <div class="eq-bar"></div>
+              <div class="eq-bar"></div>
+              <div class="eq-bar"></div>
+              <div class="eq-bar"></div>
+              <div class="eq-bar"></div>
+              <div class="eq-bar"></div>
+            </div>
+            <span style="font-size: 0.8rem; font-weight: 500; color: #EDEDED;" id="demoStatus">Bereit (HotKey halten)</span>
+            <span class="app-tag">Zielfeld: TextEdit</span>
+          </div>
+          <span style="font-size: 0.78rem; color: var(--text-subtle); font-family: monospace;">Inference: 0.72s ANE</span>
         </div>
 
-        <h1 class="hero-title">
-          Sprich im Flow.<br>
-          <span>Direkt getippt auf deinem Mac.</span>
-        </h1>
+        <div class="editor-terminal">
+          <span id="editorContent">Klicken Sie unten auf ein Beispiel, um die automatische Bereinigung zu demonstrieren…</span><span class="cursor-caret"></span>
+        </div>
 
-        <p class="hero-desc">
-          LocalFlow bringt dir müheloses AI-Diktat für macOS – inspiriert von Wispr Flow, aber <strong>vollständig offline</strong>. In unter 0,8 Sekunden auf der Apple Neural Engine transkribiert und ohne Umwege in jede App eingefügt.
-        </p>
+        <div class="sample-triggers">
+          <button class="btn-sample active" onclick="runDemo(1)">Beispiel 1: Füllwort-Filterung (äh, sozusagen)</button>
+          <button class="btn-sample" onclick="runDemo(2)">Beispiel 2: Spontane Selbstkorrektur</button>
+          <button class="btn-sample" onclick="runDemo(3)">Beispiel 3: Technische Interpunktion</button>
+        </div>
+      </div>
+    </section>
 
-        <div class="hero-cta-group">
-          <a href="https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow-v1.0.0.dmg" class="btn-primary">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-1.08 1.73-.95 2.76 1.01.08 2.05-.51 2.68-1.26z"/></svg>
-            Kostenlos herunterladen (.dmg)
+    <!-- Technical Architecture -->
+    <section id="features" class="section-wrap">
+      <div class="section-header">
+        <div class="section-tag">Spezifikationen</div>
+        <h2 class="section-title">Nativ. Ressourcenschonend. Autark.</h2>
+        <p class="section-desc">Entwickelt in Swift und SwiftUI für minimale CPU-Last und null Speicher-Leaks.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="spec-card">
+          <div class="spec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 3v6"/><path d="M9 3v6"/><path d="M9 15v6"/><path d="M15 15v6"/></svg>
+          </div>
+          <h3>Apple Neural Engine</h3>
+          <p>CoreML-Inferenz über WhisperKit direkt auf den hardwarebeschleunigten 16-Core Neural Processing Units der Apple Silicon Prozessoren.</p>
+        </div>
+
+        <div class="spec-card">
+          <div class="spec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Vollständige Datensouveränität</h3>
+          <p>Keine Übertragung von Audiodaten oder Transkripten an externe Server. Die Sprachdaten verbleiben ausschließlich im flüchtigen Arbeitsspeicher.</p>
+        </div>
+
+        <div class="spec-card">
+          <div class="spec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+          </div>
+          <h3>Direkte Textinjektion</h3>
+          <p>Schreibt über macOS Accessibility APIs direkt an die aktive Cursorposition in Safari, Slack, VS Code, Mail, Obsidian oder Terminal.</p>
+        </div>
+
+        <div class="spec-card">
+          <div class="spec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+          </div>
+          <h3>Regelbasierte Vorfilterung</h3>
+          <p>Deterministische Parsing-Algorithmen entfernen Füllfloskeln, bereinigen Whisper-Artefakte und korrigieren Satzkonstruktionen in Millisekunden.</p>
+        </div>
+
+        <div class="spec-card">
+          <div class="spec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+          </div>
+          <h3>Kein Abonnement</h3>
+          <p>Vollständig unter Open-Source-Lizenz (MIT). Keine wiederkehrenden monatlichen SaaS-Kosten für alltägliche Spracheingabe.</p>
+        </div>
+
+        <div class="spec-card">
+          <div class="spec-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+          </div>
+          <h3>Flexible Tastenmodi</h3>
+          <p>Push-to-Talk über Hold Fn (Globus-Taste), rechte Option-Taste oder Control + Option. Automatische Umschaltung auf Freisprechmodus bei kurzem Antippen.</p>
+        </div>
+      </div>
+
+      <div class="showcase-frame" style="margin-top: 36px;">
+        <img src="assets/architecture.jpg" alt="LocalFlow Architekturdiagramm">
+      </div>
+    </section>
+
+    <!-- Comparison Matrix -->
+    <section id="matrix" class="section-wrap">
+      <div class="section-header">
+        <div class="section-tag">Systemvergleich</div>
+        <h2 class="section-title">Technische Gegenüberstellung</h2>
+        <p class="section-desc">Direkter Vergleich von LocalFlow mit Cloud-Diensten und herkömmlichen Diktierlösungen.</p>
+      </div>
+
+      <div class="matrix-box">
+        <table>
+          <thead>
+            <tr>
+              <th>Funktion</th>
+              <th class="col-focus">LocalFlow</th>
+              <th>Wispr Flow</th>
+              <th>Superwhisper</th>
+              <th>macOS Standard</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Inferenz-Ort</td>
+              <td class="col-focus"><span class="tag-yes">100% Lokal (ANE)</span></td>
+              <td>Cloud-Server</td>
+              <td>Lokal / Hybrid</td>
+              <td>Hybrid</td>
+            </tr>
+            <tr>
+              <td>Preismodell</td>
+              <td class="col-focus"><span class="tag-yes">Kostenlos (MIT)</span></td>
+              <td>12–15 $/Monat</td>
+              <td>8 $/Monat</td>
+              <td>Inkludiert</td>
+            </tr>
+            <tr>
+              <td>Latenz</td>
+              <td class="col-focus">~0,7s (Neural Engine)</td>
+              <td>1,2s–2,5s (Netzwerk)</td>
+              <td>~0,9s</td>
+              <td>Variabel</td>
+            </tr>
+            <tr>
+              <td>Audiodaten-Upload</td>
+              <td class="col-focus"><span class="tag-yes">Keiner (0 Byte)</span></td>
+              <td>Ja (Cloud API)</td>
+              <td>Je nach Modus</td>
+              <td>Teilweise</td>
+            </tr>
+            <tr>
+              <td>Füllwort-Filter</td>
+              <td class="col-focus"><span class="tag-yes">Integriert</span></td>
+              <td>Integriert</td>
+              <td>Nur Pro-Version</td>
+              <td><span class="tag-no">Nein</span></td>
+            </tr>
+            <tr>
+              <td>Selbstkorrekturen</td>
+              <td class="col-focus"><span class="tag-yes">Lokal analysiert</span></td>
+              <td>Cloud-LLM</td>
+              <td>Nur Pro-Version</td>
+              <td><span class="tag-no">Nein</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- GitHub Sponsors Section — Clean Monochrome & Subtle Graphite (No Pink) -->
+    <section id="sponsors" class="sponsors-wrap">
+      <div class="sponsors-card">
+        <div class="sponsors-header">
+          <div class="sponsors-info">
+            <h2>Projekt unterstützen via GitHub Sponsors</h2>
+            <p>
+              LocalFlow wird unabhängig und ohne Wagniskapital entwickelt. Sponsoring unterstützt die Pflege zukünftiger macOS-Kompatibilität, Modell-Updates und die Implementierung weiterer lokaler Sprachfeatures.
+            </p>
+          </div>
+          <a href="https://github.com/sponsors/therealone00" target="_blank" class="btn-gh-sponsor">
+            <svg viewBox="0 0 16 16"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.6-1.2-1.6 1.2a.25.25 0 0 1-.4-.2Z"/></svg>
+            Auf GitHub unterstützen
           </a>
-          <a href="https://github.com/therealone00/LocalFlow" target="_blank" class="btn-secondary">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-            Auf GitHub ansehen
-          </a>
         </div>
 
-        <div class="hero-meta">
-          <span>🍎 macOS 14.0+ Sonoma & Sequoia</span>
-          <span>⚡ M1/M2/M3/M4 & Intel</span>
-          <span>📦 Nur ~2.3 MB Installer</span>
-        </div>
-
-        <!-- Hero Showcase Mockup -->
-        <div class="hero-visual-wrap">
-          <img src="assets/hero.jpg" alt="LocalFlow Floating Bar & UI Mockup">
-        </div>
-      </div>
-    </section>
-
-    <!-- Interactive Demo Section -->
-    <section id="demo" class="interactive-demo-section">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-tag">Interaktive Vorschau</div>
-          <h2 class="section-title">Erlebe die Floating Bar in Aktion</h2>
-          <p class="section-desc">Klicke auf einen Beispielsatz unten, um die lokale Textbereinigung und den Echtzeit-Diktatflow zu testen.</p>
-        </div>
-
-        <div class="demo-card">
-          <div class="demo-simulator">
-            <!-- Simulated Floating Pill -->
-            <div class="floating-bar-replica" id="demoPill">
-              <div class="rec-indicator">
-                <div class="rec-pulse-ring"></div>
-              </div>
-              <div class="app-badge">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
-                <span>Slack</span>
-              </div>
-              <div class="eq-bars">
-                <div class="eq-bar"></div>
-                <div class="eq-bar"></div>
-                <div class="eq-bar"></div>
-                <div class="eq-bar"></div>
-                <div class="eq-bar"></div>
-                <div class="eq-bar"></div>
-                <div class="eq-bar"></div>
-              </div>
-              <span style="font-size: 0.85rem; font-weight: 600; color: #00D2FF; margin-left: 4px;" id="demoStatus">Aufnahme läuft…</span>
-            </div>
-
-            <!-- Virtual Text Field -->
-            <div class="demo-editor">
-              <div class="demo-editor-header">
-                <div class="demo-window-dots">
-                  <span class="demo-dot dot-red"></span>
-                  <span class="demo-dot dot-yellow"></span>
-                  <span class="demo-dot dot-green"></span>
-                </div>
-                <span>Target App: #general — Slack</span>
-                <span>Fokus aktiv</span>
-              </div>
-              <div id="editorContent">Klicke unten auf einen Beispielsatz, um das automatische Diktieren und Bereinigen zu simulieren…</div><span class="typing-cursor"></span>
-            </div>
-
-            <!-- Test Prompts -->
-            <div class="demo-controls">
-              <button class="btn-demo-phrase active" onclick="runDemo(1)">🗣️ Spontaner Projekt-Status (Füllwörter-Filter)</button>
-              <button class="btn-demo-phrase" onclick="runDemo(2)">🔄 Selbstkorrektur („um 14 Uhr, nein um 15 Uhr“)</button>
-              <button class="btn-demo-phrase" onclick="runDemo(3)">⚡ Schneller Code-Kommentar (English & German)</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Features Grid -->
-    <section id="features" class="features-section">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-tag">Architektur & Leistung</div>
-          <h2 class="section-title">Entwickelt für absolute Höchstleistung</h2>
-          <p class="section-desc">Keine Web-Wrapper, kein Electron. 100% natives Swift & SwiftUI, direkt optimiert für Apple Silicon.</p>
-        </div>
-
-        <div class="feature-grid">
-          <div class="feature-card">
-            <div class="feature-icon-wrap icon-ane">⚡</div>
-            <h3>Apple Neural Engine</h3>
-            <p>WhisperKit nutzt die 16-Core Neural Engine von M1 bis M4 voll aus. Latenzen unter 0,8 Sekunden – 16-mal schneller als Echtzeit.</p>
+        <div class="tier-matrix">
+          <div class="tier-item">
+            <div class="tier-badge">Supporter</div>
+            <div class="tier-amount">5 $ <span>/ Monat</span></div>
+            <div class="tier-desc">Unterstützt die laufende Wartung und kontinuierliche Fehlerbehebungen für neue macOS-Versionen.</div>
           </div>
 
-          <div class="feature-card">
-            <div class="feature-icon-wrap icon-privacy">🛡️</div>
-            <h3>100% On-Device Privacy</h3>
-            <p>Kein einziges Audio-Byte verlässt deinen Mac. Alles geschieht im lokalen RAM. Keine Logs, keine Telemetrie, DSGVO-konform by design.</p>
+          <div class="tier-item">
+            <div class="tier-badge">Power User</div>
+            <div class="tier-amount">15 $ <span>/ Monat</span></div>
+            <div class="tier-desc">Priorisierter Issue-Support und Abstimmung über nächste Funktionserweiterungen.</div>
           </div>
 
-          <div class="feature-card">
-            <div class="feature-icon-wrap icon-speed">✍️</div>
-            <h3>Universelle Text-Injektion</h3>
-            <p>Fügt deinen Text direkt an der Cursor-Position ein: in Safari, VS Code, Notes, Slack, Xcode oder Browsern. Kein manuelles Copy-Paste nötig.</p>
+          <div class="tier-item">
+            <div class="tier-badge">Backer</div>
+            <div class="tier-amount">50 $ <span>einmalig</span></div>
+            <div class="tier-desc">Dauerhafte Nennung in den Versionshinweisen und im Repository für Einzelpersonen und Teams.</div>
           </div>
-
-          <div class="feature-card">
-            <div class="feature-icon-wrap icon-polish">🧠</div>
-            <h3>Intelligente Textbereinigung</h3>
-            <p>Entfernt automatisch Füllwörter (<em>„äh“, „ähm“, „quasi“</em>), korrigiert Versprecher (<em>„Dienstag, nein Mittwoch“</em>) und setzt Satzzeichen perfekt.</p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon-wrap icon-glass">🎨</div>
-            <h3>Obsidian-Glass Floating Bar</h3>
-            <p>Flüssige Frosted-Glass Pill mit dynamischem 7-Balken Neon-Equalizer. Stielt niemals den Tastaturfokus des Zielprogramms.</p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon-wrap icon-free">💸</div>
-            <h3>0€ Abo-Kosten</h3>
-            <p>Nie wieder 15 € im Monat für Cloud-Diktate zahlen. Einmal herunterladen, für immer unbegrenzt und uneingeschränkt nutzen.</p>
-          </div>
-        </div>
-
-        <!-- Architecture Diagram Showcase -->
-        <div style="margin-top: 50px;" class="hero-visual-wrap">
-          <img src="assets/architecture.jpg" alt="LocalFlow Architecture">
-        </div>
-      </div>
-    </section>
-
-    <!-- Comparison Table -->
-    <section id="comparison" class="comparison-section">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-tag">Der Unterschied</div>
-          <h2 class="section-title">LocalFlow im direkten Vergleich</h2>
-          <p class="section-desc">Warum lokale Sprachverarbeitung Cloud-Diensten in jeder Hinsicht überlegen ist.</p>
-        </div>
-
-        <div class="comp-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Funktion / Merkmal</th>
-                <th class="highlight">LocalFlow</th>
-                <th>Wispr Flow</th>
-                <th>Superwhisper</th>
-                <th>macOS Diktat</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Cloud-Abhängigkeit</strong></td>
-                <td class="highlight"><span class="check-icon">✓ 0% Offline</span></td>
-                <td><span class="cross-icon">✗ Zwingend Cloud</span></td>
-                <td>Optional</td>
-                <td>Hybrid (Server)</td>
-              </tr>
-              <tr>
-                <td><strong>Kosten / Abo</strong></td>
-                <td class="highlight"><strong style="color: #34C759;">0 € / Open Source</strong></td>
-                <td>12–15 $ / Monat</td>
-                <td>8 $ / Monat</td>
-                <td>Kostenlos</td>
-              </tr>
-              <tr>
-                <td><strong>Apple Neural Engine (ANE)</strong></td>
-                <td class="highlight"><span class="check-icon">✓ Native CoreML</span></td>
-                <td><span class="cross-icon">✗ Cloud GPU</span></td>
-                <td>✓ Local CoreML</td>
-                <td>Standard</td>
-              </tr>
-              <tr>
-                <td><strong>DSGVO & Datenschutz</strong></td>
-                <td class="highlight"><span class="check-icon">✓ 100% Sicher (Kein Upload)</span></td>
-                <td><span class="cross-icon">✗ Daten an Server</span></td>
-                <td>Abhängig vom Modus</td>
-                <td>Apple-Datenschutz</td>
-              </tr>
-              <tr>
-                <td><strong>Selbstkorrektur-Erkennung</strong></td>
-                <td class="highlight"><span class="check-icon">✓ Lokal integriert</span></td>
-                <td>✓ Cloud LLM</td>
-                <td>Nur in Pro-Tier</td>
-                <td><span class="cross-icon">✗ Keine</span></td>
-              </tr>
-              <tr>
-                <td><strong>Füllwort-Filterung</strong></td>
-                <td class="highlight"><span class="check-icon">✓ Deutsch & Englisch</span></td>
-                <td>✓ Vorhanden</td>
-                <td>✓ Vorhanden</td>
-                <td><span class="cross-icon">✗ Keine</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- GitHub Sponsors Section -->
-    <section id="sponsors" class="sponsors-section">
-      <div class="container">
-        <div class="sponsors-banner">
-          <div class="sponsor-heart">♥</div>
-          <h2 class="sponsor-title">Unterstütze LocalFlow via GitHub Sponsors</h2>
-          <p class="sponsor-desc">
-            LocalFlow ist ein unabhängiges Open-Source-Projekt ohne VC-Kapital und ohne Werbung. Dein Sponsoring sichert die kontinuierliche Weiterentwicklung, neue Sprachmodelle und Updates für künftige macOS-Versionen.
-          </p>
-
-          <div class="tier-cards">
-            <div class="tier-card">
-              <div class="tier-name">☕ Supporter</div>
-              <div class="tier-price">5 $ <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-muted);">/ Monat</span></div>
-              <p>Halte die Entwicklung mit einem Kaffee am Laufen. Dein Name erscheint in der offiziellen Supporter-Liste.</p>
-            </div>
-
-            <div class="tier-card" style="border-color: rgba(234, 74, 170, 0.4); background: rgba(234, 74, 170, 0.08);">
-              <div class="tier-name">🚀 Power User</div>
-              <div class="tier-price">15 $ <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-muted);">/ Monat</span></div>
-              <p>Stimme direkt über nächste Features ab, erhalte Vorabzugriff auf Beta-Builds und priorisierten Bugfix-Support.</p>
-            </div>
-
-            <div class="tier-card">
-              <div class="tier-name">👑 Champion / Backer</div>
-              <div class="tier-price">50 $ <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-muted);">einmalig</span></div>
-              <p>Für Teams und Power-Nutzer, die lokale Privatsphäre auf dem Mac dauerhaft voranbringen möchten.</p>
-            </div>
-          </div>
-
-          <a href="https://github.com/sponsors/therealone00" target="_blank" class="btn-sponsor">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            Jetzt Sponsor auf GitHub werden
-          </a>
         </div>
       </div>
     </section>
@@ -1020,30 +901,31 @@
 
   <!-- Footer -->
   <footer>
-    <div class="container">
-      <div class="footer-links">
-        <a href="https://github.com/therealone00/LocalFlow" target="_blank">GitHub Repository</a>
-        <a href="https://github.com/therealone00/LocalFlow/releases" target="_blank">Releases & Changelog</a>
-        <a href="https://github.com/sponsors/therealone00" target="_blank">GitHub Sponsors</a>
-        <a href="https://github.com/therealone00/LocalFlow/blob/main/LICENSE" target="_blank">MIT Lizenz</a>
+    <div class="container footer-content">
+      <div>
+        <p>© 2026 LocalFlow Contributors & <a href="https://github.com/therealone00" style="color: inherit; text-decoration: underline;">therealone00</a>. MIT License.</p>
       </div>
-      <p>© 2026 LocalFlow Contributors & <a href="https://github.com/therealone00" style="color: inherit; text-decoration: underline;">therealone00</a>. Entwickelt mit Leidenschaft für macOS.</p>
+      <div class="footer-links">
+        <a href="https://github.com/therealone00/LocalFlow" target="_blank">Repository</a>
+        <a href="https://github.com/therealone00/LocalFlow/releases" target="_blank">Releases</a>
+        <a href="https://github.com/sponsors/therealone00" target="_blank">GitHub Sponsors</a>
+        <a href="https://github.com/therealone00/LocalFlow/blob/main/LICENSE" target="_blank">Lizenz</a>
+      </div>
     </div>
   </footer>
 
-  <!-- Interactive Demo Script -->
   <script>
     const demos = {
       1: {
-        raw: "Also ich habe, äh, die Datenpipeline jetzt fertiggestellt und sozusagen für das Release vorbereitet.",
+        raw: "Ich habe, äh, die Datenpipeline jetzt fertiggestellt und sozusagen für das Release vorbereitet.",
         cleaned: "Ich habe die Datenpipeline jetzt fertiggestellt und für das Release vorbereitet."
       },
       2: {
-        raw: "Lass uns das Meeting morgen um 14 Uhr, nein warte um 15 Uhr 30 machen.",
-        cleaned: "Lass uns das Meeting morgen um 15:30 Uhr machen."
+        raw: "Lass uns den Termin morgen um 14 Uhr, nein warte um 15 Uhr 30 machen.",
+        cleaned: "Lass uns den Termin morgen um 15:30 Uhr machen."
       },
       3: {
-        raw: "Hier müssen wir den buffer threadsafe mit einem lock absichern damit keine race conditions entstehen.",
+        raw: "Hier müssen wir den buffer threadsafe mit einem lock absichern damit keine race conditions entstehen punkt",
         cleaned: "Hier müssen wir den Buffer thread-safe mit einem Lock absichern, damit keine Race Conditions entstehen."
       }
     };
@@ -1051,7 +933,7 @@
     let typingTimer = null;
 
     function runDemo(id) {
-      document.querySelectorAll('.btn-demo-phrase').forEach((btn, idx) => {
+      document.querySelectorAll('.btn-sample').forEach((btn, idx) => {
         btn.classList.toggle('active', idx === id - 1);
       });
 
@@ -1061,15 +943,11 @@
       
       clearTimeout(typingTimer);
       
-      // Step 1: Listening state
       status.innerText = "Transkribiere lokal (Neural Engine)…";
-      status.style.color = "#B740FF";
-      editor.innerHTML = `<span style="color: #6B7280; font-style: italic;">"${demo.raw}"</span>`;
+      editor.innerHTML = `<span style="color: #71717A; font-style: italic;">"${demo.raw}"</span>`;
 
-      // Step 2: Cleaned & inserted state after brief local inference delay
       typingTimer = setTimeout(() => {
-        status.innerText = "✓ Eingefügt";
-        status.style.color = "#34C759";
+        status.innerText = "Eingefügt (0.72s)";
         
         let currentText = "";
         let charIndex = 0;
@@ -1079,16 +957,15 @@
             currentText += demo.cleaned[charIndex];
             editor.innerText = currentText;
             charIndex++;
-            typingTimer = setTimeout(typeChar, 18);
+            typingTimer = setTimeout(typeChar, 14);
           } else {
             setTimeout(() => {
-              status.innerText = "Bereit (Fn halten)";
-              status.style.color = "#00D2FF";
-            }, 1200);
+              status.innerText = "Bereit (HotKey halten)";
+            }, 1400);
           }
         };
         typeChar();
-      }, 700);
+      }, 550);
     }
   </script>
 </body>

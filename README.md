@@ -1,20 +1,20 @@
 <p align="center">
-  <img src="assets/hero.jpg" alt="LocalFlow Banner" width="100%" style="border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);" />
+  <img src="assets/hero.jpg" alt="LocalFlow Banner" width="100%" style="border-radius: 8px;" />
 </p>
 
 <h1 align="center">LocalFlow</h1>
 
 <p align="center">
-  <strong>100% Offline, Native macOS AI Dictation — Powered by Apple Neural Engine & WhisperKit</strong><br>
-  <em>Speak naturally in any Mac app. Real-time local transcription. Zero cloud lag. Zero subscriptions. Zero data leaks.</em>
+  <strong>100% Offline, Native macOS Speech-to-Text — Powered by Apple Neural Engine & WhisperKit</strong><br>
+  <em>System-wide voice input. Sub-0.8s on-device inference. Zero cloud dependencies. Zero subscriptions.</em>
 </p>
 
 <p align="center">
   <a href="https://github.com/therealone00/LocalFlow/releases/latest"><img src="https://img.shields.io/github/v/release/therealone00/LocalFlow?color=00D2FF&label=Release&style=flat-square" alt="Release"></a>
   <img src="https://img.shields.io/badge/macOS-14.0%2B-black?style=flat-square&logo=apple" alt="macOS 14.0+">
-  <img src="https://img.shields.io/badge/Apple%20Silicon-Neural%20Engine-B740FF?style=flat-square" alt="Apple Silicon ANE">
+  <img src="https://img.shields.io/badge/Apple%20Silicon-Neural%20Engine-black?style=flat-square" alt="Apple Silicon ANE">
   <img src="https://img.shields.io/badge/Privacy-100%25%20On--Device-34C759?style=flat-square" alt="100% On-Device">
-  <a href="https://github.com/sponsors/therealone00"><img src="https://img.shields.io/badge/Sponsor-%E2%99%A5%20therealone00-EA4AAA?style=flat-square" alt="Sponsor"></a>
+  <a href="https://github.com/sponsors/therealone00"><img src="https://img.shields.io/badge/Sponsor-therealone00-24292F?style=flat-square&logo=github" alt="Sponsor"></a>
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License">
 </p>
 
@@ -23,35 +23,35 @@
   <a href="#-features"><strong>Features</strong></a> •
   <a href="#-architecture"><strong>Architecture</strong></a> •
   <a href="#-comparison"><strong>Comparison</strong></a> •
-  <a href="#-github-sponsors--support"><strong>Sponsor</strong></a> •
+  <a href="#-support--sponsorship"><strong>Sponsor</strong></a> •
   <a href="https://therealone00.github.io/LocalFlow/"><strong>Website</strong></a>
 </p>
 
 ---
 
-## ⚡ What is LocalFlow?
+## Overview
 
-Inspired by the fluidity of Wispr Flow, **LocalFlow** brings frictionless voice dictation into macOS with one fundamental principle:
+LocalFlow provides frictionless, system-wide speech dictation across macOS with a strict design requirement:
 
-> **EVERY SINGLE BYTE OF SPEECH STAYS ON YOUR MAC.**
-> No cloud transcription. No OpenAI or Google APIs. No audio uploads. No accounts. No monthly subscriptions.
+> **All audio processing, feature extraction, neural inference, and text polishing run entirely on-device.**
+> No cloud transcription. No external APIs. Zero data egress. No user accounts. No subscription walls.
 
-Whether you're writing code in **VS Code**, replying in **Slack**, drafting an email in **Mail / Safari**, or taking notes in **Obsidian / Notes**, hold your hotkey, speak your mind, and LocalFlow types your words directly into the cursor position in **under 0.8 seconds**.
+Holding your configured hotkey triggers real-time audio capture, routes 16kHz audio buffers to WhisperKit on the Apple Neural Engine, runs deterministic text cleanup, and writes directly into your focused cursor position in **under 0.8 seconds**.
 
 ---
 
-## 🚀 Download & Installation
+## Download & Installation
 
-### Option 1: Direct DMG Download (Recommended)
+### Direct DMG Download (Recommended)
 
-1. Download the latest **[LocalFlow-v1.0.0.dmg](https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow-v1.0.0.dmg)**.
+1. Download **[LocalFlow-v1.0.0.dmg](https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow-v1.0.0.dmg)**.
 2. Open the disk image and drag **LocalFlow.app** into your **Applications** folder.
 3. Launch LocalFlow from Applications or Spotlight (`Cmd + Space`).
-4. Follow the 1-click permission prompt:
-   - **Mikrofon**: Local on-device audio recording.
-   - **Bedienungshilfen (Accessibility)**: Required to inject text directly into your active cursor in any app.
+4. Grant the standard macOS permissions:
+   - **Microphone**: Local audio capture.
+   - **Accessibility**: Required to inject text directly into third-party active fields.
 
-### Option 2: Build from Source
+### Build from Source
 
 ```bash
 git clone https://github.com/therealone00/LocalFlow.git
@@ -62,35 +62,35 @@ open build/LocalFlow.app
 
 ---
 
-## ✨ Features
+## Core Specifications
 
-- 🎙️ **Universal Direct Text Injection**: Writes directly into Safari, Chrome, Slack, TextEdit, VS Code, Notes, Cursor, etc.
-- ⚡ **Apple Neural Engine Acceleration**: WhisperKit runs whisper-base / whisper-tiny in ~0.7s at 16x real-time speed.
-- 🎨 **Obsidian-Glass Floating Bar**: Ultra-thin frosted glass with pulsing recording ring, active target app badge, and fluid 7-bar vertical neon gradient equalizer.
-- ⌨️ **Push-to-Talk & Hands-Free Toggle**:
-  - Hold `Fn` (Globe) or `Right Option` to speak, release to insert.
-  - Quick-tap enters hands-free mode; press `Enter` or the hotkey again to finish.
+- **Universal Direct Text Injection**: Direct AX selected text injection or synchronized HID keyboard events into Safari, Chrome, Slack, VS Code, Notes, Xcode, Terminal, etc.
+- **Apple Silicon Neural Engine Acceleration**: WhisperKit CoreML inference executes on the 16-core ANE in ~0.7s at 16x real-time factor.
+- **Obsidian-Glass Floating Panel**: Minimalist `.ultraThinMaterial` panel with dynamic 7-bar vertical gradient equalizer and non-activating window level.
+- **Push-to-Talk & Hands-Free Modes**:
+  - Hold `Fn` (Globe) or `Right Option` to speak, release to commit.
+  - Brief tap triggers hands-free mode; press `Return` or hotkey again to finish.
   - Also supports `Control + Option` and custom keybindings.
-- 🧠 **On-Device Text Intelligence**:
-  - Removes German & English filler words (*„äh“, „ähm“, „quasi“, „sozusagen“, „like“, „you know“*).
-  - Automatically resolves spoken self-corrections (*„morgen um 3, nein um 4 Uhr“ ➔ „morgen um 4 Uhr“*).
-  - Smart automatic punctuation and capitalization.
-- 🛡️ **Zero-Trust Privacy**: Audio buffer is kept in RAM and discarded immediately after transcription. No logs, no telemetry, no network calls.
+- **Deterministic Text Intelligence**:
+  - Filters German & English conversational filler words (*„äh“, „ähm“, „quasi“, „sozusagen“, „like“*).
+  - Spoken self-correction parser (*„morgen um 14, nein um 15 Uhr“ ➔ „morgen um 15 Uhr“*).
+  - Contextual punctuation and capitalization.
+- **Zero Data Retention**: Audio buffers exist solely in volatile RAM during recording and are purged immediately after transcription.
 
 ---
 
-## 🔬 Architecture & Privacy
+## Architecture
 
 <p align="center">
-  <img src="assets/architecture.jpg" alt="LocalFlow Architecture Diagram" width="100%" style="border-radius: 12px;" />
+  <img src="assets/architecture.jpg" alt="LocalFlow Architecture" width="100%" style="border-radius: 8px;" />
 </p>
 
 ```
 [ Microphone Input ] 
-       │ 16kHz Float32 Buffer (os_unfair_lock, Zero Jitter)
+       │ 16kHz Float32 Ring Buffer (os_unfair_lock, Zero Jitter)
        ▼
 [ Voice Activity Detector (VAD) ]
-       │ Energy-adaptive silence cut
+       │ Energy-adaptive silence detection
        ▼
 [ WhisperKit Engine ] ──► Apple Neural Engine (ANE) / CoreML
        │ ~0.7s local inference
@@ -105,38 +105,39 @@ open build/LocalFlow.app
 
 ---
 
-## 📊 Comparison: Why LocalFlow?
+## Technical Comparison
 
-| Feature | LocalFlow | Wispr Flow | Superwhisper | macOS Dictation |
+| Specification | LocalFlow | Wispr Flow | Superwhisper | macOS Dictation |
 | :--- | :---: | :---: | :---: | :---: |
-| **Cloud Dependency** | ❌ **0% Offline** | ☁️ Required | Optional | ☁️ Hybrid |
-| **Monthly Subscription** | 💸 **$0 Free / Open** | $12–$15 / mo | $8 / mo | Free |
-| **Apple Neural Engine** | ⚡ **Native CoreML** | ❌ Cloud GPU | ✅ Local | ❌ Generic |
-| **Privacy & GDPR** | 🛡️ **100% Safe** | ⚠️ Transmitted | ⚠️ Tier-dependent | ⚠️ Apple Server |
-| **Direct Text Insertion**| ✅ Universal | ✅ Universal | ✅ Universal | ⚠️ Basic |
-| **Smart Self-Correction**| ✅ Intelligent | ✅ Cloud AI | ⚠️ Pro only | ❌ None |
+| **Inference Location** | **100% On-Device** | Cloud Server | Local / Hybrid | Hybrid |
+| **Cost** | **$0 / MIT Open Source** | $12–$15 / mo | $8 / mo | Included |
+| **Hardware Target** | **Apple Neural Engine** | Cloud GPU | Local CoreML | Standard |
+| **Audio Egress** | **0 Bytes (RAM only)** | Uploaded | Mode-dependent | Partial |
+| **Direct Text Insertion** | Universal | Universal | Universal | Basic |
+| **Self-Correction Logic** | Local Parser | Cloud LLM | Pro tier only | None |
+| **Filler Filtering** | German & English | Cloud LLM | Pro tier only | None |
 
 ---
 
-## 💖 GitHub Sponsors & Support
+## Support & Sponsorship
 
-LocalFlow is 100% free, open-source, and privacy-respecting software built with passion.
+LocalFlow is developed independently as free, open-source software.
 
-If LocalFlow saves you time and elevates your Mac workflow, please consider backing development on **[GitHub Sponsors](https://github.com/sponsors/therealone00)**:
+If LocalFlow accelerates your workflow, you can back ongoing maintenance, new language models, and future macOS compatibility through **[GitHub Sponsors](https://github.com/sponsors/therealone00)**:
 
 <p align="center">
   <a href="https://github.com/sponsors/therealone00">
-    <img src="https://img.shields.io/badge/Sponsor%20LocalFlow-%E2%99%A5-EA4AAA?style=for-the-badge&logo=githubsponsors" alt="Sponsor on GitHub" height="40">
+    <img src="https://img.shields.io/badge/Sponsor%20LocalFlow-GitHub%20Sponsors-24292F?style=for-the-badge&logo=github" alt="Sponsor on GitHub" height="38">
   </a>
 </p>
 
-Your sponsorship funds:
-- New model fine-tuning & multilingual optimizations.
-- Future local LLM integration (e.g. Llama 3 / Mistral via MLX on Apple Silicon).
-- Continued maintenance, updates for future macOS versions, and zero telemetry.
+Sponsorship support directly funds:
+- Model fine-tuning and multilingual optimization.
+- Maintenance across upcoming macOS operating system releases.
+- Local on-device LLM integration via MLX / CoreML.
 
 ---
 
-## 📄 License
+## License
 
 MIT License © 2026 LocalFlow Contributors & [therealone00](https://github.com/therealone00).
