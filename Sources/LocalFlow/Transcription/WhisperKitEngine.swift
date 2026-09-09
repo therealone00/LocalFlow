@@ -23,10 +23,26 @@ public actor WhisperKitEngine: TranscriptionEngine {
         
         AppLogger.transcription.info("Preparing WhisperKit with model: \(self.modelTier.modelId, privacy: .public)")
         
-        let config = WhisperKitConfig(
-            model: modelTier.modelId,
-            downloadBase: AppConstants.whisperKitModelsDirectory
-        )
+        let directFolder = AppConstants.whisperKitModelsDirectory
+            .appendingPathComponent("models/argmaxinc/whisperkit-coreml")
+            .appendingPathComponent(modelTier.modelId)
+        
+        let config: WhisperKitConfig
+        if FileManager.default.fileExists(atPath: directFolder.path) {
+            AppLogger.transcription.info("Loading existing local model directly from: \(directFolder.path, privacy: .public)")
+            config = WhisperKitConfig(
+                modelFolder: directFolder.path,
+                verbose: false,
+                logLevel: .error
+            )
+        } else {
+            config = WhisperKitConfig(
+                model: modelTier.modelId,
+                downloadBase: AppConstants.whisperKitModelsDirectory,
+                verbose: false,
+                logLevel: .error
+            )
+        }
         
         let kit = try await WhisperKit(config)
         self.whisperKit = kit

@@ -17,7 +17,7 @@ public struct ModelsSettingsView: View {
                     .foregroundColor(.secondary)
                 
                 ForEach(modelManager.availableModels) { model in
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
                                 HStack(spacing: 8) {
@@ -45,18 +45,51 @@ public struct ModelsSettingsView: View {
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 
-                                if settingsManager.settings.speechModelTier == model.tier {
-                                    Text("Active")
-                                        .font(.caption)
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(.green)
-                                } else {
-                                    Button("Select") {
-                                        settingsManager.settings.speechModelTier = model.tier
+                                HStack(spacing: 8) {
+                                    if model.isDownloading {
+                                        Button("Cancel") {
+                                            modelManager.cancelDownload()
+                                        }
+                                        .buttonStyle(.bordered)
+                                        .controlSize(.small)
+                                    } else if model.isDownloaded {
+                                        if settingsManager.settings.speechModelTier == model.tier {
+                                            Text("Active")
+                                                .font(.caption)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(.green)
+                                        } else {
+                                            Button("Select") {
+                                                settingsManager.settings.speechModelTier = model.tier
+                                            }
+                                            .buttonStyle(.bordered)
+                                            .controlSize(.small)
+                                        }
+                                        
+                                        Button(role: .destructive) {
+                                            try? modelManager.deleteModel(tier: model.tier)
+                                        } label: {
+                                            Image(systemName: "trash")
+                                                .font(.caption)
+                                        }
+                                        .buttonStyle(.borderless)
+                                    } else {
+                                        Button("Download") {
+                                            modelManager.downloadModel(tier: model.tier)
+                                        }
+                                        .buttonStyle(.borderedProminent)
+                                        .controlSize(.small)
                                     }
-                                    .buttonStyle(.bordered)
-                                    .controlSize(.small)
                                 }
+                            }
+                        }
+                        
+                        if model.isDownloading {
+                            VStack(alignment: .leading, spacing: 4) {
+                                ProgressView(value: model.downloadProgress)
+                                Text(modelManager.currentDownloadStatus)
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
                             }
                         }
                     }

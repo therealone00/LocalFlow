@@ -3,7 +3,7 @@ import AppKit
 import SwiftUI
 
 @MainActor
-public final class AppDelegate: NSObject, NSApplicationDelegate {
+public final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     public static var shared: AppDelegate?
     
     private var statusItem: NSStatusItem?
@@ -41,15 +41,51 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         let menu = NSMenu()
+        menu.delegate = self
+        statusItem?.menu = menu
+        rebuildMenu(menu)
+    }
+    
+    public func menuWillOpen(_ menu: NSMenu) {
+        rebuildMenu(menu)
+    }
+    
+    private func rebuildMenu(_ menu: NSMenu) {
+        menu.removeAllItems()
         
-        let statusMenuItem = NSMenuItem(title: "\(AppConstants.appName): Ready", action: nil, keyEquivalent: "")
+        let state = AppState.shared.dictationState
+        let shortcut = SettingsManager.shared.settings.shortcutMode.rawValue
+        
+        let statusTitle: String
+        switch state {
+        case .idle: statusTitle = "\(AppConstants.appName): Ready"
+        case .preparing: statusTitle = "\(AppConstants.appName): Preparing…"
+        case .listening: statusTitle = "\(AppConstants.appName): 🔴 Recording…"
+        case .processing(let stage): statusTitle = "\(AppConstants.appName): \(stage.rawValue)"
+        case .success: statusTitle = "\(AppConstants.appName): Done"
+        case .error(let msg): statusTitle = "\(AppConstants.appName): Error (\(msg))"
+        case .cancelled: statusTitle = "\(AppConstants.appName): Cancelled"
+        }
+        
+        let statusMenuItem = NSMenuItem(title: statusTitle, action: nil, keyEquivalent: "")
         statusMenuItem.isEnabled = false
         menu.addItem(statusMenuItem)
         menu.addItem(NSMenuItem.separator())
         
-        menu.addItem(NSMenuItem(title: "Start Dictation", action: #selector(startDictation), keyEquivalent: "d"))
-        menu.addItem(NSMenuItem(title: "Hands-Free Dictation", action: #selector(toggleHandsFree), keyEquivalent: "h"))
-        menu.addItem(NSMenuItem(title: "Paste Last Dictation", action: #selector(pasteLastDictation), keyEquivalent: "v"))
+        if state == .listening {
+            menu.addItem(NSMenuItem(title: "Stop Dictation & Insert", action: #selector(stopDictation), keyEquivalent: "d"))
+            menu.addItem(NSMenuItem(title: "Cancel Dictation", action: #selector(cancelDictation), keyEquivalent: "."))
+        } else {
+            let startItem = NSMenuItem(title: "Start Dictation (\(shortcut))", action: #selector(startDictation), keyEquivalent: "d")
+            menu.addItem(startItem)
+            menu.addItem(NSMenuItem(title: "Hands-Free Dictation", action: #selector(toggleHandsFree), keyEquivalent: "h"))
+        }
+        
+        if let last = HistoryManager.shared.lastDictationText {
+            let truncated = last.count > 30 ? String(last.prefix(30)) + "…" : last
+            menu.addItem(NSMenuItem(title: "Paste Last: \"\(truncated)\"", action: #selector(pasteLastDictation), keyEquivalent: "v"))
+        }
+        
         menu.addItem(NSMenuItem.separator())
         
         menu.addItem(NSMenuItem(title: "Settings…", action: #selector(showSettings), keyEquivalent: ","))
@@ -57,8 +93,6 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem.separator())
         
         menu.addItem(NSMenuItem(title: "Quit \(AppConstants.appName)", action: #selector(quitApp), keyEquivalent: "q"))
-        
-        statusItem?.menu = menu
     }
     
     private func setupFloatingBar() {
@@ -104,6 +138,14 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         AppState.shared.startListening()
     }
     
+    @objc public func stopDictation() {
+        AppState.shared.stopListeningAndProcess()
+    }
+    
+    @objc public func cancelDictation() {
+        AppState.shared.cancel()
+    }
+    
     @objc public func toggleHandsFree() {
         AppState.shared.handleHotkeyAction(.toggleHandsFree)
     }
@@ -142,7 +184,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 580, height: 480),
+            contentRect: NSRect(x: 0, y: 0, width: 580, height: 500),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false

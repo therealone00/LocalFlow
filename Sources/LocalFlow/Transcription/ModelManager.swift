@@ -1,4 +1,5 @@
 import Foundation
+import WhisperKit
 
 public struct ModelInfo: Identifiable, Equatable, Sendable {
     public let id: String
@@ -32,11 +33,18 @@ public final class ModelManager: ObservableObject {
         
         var models: [ModelInfo] = []
         for tier in SpeechModelTier.allCases {
-            let modelFolder = wkDir.appendingPathComponent(tier.modelId)
-            let exists = fileManager.fileExists(atPath: modelFolder.path)
+            let directFolder = wkDir.appendingPathComponent("models/argmaxinc/whisperkit-coreml/\(tier.modelId)")
+            let fallbackFolder = wkDir.appendingPathComponent(tier.modelId)
+            
             var sizeOnDisk: Int64 = 0
-            if exists {
-                sizeOnDisk = folderSize(url: modelFolder)
+            var exists = false
+            
+            if fileManager.fileExists(atPath: directFolder.path) {
+                sizeOnDisk = folderSize(url: directFolder)
+                exists = (sizeOnDisk > 10_000_000)
+            } else if fileManager.fileExists(atPath: fallbackFolder.path) {
+                sizeOnDisk = folderSize(url: fallbackFolder)
+                exists = (sizeOnDisk > 10_000_000)
             }
             
             let sizeDesc: String
@@ -46,13 +54,17 @@ public final class ModelManager: ObservableObject {
             case .small: sizeDesc = "~470 MB"
             }
             
+            let isDownloading = (activeDownloadId == tier.modelId)
+            
             models.append(ModelInfo(
                 id: tier.modelId,
                 name: tier.displayName,
                 tier: tier,
                 sizeDescription: sizeDesc,
-                isDownloaded: exists && sizeOnDisk > 10_000_000,
-                localSizeOnDisk: sizeOnDisk
+                isDownloaded: exists,
+                localSizeOnDisk: sizeOnDisk,
+                isDownloading: isDownloading,
+                downloadProgress: isDownloading ? currentDownloadProgress : (exists ? 1.0 : 0.0)
             ))
         }
         
@@ -60,14 +72,68 @@ public final class ModelManager: ObservableObject {
     }
     
     public func isModelDownloaded(tier: SpeechModelTier) -> Bool {
-        let modelFolder = AppConstants.whisperKitModelsDirectory.appendingPathComponent(tier.modelId)
-        return FileManager.default.fileExists(atPath: modelFolder.path) && folderSize(url: modelFolder) > 10_000_000
+        let wkDir = AppConstants.whisperKitModelsDirectory
+        let directFolder = wkDir.appendingPathComponent("models/argmaxinc/whisperkit-coreml/\(tier.modelId)")
+        let fallbackFolder = wkDir.appendingPathComponent(tier.modelId)
+        
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: directFolder.path) && folderSize(url: directFolder) > 10_000_000 {
+            return true
+        }
+        if fileManager.fileExists(atPath: fallbackFolder.path) && folderSize(url: fallbackFolder) > 10_000_000 {
+            return true
+        }
+        return false
+    }
+    
+    public func downloadModel(tier: SpeechModelTier) {
+        cancelDownload()
+        
+        activeDownloadId = tier.modelId
+        currentDownloadProgress = 0.0
+        currentDownloadStatus = "Starting download for \(tier.displayName)…"
+        refreshModelStatus()
+        
+        downloadTask = Task {
+            do {
+                _ = try await WhisperKit.download(
+                    variant: tier.modelId,
+                    downloadBase: AppConstants.whisperKitModelsDirectory
+                ) { [weak self] progress in
+                    Task { @MainActor in
+                        self?.currentDownloadProgress = progress.fractionCompleted
+                        let pct = Int(progress.fractionCompleted * 100)
+                        self?.currentDownloadStatus = "Downloading \(tier.displayName): \(pct)%"
+                        self?.refreshModelStatus()
+                    }
+                }
+                
+                self.activeDownloadId = nil
+                self.currentDownloadProgress = 1.0
+                self.currentDownloadStatus = "\(tier.displayName) ready"
+                self.refreshModelStatus()
+                
+                // Prewarm downloaded model
+                _ = try? await TranscriptionCoordinator.shared.getEngine(settings: SettingsManager.shared.settings)
+            } catch {
+                self.activeDownloadId = nil
+                self.currentDownloadStatus = "Download error: \(error.localizedDescription)"
+                self.refreshModelStatus()
+                AppLogger.models.error("Model download error: \(error.localizedDescription)")
+            }
+        }
     }
     
     public func deleteModel(tier: SpeechModelTier) throws {
-        let modelFolder = AppConstants.whisperKitModelsDirectory.appendingPathComponent(tier.modelId)
-        if FileManager.default.fileExists(atPath: modelFolder.path) {
-            try FileManager.default.removeItem(at: modelFolder)
+        let wkDir = AppConstants.whisperKitModelsDirectory
+        let directFolder = wkDir.appendingPathComponent("models/argmaxinc/whisperkit-coreml/\(tier.modelId)")
+        let fallbackFolder = wkDir.appendingPathComponent(tier.modelId)
+        
+        if FileManager.default.fileExists(atPath: directFolder.path) {
+            try FileManager.default.removeItem(at: directFolder)
+        }
+        if FileManager.default.fileExists(atPath: fallbackFolder.path) {
+            try FileManager.default.removeItem(at: fallbackFolder)
         }
         refreshModelStatus()
     }

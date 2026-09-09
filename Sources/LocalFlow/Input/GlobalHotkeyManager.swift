@@ -18,14 +18,45 @@ public final class GlobalHotkeyManager: ObservableObject {
     
     private var eventTap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
-    private var isFnPressed = false
-    private var lastFnPressTime: Date?
+    private var globalEventMonitor: Any?
+    private var localEventMonitor: Any?
+    
+    private var isKeyDown = false
+    private var lastKeyDownTime: Date?
     
     public init() {}
     
     public func start() {
         stop()
+        setupEventTap()
+        setupNSEventMonitors()
+    }
+    
+    public func stop() {
+        if let tap = eventTap {
+            CGEvent.tapEnable(tap: tap, enable: false)
+            if let source = runLoopSource {
+                CFRunLoopRemoveSource(CFRunLoopGetMain(), source, .commonModes)
+            }
+        }
+        eventTap = nil
+        runLoopSource = nil
         
+        if let monitor = globalEventMonitor {
+            NSEvent.removeMonitor(monitor)
+            globalEventMonitor = nil
+        }
+        if let monitor = localEventMonitor {
+            NSEvent.removeMonitor(monitor)
+            localEventMonitor = nil
+        }
+        
+        isKeyDown = false
+    }
+    
+    // MARK: - Event Tap Setup
+    
+    private func setupEventTap() {
         let mask: CGEventMask = (1 << CGEventType.flagsChanged.rawValue) |
                                 (1 << CGEventType.keyDown.rawValue) |
                                 (1 << CGEventType.keyUp.rawValue)
@@ -40,11 +71,11 @@ public final class GlobalHotkeyManager: ObservableObject {
             callback: { (proxy, type, event, refcon) -> Unmanaged<CGEvent>? in
                 guard let refcon = refcon else { return Unmanaged.passRetained(event) }
                 let manager = Unmanaged<GlobalHotkeyManager>.fromOpaque(refcon).takeUnretainedValue()
-                return manager.handleEvent(proxy: proxy, type: type, event: event)
+                return manager.handleCGEvent(proxy: proxy, type: type, event: event)
             },
             userInfo: observer
         ) else {
-            AppLogger.input.error("Failed to create CGEventTap. Ensure Accessibility permissions are granted.")
+            AppLogger.input.warning("Could not create CGEventTap directly (Accessibility may not be granted yet). NSEvent monitors will act as primary/fallback.")
             return
         }
         
@@ -56,19 +87,25 @@ public final class GlobalHotkeyManager: ObservableObject {
         AppLogger.input.info("Global CGEventTap successfully established.")
     }
     
-    public func stop() {
-        if let tap = eventTap {
-            CGEvent.tapEnable(tap: tap, enable: false)
-            if let source = runLoopSource {
-                CFRunLoopRemoveSource(CFRunLoopGetMain(), source, .commonModes)
-            }
+    // MARK: - NSEvent Monitors Setup
+    
+    private func setupNSEventMonitors() {
+        // Global monitor for events delivered to other applications
+        globalEventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.flagsChanged, .keyDown, .keyUp]) { [weak self] event in
+            self?.handleNSEvent(event)
         }
-        eventTap = nil
-        runLoopSource = nil
+        
+        // Local monitor for events delivered to LocalFlow's own windows (Settings, Onboarding)
+        localEventMonitor = NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged, .keyDown, .keyUp]) { [weak self] event in
+            self?.handleNSEvent(event)
+            return event
+        }
+        AppLogger.input.info("NSEvent global and local monitors registered.")
     }
     
-    private func handleEvent(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
-        // Handle tap disabling by system
+    // MARK: - Event Handling
+    
+    private func handleCGEvent(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
             AppLogger.input.warning("CGEventTap disabled by macOS (\(type.rawValue)). Auto-reenabling.")
             if let tap = eventTap {
@@ -77,69 +114,84 @@ public final class GlobalHotkeyManager: ObservableObject {
             return Unmanaged.passRetained(event)
         }
         
+        let keyCode = Int(event.getIntegerValueField(.keyboardEventKeycode))
+        let flags = event.flags
+        
+        processInput(type: type, keyCode: keyCode, cgFlags: flags, nsModifierFlags: nil)
+        return Unmanaged.passRetained(event)
+    }
+    
+    private func handleNSEvent(_ event: NSEvent) {
+        // If CGEventTap is already running, skip redundant NSEvent processing to avoid double-triggers
+        if eventTap != nil {
+            return
+        }
+        
+        let type: CGEventType
+        switch event.type {
+        case .flagsChanged: type = .flagsChanged
+        case .keyDown: type = .keyDown
+        case .keyUp: type = .keyUp
+        default: return
+        }
+        
+        let keyCode = Int(event.keyCode)
+        processInput(type: type, keyCode: keyCode, cgFlags: nil, nsModifierFlags: event.modifierFlags)
+    }
+    
+    private func processInput(type: CGEventType, keyCode: Int, cgFlags: CGEventFlags?, nsModifierFlags: NSEvent.ModifierFlags?) {
         let settings = SettingsManager.shared.settings
         
-        // Check for Escape to cancel while dictating
-        if type == .keyDown {
-            let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
-            if keyCode == 53 { // ESC key
-                DispatchQueue.main.async { [weak self] in
-                    self?.onAction?(.cancelSession)
-                }
+        // Check for ESC key to cancel dictation
+        if type == .keyDown && keyCode == 53 {
+            DispatchQueue.main.async { [weak self] in
+                self?.onAction?(.cancelSession)
             }
+            return
         }
         
         switch settings.shortcutMode {
         case .holdFn:
+            // Check flagsChanged for Fn key
             if type == .flagsChanged {
-                let flags = event.flags
-                let isFn = flags.contains(.maskSecondaryFn)
-                
-                if isFn && !isFnPressed {
-                    isFnPressed = true
-                    let now = Date()
-                    if settings.doubleTapHandsFree, let last = lastFnPressTime, now.timeIntervalSince(last) < 0.35 {
-                        // Double tap Fn detected -> toggle hands free
-                        lastFnPressTime = nil
-                        DispatchQueue.main.async { [weak self] in
-                            self?.onAction?(.toggleHandsFree)
-                        }
-                    } else {
-                        lastFnPressTime = now
-                        DispatchQueue.main.async { [weak self] in
-                            self?.onAction?(.pushToTalkDown)
-                        }
-                    }
-                } else if !isFn && isFnPressed {
-                    isFnPressed = false
-                    DispatchQueue.main.async { [weak self] in
-                        self?.onAction?(.pushToTalkUp)
-                    }
+                let isFnActive: Bool
+                if let flags = cgFlags {
+                    isFnActive = flags.contains(.maskSecondaryFn) || keyCode == 63
+                } else if let mod = nsModifierFlags {
+                    isFnActive = mod.contains(.function) || keyCode == 63
+                } else {
+                    isFnActive = false
                 }
+                
+                handlePushToTalkState(isPressed: isFnActive)
+            }
+            
+        case .rightOption:
+            if type == .flagsChanged {
+                // KeyCode 61 is Right Option (Alt) on macOS
+                let isOptActive: Bool
+                if let flags = cgFlags {
+                    isOptActive = flags.contains(.maskAlternate) && (keyCode == 61 || keyCode == 58)
+                } else if let mod = nsModifierFlags {
+                    isOptActive = mod.contains(.option) && (keyCode == 61 || keyCode == 58)
+                } else {
+                    isOptActive = false
+                }
+                handlePushToTalkState(isPressed: isOptActive)
             }
             
         case .dictationKey:
-            // Keycode for dedicated dictation / F5 key on modern MacBooks is 96 or special HID
-            if type == .keyDown {
-                let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
-                if keyCode == 96 { // F5 / Mic key
-                    DispatchQueue.main.async { [weak self] in
-                        self?.onAction?(.pushToTalkDown)
-                    }
-                }
-            } else if type == .keyUp {
-                let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
-                if keyCode == 96 {
-                    DispatchQueue.main.async { [weak self] in
-                        self?.onAction?(.pushToTalkUp)
-                    }
-                }
+            // Keycode 96 / F5 on MacBooks
+            if type == .keyDown && keyCode == 96 {
+                handlePushToTalkState(isPressed: true)
+            } else if type == .keyUp && keyCode == 96 {
+                handlePushToTalkState(isPressed: false)
             }
             
         case .fnSpace:
-            if type == .keyDown {
-                let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
-                if keyCode == 49 && event.flags.contains(.maskSecondaryFn) { // Fn + Space
+            if type == .keyDown && keyCode == 49 { // Space
+                let hasFn = cgFlags?.contains(.maskSecondaryFn) ?? nsModifierFlags?.contains(.function) ?? false
+                if hasFn {
                     DispatchQueue.main.async { [weak self] in
                         self?.onAction?(.toggleHandsFree)
                     }
@@ -148,32 +200,48 @@ public final class GlobalHotkeyManager: ObservableObject {
             
         case .controlOption:
             if type == .flagsChanged {
-                let flags = event.flags
-                let isCtrlOpt = flags.contains(.maskControl) && flags.contains(.maskAlternate)
-                if isCtrlOpt && !isFnPressed {
-                    isFnPressed = true
-                    DispatchQueue.main.async { [weak self] in
-                        self?.onAction?(.pushToTalkDown)
-                    }
-                } else if !isCtrlOpt && isFnPressed {
-                    isFnPressed = false
-                    DispatchQueue.main.async { [weak self] in
-                        self?.onAction?(.pushToTalkUp)
-                    }
+                let isCtrlOpt: Bool
+                if let flags = cgFlags {
+                    isCtrlOpt = flags.contains(.maskControl) && flags.contains(.maskAlternate)
+                } else if let mod = nsModifierFlags {
+                    isCtrlOpt = mod.contains(.control) && mod.contains(.option)
+                } else {
+                    isCtrlOpt = false
                 }
+                handlePushToTalkState(isPressed: isCtrlOpt)
             }
             
         case .custom:
-            if type == .keyDown {
-                let keyCode = Int(event.getIntegerValueField(.keyboardEventKeycode))
-                if keyCode == settings.customShortcutKey {
-                    DispatchQueue.main.async { [weak self] in
-                        self?.onAction?(.toggleHandsFree)
-                    }
+            if type == .keyDown && keyCode == settings.customShortcutKey {
+                DispatchQueue.main.async { [weak self] in
+                    self?.onAction?(.toggleHandsFree)
                 }
             }
         }
-        
-        return Unmanaged.passRetained(event)
+    }
+    
+    private func handlePushToTalkState(isPressed: Bool) {
+        if isPressed && !isKeyDown {
+            isKeyDown = true
+            let now = Date()
+            let settings = SettingsManager.shared.settings
+            
+            if settings.doubleTapHandsFree, let last = lastKeyDownTime, now.timeIntervalSince(last) < 0.35 {
+                lastKeyDownTime = nil
+                DispatchQueue.main.async { [weak self] in
+                    self?.onAction?(.toggleHandsFree)
+                }
+            } else {
+                lastKeyDownTime = now
+                DispatchQueue.main.async { [weak self] in
+                    self?.onAction?(.pushToTalkDown)
+                }
+            }
+        } else if !isPressed && isKeyDown {
+            isKeyDown = false
+            DispatchQueue.main.async { [weak self] in
+                self?.onAction?(.pushToTalkUp)
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ import Foundation
 /// Shortcut activation modes.
 public enum ShortcutMode: String, Codable, CaseIterable, Sendable {
     case holdFn = "Hold Fn / Globe (Push-to-Talk)"
+    case rightOption = "Hold Right Option (Push-to-Talk)"
     case dictationKey = "Mac Dictation / Mic Key"
     case fnSpace = "Fn + Space"
     case controlOption = "Control + Option"

@@ -21,7 +21,7 @@ public final class TextInsertionEngine: @unchecked Sendable {
         }
         
         // Strategy 2: Universal Clipboard Fallback
-        AppLogger.accessibility.info("Direct Accessibility failed or unsupported. Falling back to clipboard injection.")
+        AppLogger.accessibility.info("Direct Accessibility fallback needed. Initiating clipboard injection.")
         return await insertViaClipboardFallback(text)
     }
     
@@ -40,7 +40,7 @@ public final class TextInsertionEngine: @unchecked Sendable {
         
         let element = focusedElement as! AXUIElement
         
-        // Check if element is a secure text field (don't inject if user is in password field unless explicit)
+        // Check if element is a secure text field (don't inject if in password field unless explicit)
         if FocusedElementReader.shared.checkIfSecureField(element: element) {
             AppLogger.accessibility.warning("Focused element is a secure/password field. Aborting insertion.")
             return false
@@ -76,24 +76,30 @@ public final class TextInsertionEngine: @unchecked Sendable {
         pasteboard.clearContents()
         pasteboard.setString(text, forType: .string)
         
-        // 3. Post Command+V key events
+        // 3. Synthesize Command+V key events explicitly
         let src = CGEventSource(stateID: .combinedSessionState)
-        let vKeyCode: CGKeyCode = 0x09 // Virtual keycode for 'v'
+        let cmdKeyCode: CGKeyCode = 0x37 // Command key
+        let vKeyCode: CGKeyCode = 0x09   // 'v' key
         
-        guard let keyDown = CGEvent(keyboardEventSource: src, virtualKey: vKeyCode, keyDown: true),
-              let keyUp = CGEvent(keyboardEventSource: src, virtualKey: vKeyCode, keyDown: false) else {
+        guard let cmdDown = CGEvent(keyboardEventSource: src, virtualKey: cmdKeyCode, keyDown: true),
+              let vDown = CGEvent(keyboardEventSource: src, virtualKey: vKeyCode, keyDown: true),
+              let vUp = CGEvent(keyboardEventSource: src, virtualKey: vKeyCode, keyDown: false),
+              let cmdUp = CGEvent(keyboardEventSource: src, virtualKey: cmdKeyCode, keyDown: false) else {
             AppLogger.accessibility.error("Failed to create keyboard events for Cmd+V.")
             return false
         }
         
-        keyDown.flags = .maskCommand
-        keyUp.flags = []
+        vDown.flags = .maskCommand
+        vUp.flags = .maskCommand
         
-        keyDown.post(tap: .cghidEventTap)
-        keyUp.post(tap: .cghidEventTap)
+        // Post to .cgSessionEventTap for user session GUI event delivery
+        cmdDown.post(tap: .cgSessionEventTap)
+        vDown.post(tap: .cgSessionEventTap)
+        vUp.post(tap: .cgSessionEventTap)
+        cmdUp.post(tap: .cgSessionEventTap)
         
-        // 4. Delay before restoring pasteboard to allow target application to process paste event
-        try? await Task.sleep(nanoseconds: 80_000_000) // 80 ms
+        // 4. Safe delay before restoring pasteboard to allow target application (Safari, VS Code, Slack, Notes) to process the paste
+        try? await Task.sleep(nanoseconds: 150_000_000) // 150 ms
         
         // 5. Restore original pasteboard items
         if !backupItems.isEmpty {

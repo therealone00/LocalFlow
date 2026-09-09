@@ -20,6 +20,9 @@ public final class AccessibilityManager: ObservableObject {
         if self.isTrusted != trusted {
             self.isTrusted = trusted
             AppLogger.accessibility.info("Accessibility permission status changed: \(trusted, privacy: .public)")
+            if trusted {
+                GlobalHotkeyManager.shared.start()
+            }
         }
         return trusted
     }

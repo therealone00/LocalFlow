@@ -76,8 +76,9 @@ public final class AppState: ObservableObject {
         
         // Ensure accessibility is available
         if !AccessibilityManager.shared.isTrusted {
+            AccessibilityManager.shared.promptForAccessibility()
             dictationState = .error(message: "Accessibility access required")
-            scheduleDismiss(after: 2.0)
+            scheduleDismiss(after: 2.5)
             return
         }
         
