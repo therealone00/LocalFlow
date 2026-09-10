@@ -21,10 +21,10 @@ echo "==> Building ${APP_NAME} v${VERSION} disk image..."
 rm -rf "${DMG_TMP_DIR}" "${DMG_PATH}" "${DMG_STABLE_PATH}"
 mkdir -p "${DMG_TMP_DIR}"
 
-if [ ! -d "${APP_BUNDLE}" ]; then
-    echo "==> Building app bundle first..."
-    "${ROOT_DIR}/scripts/build_app.sh"
-fi
+# Always rebuild. Reusing an existing bundle silently ships whatever was built
+# last time — including a stale version number after a version bump.
+echo "==> Building app bundle..."
+"${ROOT_DIR}/scripts/build_app.sh"
 
 echo "==> Copying application to staging..."
 cp -R "${APP_BUNDLE}" "${DMG_TMP_DIR}/"
