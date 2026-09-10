@@ -16,7 +16,7 @@ public enum AppConstants {
     }
     
     /// Where people buy and manage a Pro license.
-    public static let purchaseURL = URL(string: "https://therealone00.github.io/LocalFlow/#pricing")!
+    public static let purchaseURL = URL(string: "https://loomlytic.com/#pricing")!
 
     /// One-time price shown in the app, kept in sync with the website.
     public static let proPrice = "€15"

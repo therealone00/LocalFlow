@@ -18,7 +18,7 @@
   <a href="#free--pro">Pricing</a> •
   <a href="#features">Features</a> •
   <a href="#how-it-works">How it works</a> •
-  <a href="https://therealone00.github.io/LocalFlow/">Website</a>
+  <a href="https://loomlytic.com/">Website</a>
 </p>
 
 ---
@@ -56,7 +56,7 @@ One payment, every Mac you own, all future updates included.
 public key compiled into the app. LocalFlow never contacts a server to confirm
 you paid, so Pro keeps working with no network at all.
 
-Buy it on [the website](https://therealone00.github.io/LocalFlow/#pricing), then
+Buy it on [loomlytic.com](https://loomlytic.com/#pricing), then
 paste the key into Settings › Pro.
 
 ---

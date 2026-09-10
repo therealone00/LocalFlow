@@ -18,8 +18,8 @@ id = "e37a0da0854342118fffbb7a5b9cd6c0"
 ALLOWED_ORIGINS = "https://loomlytic.com,https://www.loomlytic.com,https://therealone00.github.io"
 PRICE_EUR_CENTS = "1500"
 PRODUCT_NAME = "LocalFlow Pro"
-SUCCESS_URL = "https://therealone00.github.io/LocalFlow/success.html"
-CANCEL_URL = "https://therealone00.github.io/LocalFlow/#pricing"
+SUCCESS_URL = "https://loomlytic.com/success.html"
+CANCEL_URL = "https://loomlytic.com/#pricing"
 
 # Secrets — set with `wrangler secret put`, never in this file:
 #   STRIPE_SECRET_KEY       sk_live_… / sk_test_…
