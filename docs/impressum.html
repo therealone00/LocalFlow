@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Your LocalFlow Pro license</title>
+<title>Impressum — LocalFlow</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#08080B">
 <meta name="color-scheme" content="dark">
@@ -296,116 +296,89 @@ footer { border-top: 1px solid var(--line); padding: 32px 0; position: relative;
 </style>
 
 <style>
-.wrap { max-width: 620px; margin: 0 auto; padding: clamp(56px, 10vw, 96px) var(--pad); position: relative; z-index: 1; }
-.seal { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 26px;
-        background: rgba(52,199,89,.14); border: 1px solid rgba(52,199,89,.3); }
-.seal svg { width: 26px; height: 26px; stroke: var(--green); }
-.wrap h1 { font-size: clamp(1.9rem, 4.6vw, 2.6rem); font-weight: 800; margin-bottom: 14px; }
-.keybox { margin: 28px 0 14px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--panel-solid); padding: 18px; }
-.keybox label { display: block; font-size: .72rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px; }
-#key { width: 100%; font-family: 'JetBrains Mono', monospace; font-size: .78rem; line-height: 1.7;
-       color: var(--ink); background: transparent; border: 0; resize: none; word-break: break-all; }
-#key:focus { outline: none; }
-.row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-.state { font-size: .9rem; color: var(--ink-dim); }
-.state.err { color: #FFB020; }
-ol.next { margin: 34px 0 0; padding-left: 20px; display: grid; gap: 10px; }
-ol.next li { font-size: .9rem; color: var(--ink-dim); }
-ol.next b { color: var(--ink); font-weight: 600; }
-.foot-note { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--line); font-size: .82rem; color: var(--ink-faint); }
-.foot-note a { color: var(--ink-dim); }
+.wrap { max-width: 660px; margin: 0 auto; padding: clamp(48px, 8vw, 88px) var(--pad); position: relative; z-index: 1; }
+.back { display: inline-flex; align-items: center; gap: 7px; font-size: .85rem; color: var(--ink-dim); text-decoration: none; margin-bottom: 34px; }
+.back:hover { color: var(--ink); }
+.wrap h1 { font-size: clamp(1.9rem, 4.6vw, 2.5rem); font-weight: 800; margin-bottom: 34px; }
+.wrap h2 { font-size: 1.05rem; font-weight: 650; margin: 34px 0 12px; letter-spacing: -.015em; }
+.wrap p, .wrap address { font-size: .92rem; color: var(--ink-dim); font-style: normal; line-height: 1.75; }
+.wrap p + p { margin-top: 12px; }
+.wrap a { color: var(--ink); }
+.wrap strong { color: var(--ink); font-weight: 600; }
+.block { padding: 20px 22px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--panel); margin-top: 4px; }
+.foot-note { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line); font-size: .82rem; color: var(--ink-faint); }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="seal" aria-hidden="true">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+  <a class="back" href="./">&larr; Zurück zu LocalFlow</a>
+
+  <h1>Impressum</h1>
+
+  <h2>Angaben gemäß § 5 DDG</h2>
+  <div class="block">
+    <address>
+      <strong>loomlytic</strong><br>
+      Einzelunternehmen<br>
+      Vertreten durch: Gretel Marie Leinz<br><br>
+      Im Elm 8b<br>
+      56566 Neuwied (Engers)<br>
+      Deutschland
+    </address>
   </div>
 
-  <h1>Thank you.</h1>
-  <p class="lede">Your LocalFlow Pro license is below. Keep this page — the link also arrives in your Stripe receipt, and it works whenever you need the key again.</p>
-
-  <div class="keybox">
-    <label for="key">Your license key</label>
-    <textarea id="key" rows="3" readonly spellcheck="false" aria-live="polite">Loading…</textarea>
-    <div class="row">
-      <button class="btn btn-primary btn-sm" type="button" id="copy" disabled>Copy key</button>
-      <a class="btn btn-ghost btn-sm" href="https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow.dmg">Download LocalFlow</a>
-    </div>
+  <h2>Kontakt</h2>
+  <div class="block">
+    <p>E-Mail: <a href="mailto:loomlytic@gmail.com">loomlytic@gmail.com</a></p>
   </div>
 
-  <p class="state" id="state">Fetching your key…</p>
+  <h2>Umsatzsteuer</h2>
+  <p>
+    Gemäß § 19 UStG wird keine Umsatzsteuer berechnet und daher auch keine
+    Umsatzsteuer ausgewiesen (Kleinunternehmerregelung).
+  </p>
 
-  <ol class="next">
-    <li>Open LocalFlow and go to <b>Settings › Pro</b>.</li>
-    <li>Paste the key and press <b>Activate</b>.</li>
-    <li>That is it. The key is checked on your Mac — LocalFlow never contacts a server to confirm it, so Pro keeps working offline and forever.</li>
-  </ol>
+  <h2>Verantwortlich für den Inhalt</h2>
+  <p>Gretel Marie Leinz, Anschrift wie oben.</p>
+
+  <h2>Verbraucherstreitbeilegung</h2>
+  <p>
+    Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren
+    vor einer Verbraucherschlichtungsstelle teilzunehmen.
+  </p>
+
+  <h2>Haftung für Inhalte</h2>
+  <p>
+    Die Inhalte dieser Seiten wurden mit Sorgfalt erstellt. Für die Richtigkeit,
+    Vollständigkeit und Aktualität der Inhalte kann jedoch keine Gewähr
+    übernommen werden. Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für
+    eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen
+    verantwortlich, nach §§ 8 bis 10 DDG jedoch nicht verpflichtet, übermittelte
+    oder gespeicherte fremde Informationen zu überwachen.
+  </p>
+
+  <h2>Haftung für Links</h2>
+  <p>
+    Diese Website enthält Links zu externen Websites Dritter, auf deren Inhalte
+    wir keinen Einfluss haben. Für diese fremden Inhalte ist stets der jeweilige
+    Anbieter verantwortlich. Bei Bekanntwerden von Rechtsverletzungen werden wir
+    entsprechende Links umgehend entfernen.
+  </p>
+
+  <h2>Zahlungsabwicklung</h2>
+  <p>
+    Käufe von LocalFlow Pro werden über die Stripe Payments Europe, Ltd.
+    abgewickelt. Dabei werden die für die Zahlung erforderlichen Daten an Stripe
+    übermittelt. LocalFlow selbst verarbeitet und speichert keine Zahlungsdaten.
+  </p>
+  <p>
+    Die Anwendung LocalFlow überträgt keine Sprach-, Text- oder Nutzungsdaten.
+    Die Lizenzprüfung erfolgt vollständig offline auf dem Gerät des Nutzers.
+  </p>
 
   <p class="foot-note">
-    The same key works on every Mac you own. Something wrong?
-    <a href="https://github.com/therealone00/LocalFlow/issues">Open an issue</a> with your order number and I will sort it out.
-  </p>
-
-  <p class="foot-note" style="margin-top:16px;padding-top:0;border:0;">
-    <a href="impressum.html" style="color:var(--ink-faint)">Impressum</a>
+    Stand: September 2026 · <a href="./">LocalFlow</a>
   </p>
 </div>
-
-<script>
-(() => {
-  'use strict';
-
-  // Must match LICENSING_API in index.html. See server/README.md.
-  const LICENSING_API = 'https://localflow-licensing.maxleinz.workers.dev';
-
-  const keyField = document.getElementById('key');
-  const state = document.getElementById('state');
-  const copy = document.getElementById('copy');
-
-  function fail(message) {
-    keyField.value = '';
-    state.textContent = message;
-    state.classList.add('err');
-  }
-
-  const sessionId = new URLSearchParams(location.search).get('session_id');
-
-  if (!sessionId) {
-    fail('No purchase reference in this link. Open the link from your Stripe receipt, or get in touch with your order number.');
-  } else {
-    fetch(`${LICENSING_API}/api/license?session_id=${encodeURIComponent(sessionId)}`)
-      .then(async (response) => {
-        const body = await response.json();
-        if (!response.ok) throw new Error(body.error || 'Could not retrieve your key.');
-        return body;
-      })
-      .then(({ key, email }) => {
-        keyField.value = key;
-        state.textContent = email
-          ? `Issued to ${email}. A copy is on its way to that address.`
-          : 'Key issued.';
-        copy.disabled = false;
-      })
-      .catch((error) => {
-        const reason = error instanceof TypeError
-          ? 'Could not reach the licensing server.'
-          : error.message;
-        fail(`${reason} Your payment did go through — reload this page in a moment, or get in touch quoting your order number.`);
-      });
-  }
-
-  copy.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(keyField.value);
-    } catch {
-      // Clipboard permission can be refused; selecting the text still works.
-      keyField.select();
-    }
-    copy.textContent = 'Copied';
-    setTimeout(() => { copy.textContent = 'Copy key'; }, 1600);
-  });
-})();
-</script>
 </body>
 </html>

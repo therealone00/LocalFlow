@@ -41,8 +41,10 @@ export function createCheckoutSession(secretKey, { priceCents, productName, succ
       'payment_intent_data[description]': productName,
       success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: cancelUrl,
-      // EU one-time digital sale: let Stripe handle VAT.
-      'automatic_tax[enabled]': 'true',
+      // The seller is a Kleinunternehmer under § 19 UStG and may not show VAT,
+      // so Stripe Tax stays off. Turning it on would add VAT that must not
+      // appear on the invoice. Revisit if that status ever changes.
+      'automatic_tax[enabled]': 'false',
       billing_address_collection: 'auto',
     },
   });
