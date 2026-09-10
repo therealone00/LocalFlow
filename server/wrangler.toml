@@ -11,7 +11,11 @@ id = "e37a0da0854342118fffbb7a5b9cd6c0"
 [vars]
 # The exact origins allowed to call the checkout endpoint. Anything else is
 # refused, so the endpoint cannot be embedded on someone else's page.
-ALLOWED_ORIGINS = "https://therealone00.github.io"
+# Both origins are allowed during and after the move to the custom domain.
+# Widening this first is deliberate: switching the site over while the Worker
+# still only trusted github.io would have killed checkout the moment DNS
+# propagated.
+ALLOWED_ORIGINS = "https://loomlytic.com,https://www.loomlytic.com,https://therealone00.github.io"
 PRICE_EUR_CENTS = "1500"
 PRODUCT_NAME = "LocalFlow Pro"
 SUCCESS_URL = "https://therealone00.github.io/LocalFlow/success.html"
