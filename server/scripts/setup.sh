@@ -167,6 +167,24 @@ if [ -n "${STRIPE_KEY}" ]; then
         sk_live_*|sk_test_*) : ;;
         *) die "That does not look like a Stripe secret key (expected sk_live_ or sk_test_)." ;;
     esac
+
+    # Ask Stripe whether the key works before uploading it. Skipping this once
+    # cost a full deploy cycle plus a log dig to find out the key was rejected.
+    echo "Checking the key with Stripe…"
+    STRIPE_CHECK="$(curl -s -o /dev/null -w '%{http_code}' \
+        -u "${STRIPE_KEY}:" https://api.stripe.com/v1/balance || echo "000")"
+    case "${STRIPE_CHECK}" in
+        200) echo "Stripe accepted the key." ;;
+        401) unset STRIPE_KEY
+             die "Stripe rejected that key.
+
+     Most likely you rolled it again after copying, or a character went missing
+     in the paste. Open Stripe -> Developers -> API keys, reveal the current
+     secret key, copy the whole thing, and run this again." ;;
+        000) echo "Could not reach Stripe to check the key — continuing anyway." ;;
+        *)   echo "Stripe answered HTTP ${STRIPE_CHECK} — continuing, but keep an eye on it." ;;
+    esac
+
     printf '%s' "${STRIPE_KEY}" | npx wrangler secret put STRIPE_SECRET_KEY
     unset STRIPE_KEY
 else
