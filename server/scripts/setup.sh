@@ -218,15 +218,21 @@ WORKER_URL="$(grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' "${DEPLOY_LOG}" \
 
 if [ -z "${WORKER_URL}" ]; then
     if grep -q 'workers.dev subdomain' "${DEPLOY_LOG}"; then
-        ONBOARDING="$(grep -oE 'https://dash\.cloudflare\.com/[a-f0-9]+/workers/onboarding' "${DEPLOY_LOG}" | head -1)"
         rm -f "${DEPLOY_LOG}"
-        die "Your Cloudflare account has no workers.dev subdomain yet.
+        # Wrangler prints a dash.cloudflare.com/<account>/workers/onboarding link
+        # here that 404s on the current dashboard, so it is deliberately not
+        # repeated. Wrangler can register the subdomain itself.
+        die "Your Cloudflare account has no workers.dev subdomain yet — that is the
+     address your Worker gets, and it is a one-time account setting.
 
-     Register one here (one-time, takes a minute):
-       ${ONBOARDING:-https://dash.cloudflare.com/ -> Workers & Pages -> Get started}
+     Run this and answer the subdomain question with a name of your choice:
+       cd server && npx wrangler deploy
 
-     Then double-click this file again. Your KV namespace and secrets are
-     already in place, so it will pick up where it left off."
+     Then double-click this file again to finish. Your KV namespace and
+     secrets are already in place and will not be asked for twice.
+
+     If you would rather use the dashboard: dash.cloudflare.com ->
+     Compute -> Workers -> Subdomain."
     fi
     rm -f "${DEPLOY_LOG}"
     die "Deploy did not produce a Worker URL. The output above says why."
