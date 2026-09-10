@@ -10,17 +10,25 @@ public final class AppState: ObservableObject {
     // Published UI state
     @Published public private(set) var dictationState: DictationState = .idle
     @Published public private(set) var audioLevel: Float = 0.0
-    @Published public private(set) var liveTranscript: String = ""
     @Published public private(set) var lastTranscribedText: String = ""
     @Published public private(set) var isHandsFreeActive: Bool = false
     @Published public private(set) var activeAppIcon: NSImage? = nil
     @Published public private(set) var activeAppName: String = ""
+    /// When the current recording started, or `nil` when not recording.
+    /// The floating bar derives its elapsed timer from this.
+    @Published public private(set) var recordingStartedAt: Date? = nil
     
     private let recorder = AudioRecorder()
     private let vad = VoiceActivityDetector()
     private var currentSession: DictationSession?
     private var targetApplication: NSRunningApplication?
     private var dismissTask: Task<Void, Never>?
+    
+    /// Seconds the microphone has been open for the current session.
+    public var recordingDuration: TimeInterval {
+        guard let start = recordingStartedAt else { return 0 }
+        return Date().timeIntervalSince(start)
+    }
     
     public init() {
         setupAudioCallbacks()
@@ -81,7 +89,7 @@ public final class AppState: ObservableObject {
         let micStatus = AVCaptureDevice.authorizationStatus(for: .audio)
         if micStatus == .denied || micStatus == .restricted {
             MicrophoneAccessManager.shared.openSystemSettings()
-            dictationState = .error(message: "Microphone permission denied")
+            dictationState = .error(message: "Microphone access denied")
             scheduleDismiss(after: 2.5)
             return
         }
@@ -114,11 +122,13 @@ public final class AppState: ObservableObject {
         
         do {
             try recorder.startRecording(deviceUID: SettingsManager.shared.settings.selectedAudioDeviceUID)
+            recordingStartedAt = Date()
             dictationState = .listening
             SoundManager.shared.playStartSound()
             AppLogger.app.info("Dictation started for target app: \(self.activeAppName, privacy: .public)")
         } catch {
-            dictationState = .error(message: "Microphone error")
+            recordingStartedAt = nil
+            dictationState = .error(message: "Could not start the microphone")
             scheduleDismiss(after: 2.0)
             AppLogger.audio.error("Failed to start audio recorder: \(error.localizedDescription)")
         }
@@ -128,6 +138,7 @@ public final class AppState: ObservableObject {
         guard dictationState == .listening else { return }
         
         SoundManager.shared.playStopSound()
+        recordingStartedAt = nil
         dictationState = .processing(stage: .transcribing)
         isHandsFreeActive = false
         GlobalHotkeyManager.shared.resetHandsFreeState()
@@ -198,7 +209,7 @@ public final class AppState: ObservableObject {
                     self.scheduleDismiss(after: 0.8)
                 } else {
                     // Accessibility required to type directly into target text field
-                    self.dictationState = .error(message: "Bedienungshilfen erforderlich")
+                        self.dictationState = .error(message: DictationState.accessibilityErrorMessage)
                     self.scheduleDismiss(after: 3.5)
                 }
             } catch {
@@ -211,6 +222,7 @@ public final class AppState: ObservableObject {
     
     public func cancel() {
         recorder.cancelRecording()
+        recordingStartedAt = nil
         isHandsFreeActive = false
         GlobalHotkeyManager.shared.resetHandsFreeState()
         dictationState = .cancelled
@@ -232,7 +244,7 @@ public final class AppState: ObservableObject {
             if !Task.isCancelled {
                 self.dictationState = .idle
                 self.audioLevel = 0.0
-                self.liveTranscript = ""
+                self.recordingStartedAt = nil
             }
         }
     }

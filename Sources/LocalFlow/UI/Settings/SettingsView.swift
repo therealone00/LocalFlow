@@ -1,68 +1,108 @@
 import SwiftUI
 
-public enum SettingsTab: String, CaseIterable, Identifiable {
+public enum SettingsTab: String, CaseIterable, Identifiable, Hashable {
+    // Raw values are stable identifiers; `title` is what the UI shows.
     case general = "General"
     case dictation = "Dictation"
     case intelligence = "Intelligence"
-    case models = "Models"
     case dictionary = "Dictionary"
-    case appearance = "Appearance"
+    case models = "Models"
+    case history = "History"
     case privacy = "Privacy"
+    case appearance = "Appearance"
     case advanced = "Advanced"
-    
+
     public var id: String { rawValue }
-    
+
+    public var title: String { rawValue }
+
     public var iconName: String {
         switch self {
         case .general: return "gearshape"
         case .dictation: return "mic"
         case .intelligence: return "sparkles"
-        case .models: return "cpu"
         case .dictionary: return "character.book.closed"
-        case .appearance: return "paintpalette"
+        case .models: return "cpu"
+        case .history: return "clock.arrow.circlepath"
         case .privacy: return "lock.shield"
+        case .appearance: return "paintpalette"
         case .advanced: return "slider.horizontal.3"
+        }
+    }
+
+    /// Sidebar grouping, so nine panes stay scannable.
+    public enum Group: String, CaseIterable, Identifiable {
+        case setup = "Setup"
+        case text = "Text"
+        case engine = "Engine"
+        case data = "Data"
+
+        public var id: String { rawValue }
+
+        public var tabs: [SettingsTab] {
+            switch self {
+            case .setup: return [.general, .dictation, .appearance]
+            case .text: return [.intelligence, .dictionary]
+            case .engine: return [.models, .advanced]
+            case .data: return [.history, .privacy]
+            }
         }
     }
 }
 
-public struct SettingsView: View {
-    @State private var selectedTab: SettingsTab = .general
-    
+/// Owns the selected settings tab so other parts of the app (the menu bar, the
+/// floating bar) can deep-link into a pane without rebuilding the window.
+@MainActor
+public final class SettingsRouter: ObservableObject {
+    public static let shared = SettingsRouter()
+
+    @Published public var selectedTab: SettingsTab = .general
+
     public init() {}
-    
+}
+
+public struct SettingsView: View {
+    @ObservedObject private var router = SettingsRouter.shared
+
+    public init() {}
+
+    private var selectedTab: SettingsTab { router.selectedTab }
+
     public var body: some View {
         NavigationSplitView {
-            List(SettingsTab.allCases, selection: $selectedTab) { tab in
-                NavigationLink(value: tab) {
-                    Label(tab.rawValue, systemImage: tab.iconName)
+            List(selection: $router.selectedTab) {
+                ForEach(SettingsTab.Group.allCases) { group in
+                    Section(group.rawValue) {
+                        ForEach(group.tabs) { tab in
+                            NavigationLink(value: tab) {
+                                Label(tab.title, systemImage: tab.iconName)
+                            }
+                        }
+                    }
                 }
             }
-            .navigationSplitViewColumnWidth(min: 170, ideal: 190, max: 230)
+            .navigationSplitViewColumnWidth(min: 176, ideal: 190, max: 220)
             .listStyle(.sidebar)
         } detail: {
-            Group {
-                switch selectedTab {
-                case .general:
-                    GeneralSettingsView()
-                case .dictation:
-                    DictationSettingsView()
-                case .intelligence:
-                    IntelligenceSettingsView()
-                case .models:
-                    ModelsSettingsView()
-                case .dictionary:
-                    DictionarySettingsView()
-                case .appearance:
-                    AppearanceSettingsView()
-                case .privacy:
-                    PrivacySettingsView()
-                case .advanced:
-                    AdvancedSettingsView()
-                }
-            }
-            .navigationTitle(selectedTab.rawValue)
+            detailView
+                .navigationTitle(selectedTab.title)
+                .frame(minWidth: 520)
         }
-        .frame(minWidth: 640, minHeight: 480)
+        .frame(minWidth: 740, idealWidth: 820, minHeight: 560, idealHeight: 640)
+    }
+
+    @ViewBuilder
+    private var detailView: some View {
+        switch selectedTab {
+        case .general: GeneralSettingsView()
+        case .dictation: DictationSettingsView()
+        case .intelligence: IntelligenceSettingsView()
+        case .dictionary: DictionarySettingsView()
+        case .models: ModelsSettingsView()
+        case .history: HistorySettingsView()
+        case .privacy: PrivacySettingsView()
+        case .appearance: AppearanceSettingsView()
+        case .advanced: AdvancedSettingsView()
+        }
     }
 }

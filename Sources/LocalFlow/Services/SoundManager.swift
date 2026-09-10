@@ -17,9 +17,13 @@ public final class SoundManager {
         NSSound(named: "Pop")?.play()
     }
     
+    /// Played once the text has actually landed in the target app. Quieter than
+    /// the start/stop tones so a fast dictation does not sound like three beeps.
     public func playSuccessSound() {
         guard SettingsManager.shared.settings.soundEffectsEnabled else { return }
-        // Subtle minimal feedback
+        guard let sound = NSSound(named: "Morse") else { return }
+        sound.volume = 0.35
+        sound.play()
     }
     
     public func playErrorSound() {

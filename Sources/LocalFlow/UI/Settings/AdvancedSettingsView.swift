@@ -3,60 +3,78 @@ import AppKit
 
 public struct AdvancedSettingsView: View {
     @ObservedObject var settingsManager = SettingsManager.shared
-    
+
+    @State private var isConfirmingReset = false
+
     public init() {}
-    
+
     public var body: some View {
-        Form {
-            Section(header: Text("Transcription Engine").font(.headline)) {
-                Picker("Engine", selection: $settingsManager.settings.transcriptionEngine) {
-                    ForEach(TranscriptionEngineType.allCases, id: \.self) { engine in
-                        Text(engine.rawValue).tag(engine)
+        SettingsPane(
+            title: "Advanced",
+            subtitle: "Engine internals, file locations and recovery.",
+            systemImage: "slider.horizontal.3"
+        ) {
+            SettingsCard("Engine") {
+                SettingRow(
+                    "Transcription backend",
+                    detail: "Auto picks WhisperKit on Apple Silicon and falls back to whisper.cpp elsewhere."
+                ) {
+                    Picker("", selection: $settingsManager.settings.transcriptionEngine) {
+                        ForEach(TranscriptionEngineType.allCases, id: \.self) { engine in
+                            Text(engine.rawValue).tag(engine)
+                        }
                     }
+                    .frame(width: 200)
                 }
-                
-                Picker("Model Memory Residency", selection: $settingsManager.settings.prewarmPolicy) {
-                    ForEach(ModelPrewarmPolicy.allCases, id: \.self) { policy in
-                        Text(policy.rawValue).tag(policy)
+
+                SettingRow(
+                    "Model residency",
+                    detail: settingsManager.settings.prewarmPolicy.summary
+                ) {
+                    Picker("", selection: $settingsManager.settings.prewarmPolicy) {
+                        ForEach(ModelPrewarmPolicy.allCases, id: \.self) { policy in
+                            Text(policy.displayName).tag(policy)
+                        }
                     }
+                    .frame(width: 200)
                 }
             }
-            
-            Section(header: Text("Storage & Paths").font(.headline)) {
-                HStack {
-                    Text("Models Directory")
-                    Spacer()
-                    Button("Reveal in Finder") {
+
+            SettingsCard("Files") {
+                SettingRow("Models", detail: AppConstants.modelsDirectory.path) {
+                    Button("Reveal") {
                         NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: AppConstants.modelsDirectory.path)
                     }
-                    .buttonStyle(.bordered)
                     .controlSize(.small)
                 }
-                
-                HStack {
-                    Text("App Data Directory")
-                    Spacer()
-                    Button("Reveal in Finder") {
+
+                SettingRow("App data", detail: AppConstants.applicationSupportDirectory.path) {
+                    Button("Reveal") {
                         NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: AppConstants.applicationSupportDirectory.path)
                     }
-                    .buttonStyle(.bordered)
                     .controlSize(.small)
                 }
             }
-            
-            Section(header: Text("Danger Zone").font(.headline)) {
-                HStack {
-                    Text("Reset all settings to factory defaults")
-                    Spacer()
-                    Button("Reset Settings", role: .destructive) {
-                        settingsManager.resetToDefaults()
+
+            SettingsCard("Reset") {
+                SettingRow(
+                    "Restore factory settings",
+                    detail: "Resets every preference including your shortcut. Downloaded models, your dictionary and your history are kept."
+                ) {
+                    Button("Reset…", role: .destructive) {
+                        isConfirmingReset = true
                     }
-                    .buttonStyle(.borderedProminent)
                     .controlSize(.small)
                 }
             }
         }
-        .formStyle(.grouped)
-        .padding()
+        .confirmationDialog("Reset all settings to their defaults?", isPresented: $isConfirmingReset) {
+            Button("Reset Settings", role: .destructive) {
+                settingsManager.resetToDefaults()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Your models, dictionary and history are not affected.")
+        }
     }
 }

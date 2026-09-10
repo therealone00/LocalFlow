@@ -3,50 +3,75 @@ import SwiftUI
 public struct PrivacySettingsView: View {
     @ObservedObject var settingsManager = SettingsManager.shared
     @ObservedObject var historyManager = HistoryManager.shared
-    
+
+    @State private var isConfirmingClear = false
+
     public init() {}
-    
+
     public var body: some View {
-        Form {
-            Section {
-                HStack(spacing: 12) {
+        SettingsPane(
+            title: "Privacy",
+            subtitle: "What stays on this Mac — which is everything.",
+            systemImage: "lock.shield"
+        ) {
+            SettingsCard {
+                HStack(alignment: .top, spacing: DS.Spacing.l) {
                     Image(systemName: "lock.shield.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(.green)
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("100% Local Speech Processing")
-                            .font(.headline)
-                        Text("No audio, transcripts, or personal data ever leave your Mac. No cloud connection, no external AI APIs, and no telemetry.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                        .font(.system(size: 34))
+                        .foregroundStyle(DS.Palette.success)
+
+                    VStack(alignment: .leading, spacing: DS.Spacing.xs) {
+                        Text("Everything runs on-device")
+                            .font(.system(size: 15, weight: .semibold))
+
+                        Text("No audio, transcript or usage data ever leaves your Mac. There is no cloud service, no external AI API, no account and no telemetry.")
+                            .font(DS.Font.rowDetail)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
-                .padding(.vertical, 6)
             }
-            
-            Section(header: Text("Data Retention").font(.headline)) {
-                Toggle("Never save audio recordings", isOn: $settingsManager.settings.neverSaveAudio)
-                    .disabled(true) // Always forced on for maximum privacy
-                
-                Toggle("Save recent dictation text locally", isOn: $settingsManager.settings.saveDictationHistory)
-                
-                HStack {
-                    Text("Stored History Entries")
-                    Spacer()
-                    Text("\(historyManager.items.count)")
-                        .foregroundColor(.secondary)
-                    
-                    Button("Clear History") {
-                        historyManager.clearAll()
+
+            SettingsCard("Data Retention") {
+                SettingRow(
+                    "Audio recordings",
+                    detail: "Audio only ever exists in memory during transcription and is discarded immediately after."
+                ) {
+                    StatusChip("NEVER SAVED", kind: .positive, systemImage: "checkmark")
+                }
+
+                SettingToggle(
+                    "Keep dictation history",
+                    detail: "Stores the last 100 transcripts locally so you can re-insert them. Turn this off to keep nothing at all.",
+                    isOn: $settingsManager.settings.saveDictationHistory
+                )
+
+                SettingRow("Stored transcripts") {
+                    HStack(spacing: DS.Spacing.m) {
+                        Text("\(historyManager.items.count)")
+                            .font(DS.Font.rowTitle)
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+
+                        Button("Clear…", role: .destructive) {
+                            isConfirmingClear = true
+                        }
+                        .controlSize(.small)
+                        .disabled(historyManager.items.isEmpty)
                     }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                    .disabled(historyManager.items.isEmpty)
                 }
             }
         }
-        .formStyle(.grouped)
-        .padding()
+        .confirmationDialog(
+            "Delete all \(historyManager.items.count) stored transcripts?",
+            isPresented: $isConfirmingClear
+        ) {
+            Button("Delete History", role: .destructive) {
+                historyManager.clearAll()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This cannot be undone.")
+        }
     }
 }
