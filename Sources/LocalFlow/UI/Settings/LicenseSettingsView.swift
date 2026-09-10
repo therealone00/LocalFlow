@@ -52,7 +52,7 @@ public struct LicenseSettingsView: View {
                 "The honest version",
                 footnote: "Lost your key? It is in your purchase confirmation email, and can be recovered from the website with your order number."
             ) {
-                Text("LocalFlow's source is public. You could compile a build without this check in an afternoon, and nothing stops you. Pro exists because the app is maintained by one person, and buying it is what keeps that happening.")
+                Text("LocalFlow's source is public, so you can read exactly what this check does. The licence asks you not to remove it, and beyond that it comes down to trust: Pro exists because the app is maintained by one person, and buying it is what keeps that happening.")
                     .font(DS.Font.rowDetail)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
