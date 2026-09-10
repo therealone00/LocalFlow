@@ -10,3 +10,6 @@ server/.signing-key.json
 server/.dev.vars
 server/node_modules/
 .wrangler/
+
+# Internal notes — business/legal detail that has no reason to be public
+CLAUDE.md
