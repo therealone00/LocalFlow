@@ -86,6 +86,20 @@ bump Info.plist, run `create_dmg.sh`, then `gh release create` with both
 an exact asset filename, so a versioned-only asset breaks every download button
 on the site the moment a new version ships.
 
+**Every published build must be notarized**, or Gatekeeper blocks it on any Mac
+but this one:
+
+```bash
+./scripts/build_app.sh     # signs with Developer ID + hardened runtime
+./scripts/notarize.sh      # submits and staples the app, then the DMG
+```
+
+`notarize.sh` refuses anything signed with the wrong certificate or missing the
+hardened runtime. Credentials live in the login keychain under the profile
+`LocalFlow` (`notarize.sh --setup` stores them). Never sign a release with the
+Apple Development or Apple Distribution certificate — both exist in this
+keychain and neither works for distribution.
+
 ## Licensing infrastructure
 
 - `server/scripts/setup.sh` deploys the Worker end to end; there is a
@@ -109,19 +123,6 @@ irrevocable. See `NOTICE.md`.
 
 ## Known gaps
 
-- **Releases are not notarized yet, because the Developer ID certificate does
-  not exist.** The tooling is ready: `build_app.sh` prefers a Developer ID
-  Application identity, signs with the hardened runtime and a secure timestamp,
-  and shouts if it had to fall back. `scripts/notarize.sh` submits and staples
-  both the app and the DMG. What is missing is the certificate itself — the
-  keychain has "Apple Development" and "Apple Distribution", neither of which
-  Apple will notarize. Create one in Xcode → Settings → Accounts → Manage
-  Certificates → + → Developer ID Application (free with the existing paid
-  membership), then run `build_app.sh`, `notarize.sh --setup`, `notarize.sh`.
-
-  **Once a notarized build ships, the install instructions become wrong.**
-  README, the website install steps and the website FAQ all tell people to
-  right-click and choose Open. A notarized app just opens. Update all three.
 - `.github/workflows/ci.yml` exists locally but has never been pushed: the
   GitHub token lacks the `workflow` scope. `gh auth refresh -s workflow` fixes it.
 - No Widerrufsbelehrung or AGB on the site, which selling to EU consumers

@@ -65,7 +65,7 @@ paste the key into Settings › Pro.
 
 1. Download **[LocalFlow.dmg](https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow.dmg)** — this link always points at the newest release.
 2. Open it and drag **LocalFlow.app** into **Applications**.
-3. **Right-click the app and choose Open**, then confirm. The build is signed but not notarised, so macOS asks once and then remembers.
+3. Launch it. Builds are signed with a Developer ID certificate and notarised by Apple, so it opens normally — no Gatekeeper warning and no right-click trick.
 4. Grant the two permissions the setup guide asks for:
    - **Microphone** — to hear you. Audio never touches the disk.
    - **Accessibility** — to type into the app you are focused on.
