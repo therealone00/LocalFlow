@@ -9,8 +9,11 @@ public enum AppConstants {
     /// The bundle identifier for the application.
     public static let bundleIdentifier = "com.localflow.mac"
     
-    /// Application version string.
-    public static let appVersion = "1.0.0"
+    /// Application version string, read from the bundle so it can never drift
+    /// from `Config/Info.plist`.
+    public static var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.1.0"
+    }
     
     /// Base directory in Application Support for storing models, caches, and local configurations.
     public static var applicationSupportDirectory: URL {

@@ -1,20 +1,51 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>LocalFlow — Lokales KI-Diktat für macOS</title>
-  <meta name="description" content="LocalFlow ist ein natives macOS-Diktierwerkzeug. WhisperKit-Inferenz auf der Apple Neural Engine in unter 0,8 Sekunden. 100% offline, kein Cloud-Upload, kein Abonnement.">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>LocalFlow — On-device AI dictation for macOS</title>
+  <meta name="description" content="LocalFlow is a native macOS dictation app. WhisperKit inference on the Apple Neural Engine in under a second. 100% offline, nothing uploaded, no subscription.">
+  <link rel="canonical" href="https://therealone00.github.io/LocalFlow/">
+  <meta name="theme-color" content="#070709">
+  <meta name="color-scheme" content="dark">
+
   <meta property="og:type" content="website">
-  <meta property="og:title" content="LocalFlow — Lokales KI-Diktat für macOS">
-  <meta property="og:description" content="Native Spracheingabe direkt in jedes Textfeld. 100% lokal auf Apple Silicon. Keine Cloud, kein Abo.">
-  <meta property="og:image" content="assets/hero.jpg">
-  
+  <meta property="og:site_name" content="LocalFlow">
+  <meta property="og:url" content="https://therealone00.github.io/LocalFlow/">
+  <meta property="og:title" content="LocalFlow — On-device AI dictation for macOS">
+  <meta property="og:description" content="Native voice input straight into any text field. 100% local on Apple Silicon. No cloud, no subscription.">
+  <meta property="og:image" content="https://therealone00.github.io/LocalFlow/assets/hero.jpg">
+  <meta property="og:image:width" content="1376">
+  <meta property="og:image:height" content="768">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="LocalFlow — On-device AI dictation for macOS">
+  <meta name="twitter:description" content="Native voice input straight into any text field. 100% local on Apple Silicon. No cloud, no subscription.">
+  <meta name="twitter:image" content="https://therealone00.github.io/LocalFlow/assets/hero.jpg">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230D0E12'/%3E%3Cg stroke='%23EDEDED' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M9 13v6M16 8v16M23 13v6'/%3E%3C/g%3E%3C/svg%3E">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="image" href="assets/hero.jpg" fetchpriority="high">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "LocalFlow",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "macOS 14.0 or later",
+    "url": "https://therealone00.github.io/LocalFlow/",
+    "downloadUrl": "https://github.com/therealone00/LocalFlow/releases/latest",
+    "softwareVersion": "1.1.0",
+    "license": "https://opensource.org/licenses/MIT",
+    "description": "Native macOS dictation powered by WhisperKit on the Apple Neural Engine. Runs fully offline with no cloud services and no subscription.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "therealone00", "url": "https://github.com/therealone00" }
+  }
+  </script>
+
   <style>
     :root {
       --bg: #070709;
@@ -738,18 +769,203 @@
       .badge-pill { font-size: 0.74rem; }
       .editor-body { font-size: 0.84rem; padding: 14px; }
     }
+    /* --- Accessibility & motion --------------------------------------- */
+
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 8px;
+      z-index: 200;
+      padding: 10px 16px;
+      border-radius: var(--radius-full);
+      background: var(--text);
+      color: var(--bg);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .skip-link:focus {
+      left: 20px;
+    }
+
+    a:focus-visible,
+    button:focus-visible {
+      outline: 2px solid var(--accent-cyan);
+      outline-offset: 3px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* Honour the same preference the app itself honours. */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* --- What's new strip --------------------------------------------- */
+
+    .whatsnew {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .whatsnew-item {
+      padding: 18px;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      background: var(--card-bg);
+    }
+    .whatsnew-item h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+    .whatsnew-item p {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .version-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      margin-bottom: 14px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(0, 210, 255, 0.28);
+      background: rgba(0, 210, 255, 0.08);
+      color: var(--accent-cyan);
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.74rem;
+      font-weight: 500;
+    }
+
+    /* --- Install steps -------------------------------------------------- */
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+    .step {
+      position: relative;
+      padding: 20px 20px 20px 54px;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      background: var(--card-bg);
+    }
+    .step-num {
+      position: absolute;
+      left: 18px;
+      top: 20px;
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .step p {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .step code {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+
+    kbd {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-bottom-width: 2px;
+      background: rgba(255, 255, 255, 0.07);
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.78rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* --- FAQ ------------------------------------------------------------ */
+
+    .faq-list {
+      display: grid;
+      gap: 10px;
+    }
+    .faq-item {
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      background: var(--card-bg);
+      overflow: hidden;
+    }
+    .faq-item summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 16px 20px;
+      font-size: 0.94rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: "+";
+      color: var(--text-subtle);
+      font-size: 1.1rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .faq-item[open] summary::after { content: "\2212"; }
+    .faq-item summary:hover { color: #fff; }
+    .faq-item p {
+      padding: 0 20px 18px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
   </style>
 </head>
 <body>
-
-  <div class="bg-grid"></div>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="bg-grid" aria-hidden="true"></div>
 
   <!-- Header -->
   <header>
     <div class="container nav-wrap">
       <a href="#" class="brand">
         <div class="brand-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
             <line x1="12" y1="19" x2="12" y2="22"></line>
@@ -757,82 +973,116 @@
         </div>
         <span>LocalFlow</span>
       </a>
-      <div class="nav-links">
-        <a href="#features" class="nav-link">Architektur</a>
-        <a href="#demo" class="nav-link">Simulator</a>
-        <a href="#matrix" class="nav-link">Vergleich</a>
-        <a href="#sponsors" class="nav-link">Sponsoring</a>
-        <a href="https://github.com/therealone00/LocalFlow" target="_blank" class="nav-link">GitHub</a>
-        <a href="https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow-v1.0.0.dmg" class="btn-nav-download">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-1.08 1.73-.95 2.76 1.01.08 2.05-.51 2.68-1.26z"/></svg>
-          Download .dmg
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#demo" class="nav-link">Demo</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#install" class="nav-link">Install</a>
+        <a href="#matrix" class="nav-link">Compare</a>
+        <a href="#faq" class="nav-link">FAQ</a>
+        <a href="https://github.com/therealone00/LocalFlow" class="nav-link">GitHub</a>
+        <a href="https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow.dmg" class="btn-nav-download">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-1.08 1.73-.95 2.76 1.01.08 2.05-.51 2.68-1.26z"/></svg>
+          Download
         </a>
-      </div>
+      </nav>
     </div>
   </header>
 
-  <main class="container">
-    <!-- Hero Section -->
+  <main class="container" id="main">
+    <!-- Hero -->
     <section class="hero">
       <div class="badge-pill">
-        <span class="status-indicator"></span>
-        <span>Local Neural Engine • Zero Cloud • macOS 14.0+</span>
+        <span class="status-indicator" aria-hidden="true"></span>
+        <span>Neural Engine &bull; Zero cloud &bull; macOS 14+</span>
       </div>
 
       <h1 class="hero-title">
-        Native Spracheingabe.<br>
-        <span>Vollständig lokal auf deinem Mac.</span>
+        Speak. It's already typed.<br>
+        <span>Entirely on your Mac.</span>
       </h1>
 
       <p class="hero-desc">
-        LocalFlow transkribiert gesprochene Sprache über WhisperKit auf der Apple Silicon Neural Engine in unter 0,8 Sekunden. Der bereinigte Text wird direkt in die aktive Anwendung eingefügt — ohne Cloud-Server, ohne Latenz und ohne monatliche Gebühren.
+        LocalFlow transcribes speech with WhisperKit on the Apple Silicon Neural Engine in under a second, cleans up the filler words and self-corrections, and types the result straight into whatever app you are already in. No server, no round trip, no monthly bill.
       </p>
 
       <div class="hero-cta-group">
-        <a href="https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow-v1.0.0.dmg" class="btn-primary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-1.08 1.73-.95 2.76 1.01.08 2.05-.51 2.68-1.26z"/></svg>
-          Installer herunterladen (v1.0.0 DMG)
+        <a href="https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow.dmg" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-1.08 1.73-.95 2.76 1.01.08 2.05-.51 2.68-1.26z"/></svg>
+          Download for macOS
         </a>
-        <a href="https://github.com/therealone00/LocalFlow" target="_blank" class="btn-secondary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-          Quellcode auf GitHub
+        <a href="https://github.com/therealone00/LocalFlow" class="btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          Source on GitHub
         </a>
       </div>
 
       <div class="hero-meta">
+        <span>v1.1.0</span>
+        <span>&bull;</span>
         <span>macOS 14.0+</span>
-        <span>•</span>
-        <span>Apple Silicon M1/M2/M3/M4 & Intel</span>
-        <span>•</span>
-        <span>2,3 MB DMG</span>
+        <span>&bull;</span>
+        <span>Apple Silicon &amp; Intel</span>
+        <span>&bull;</span>
+        <span>2.4 MB</span>
+        <span>&bull;</span>
+        <span>MIT</span>
       </div>
 
       <div class="showcase-frame">
-        <img src="assets/hero.jpg" alt="LocalFlow macOS Benutzeroberfläche">
+        <img src="assets/hero.jpg" width="1376" height="768" fetchpriority="high" decoding="async" alt="The LocalFlow floating bar showing a live audio meter while dictating into a macOS app">
       </div>
     </section>
 
-    <!-- Interactive Simulator -->
+    <!-- What's new -->
+    <section id="whatsnew" class="section-wrap">
+      <div class="section-header">
+        <div class="section-tag">Changelog</div>
+        <h2 class="section-title">New in 1.1</h2>
+        <p class="section-desc">A full pass over every surface of the app, and a set of preferences that finally do what they say.</p>
+      </div>
+
+      <span class="version-tag">v1.1.0</span>
+
+      <div class="whatsnew">
+        <div class="whatsnew-item">
+          <h3>A bar that fits its content</h3>
+          <p>The floating bar sizes itself to what it is showing instead of picking one of eight fixed widths, appears on the display you are actually using, and stops swallowing clicks when it has nothing to click.</p>
+        </div>
+        <div class="whatsnew-item">
+          <h3>Honest audio meter</h3>
+          <p>The meter now draws a rolling history of real microphone levels, so it reflects what you said rather than animating decoratively. An elapsed timer keeps long dictations in check.</p>
+        </div>
+        <div class="whatsnew-item">
+          <h3>Searchable history</h3>
+          <p>Your last 100 transcripts were already stored locally but only five were reachable. There is now a proper history pane with search, copy and delete.</p>
+        </div>
+        <div class="whatsnew-item">
+          <h3>Preferences that work</h3>
+          <p>Theme, bar size, bar position, transcript preview and reduced motion were rendered but never read by the app. All of them now drive real behaviour.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive simulator -->
     <section id="demo" class="section-wrap">
       <div class="section-header">
         <div class="section-tag">Simulator</div>
-        <h2 class="section-title">Echtzeit-Textinjektion & Bereinigung</h2>
-        <p class="section-desc">Testen Sie, wie LocalFlow gesprochene Füllwörter und Versprecher lokal herausfiltert, bevor der finale Text im Zielprogramm erscheint.</p>
+        <h2 class="section-title">Watch the cleanup happen</h2>
+        <p class="section-desc">Pick an example to see what LocalFlow strips out between the microphone and the text field. Everything below runs in your browser — it is an illustration of the pipeline, not live transcription.</p>
       </div>
 
       <div class="demo-sandbox">
-        <!-- Floating Bar Replica Top Bar -->
         <div class="sandbox-top">
           <div class="floating-bar-replica" id="demoPill">
-            <div class="rec-indicator-wrap">
+            <div class="rec-indicator-wrap" aria-hidden="true">
               <div class="rec-pulse-ring"></div>
               <div class="rec-indicator"></div>
             </div>
             <div class="app-tag">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
               <span>TextEdit</span>
             </div>
-            <div class="eq-bars">
+            <div class="eq-bars" aria-hidden="true">
               <div class="eq-bar"></div>
               <div class="eq-bar"></div>
               <div class="eq-bar"></div>
@@ -841,200 +1091,277 @@
               <div class="eq-bar"></div>
               <div class="eq-bar"></div>
             </div>
-            <span class="pill-state-text" id="demoStatus">Bereit (HotKey halten)</span>
+            <span class="pill-state-text" id="demoStatus" role="status">Ready — hold your hotkey</span>
           </div>
-          <span class="inference-badge">Apple Neural Engine • 0.72s</span>
+          <span class="inference-badge">Apple Neural Engine &bull; 0.72s</span>
         </div>
 
-        <!-- macOS Window Style Text Box -->
         <div class="editor-window">
           <div class="editor-titlebar">
-            <div class="window-dots">
+            <div class="window-dots" aria-hidden="true">
               <span class="w-dot red"></span>
               <span class="w-dot yellow"></span>
               <span class="w-dot green"></span>
             </div>
-            <span>TextEdit — Unbenannt.txt</span>
-            <span style="opacity: 0.6;">Fokus aktiv</span>
+            <span>TextEdit — Untitled.txt</span>
+            <span style="opacity: 0.6;">Focused</span>
           </div>
           <div class="editor-body">
-            <span id="editorContent">Klicken Sie unten auf ein Beispiel, um die automatische Bereinigung zu demonstrieren…</span><span class="cursor-caret"></span>
+            <span id="editorContent">Pick an example below to see the cleanup run…</span><span class="cursor-caret" aria-hidden="true"></span>
           </div>
         </div>
 
-        <!-- Sample Switchers -->
         <div class="sample-triggers">
-          <button class="btn-sample active" onclick="runDemo(1)">Beispiel 1: Füllwort-Filterung („äh, sozusagen“)</button>
-          <button class="btn-sample" onclick="runDemo(2)">Beispiel 2: Spontane Selbstkorrektur („nein warte um…“)</button>
-          <button class="btn-sample" onclick="runDemo(3)">Beispiel 3: Technische Interpunktion</button>
+          <button type="button" class="btn-sample active" onclick="runDemo(1)">Filler words</button>
+          <button type="button" class="btn-sample" onclick="runDemo(2)">Self-correction</button>
+          <button type="button" class="btn-sample" onclick="runDemo(3)">Technical punctuation</button>
+          <button type="button" class="btn-sample" onclick="runDemo(4)">German</button>
         </div>
       </div>
     </section>
 
-    <!-- Technical Architecture -->
+    <!-- Features -->
     <section id="features" class="section-wrap">
       <div class="section-header">
-        <div class="section-tag">Spezifikationen</div>
-        <h2 class="section-title">Nativ. Ressourcenschonend. Autark.</h2>
-        <p class="section-desc">Entwickelt in Swift und SwiftUI für minimale CPU-Last und null Speicher-Leaks.</p>
+        <div class="section-tag">How it works</div>
+        <h2 class="section-title">Native. Frugal. Self-contained.</h2>
+        <p class="section-desc">Written in Swift and SwiftUI, shipped as a 2.4 MB menu bar agent with no runtime dependencies beyond macOS itself.</p>
       </div>
 
       <div class="features-grid">
         <div class="spec-card">
           <div class="spec-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 3v6"/><path d="M9 3v6"/><path d="M9 15v6"/><path d="M15 15v6"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 3v6"/><path d="M9 3v6"/><path d="M9 15v6"/><path d="M15 15v6"/></svg>
           </div>
           <h3>Apple Neural Engine</h3>
-          <p>CoreML-Inferenz über WhisperKit direkt auf den hardwarebeschleunigten 16-Core Neural Processing Units der Apple Silicon Prozessoren.</p>
+          <p>CoreML inference through WhisperKit, running on the hardware-accelerated Neural Engine of Apple Silicon rather than on a CPU thread or a datacentre GPU.</p>
         </div>
 
         <div class="spec-card">
           <div class="spec-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </div>
-          <h3>Vollständige Datensouveränität</h3>
-          <p>Keine Übertragung von Audiodaten oder Transkripten an externe Server. Die Sprachdaten verbleiben ausschließlich im flüchtigen Arbeitsspeicher.</p>
+          <h3>Nothing leaves the machine</h3>
+          <p>No audio and no transcript is ever sent anywhere. Recordings exist only in memory for the duration of a transcription and are discarded immediately after.</p>
         </div>
 
         <div class="spec-card">
           <div class="spec-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
           </div>
-          <h3>Direkte Textinjektion</h3>
-          <p>Schreibt über macOS Accessibility APIs direkt an die aktive Cursorposition in Safari, Slack, VS Code, Mail, Obsidian oder Terminal.</p>
+          <h3>Types where your cursor is</h3>
+          <p>Inserts text at the caret through the macOS Accessibility APIs — Safari, Slack, VS Code, Mail, Obsidian, Terminal and anything else with a text field.</p>
         </div>
 
         <div class="spec-card">
           <div class="spec-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
           </div>
-          <h3>Regelbasierte Vorfilterung</h3>
-          <p>Deterministische Parsing-Algorithmen entfernen Füllfloskeln, bereinigen Whisper-Artefakte und korrigieren Satzkonstruktionen in Millisekunden.</p>
+          <h3>Cleanup you can tune</h3>
+          <p>Deterministic rules drop filler words, resolve self-corrections and fix punctuation in milliseconds. Turn each rule off individually, or hand the text to a local model for a fuller polish.</p>
         </div>
 
         <div class="spec-card">
           <div class="spec-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
           </div>
-          <h3>Kein Abonnement</h3>
-          <p>Vollständig unter Open-Source-Lizenz (MIT). Keine wiederkehrenden monatlichen SaaS-Kosten für alltägliche Spracheingabe.</p>
+          <h3>Your choice of hotkey</h3>
+          <p>Push-to-talk on <kbd>fn</kbd>, right <kbd>&#8997;</kbd> or the dictation key, or a toggle on <kbd>fn</kbd>&nbsp;+&nbsp;<kbd>Space</kbd>. Double-press for hands-free, <kbd>esc</kbd> to throw a dictation away.</p>
         </div>
 
         <div class="spec-card">
           <div class="spec-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
           </div>
-          <h3>Flexible Tastenmodi</h3>
-          <p>Push-to-Talk über Hold Fn (Globus-Taste), rechte Option-Taste oder Control + Option. Automatische Umschaltung auf Freisprechmodus bei kurzem Antippen.</p>
+          <h3>No subscription</h3>
+          <p>MIT licensed and free. There is no account, no trial, no seat count and nothing to cancel — because there is no server to pay for.</p>
         </div>
       </div>
 
       <div class="showcase-frame" style="margin-top: 36px;">
-        <img src="assets/architecture.jpg" alt="LocalFlow Architekturdiagramm">
+        <img src="assets/architecture.jpg" width="1376" height="768" loading="lazy" decoding="async" alt="Diagram of the LocalFlow pipeline from microphone capture through WhisperKit transcription and text cleanup to insertion">
       </div>
     </section>
 
-    <!-- Comparison Matrix -->
-    <section id="matrix" class="section-wrap">
+    <!-- Install -->
+    <section id="install" class="section-wrap">
       <div class="section-header">
-        <div class="section-tag">Systemvergleich</div>
-        <h2 class="section-title">Technische Gegenüberstellung</h2>
-        <p class="section-desc">Direkter Vergleich von LocalFlow mit Cloud-Diensten und herkömmlichen Diktierlösungen.</p>
+        <div class="section-tag">Getting started</div>
+        <h2 class="section-title">Running in about a minute</h2>
+        <p class="section-desc">The app is signed but not notarised, so macOS asks once before the first launch. Here is the whole path.</p>
       </div>
 
-      <div class="matrix-scroll-hint">← Tabelle horizontal wischen →</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Install</h3>
+          <p>Download the DMG and drag <code>LocalFlow.app</code> into your Applications folder.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Open it once</h3>
+          <p>Right-click the app and choose <strong>Open</strong>, then confirm. macOS remembers the decision from then on.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Grant two permissions</h3>
+          <p>Microphone, to hear you, and Accessibility, to type for you. The setup guide walks you through both and continues by itself once you grant them.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <h3>Hold and talk</h3>
+          <p>Press <kbd>fn</kbd> anywhere in macOS, say your sentence, release. The text lands at your cursor.</p>
+        </div>
+      </div>
+
+      <p style="margin-top: 18px; font-size: 0.86rem; color: var(--text-subtle);">
+        Prefer to build it yourself? <code style="font-family: 'JetBrains Mono', ui-monospace, monospace;">git clone</code> the repo and run <code style="font-family: 'JetBrains Mono', ui-monospace, monospace;">./scripts/build_app.sh</code> — Swift 6 toolchain, macOS 14 SDK, no other setup.
+      </p>
+    </section>
+
+    <!-- Comparison -->
+    <section id="matrix" class="section-wrap">
+      <div class="section-header">
+        <div class="section-tag">Comparison</div>
+        <h2 class="section-title">How it stacks up</h2>
+        <p class="section-desc">LocalFlow next to the cloud services and the dictation macOS already ships with.</p>
+      </div>
+
+      <div class="matrix-scroll-hint">&larr; Swipe the table horizontally &rarr;</div>
       <div class="matrix-box">
         <table>
           <thead>
             <tr>
-              <th>Funktion</th>
+              <th>Capability</th>
               <th class="col-focus">LocalFlow</th>
               <th>Wispr Flow</th>
               <th>Superwhisper</th>
-              <th>macOS Standard</th>
+              <th>macOS built-in</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Inferenz-Ort</td>
-              <td class="col-focus"><span class="tag-yes">100% Lokal (ANE)</span></td>
-              <td>Cloud-Server</td>
-              <td>Lokal / Hybrid</td>
+              <td>Where inference runs</td>
+              <td class="col-focus"><span class="tag-yes">On-device (ANE)</span></td>
+              <td>Cloud servers</td>
+              <td>Local / hybrid</td>
               <td>Hybrid</td>
             </tr>
             <tr>
-              <td>Preismodell</td>
-              <td class="col-focus"><span class="tag-yes">Kostenlos (MIT)</span></td>
-              <td>12–15 $/Monat</td>
-              <td>8 $/Monat</td>
-              <td>Inkludiert</td>
+              <td>Price</td>
+              <td class="col-focus"><span class="tag-yes">Free (MIT)</span></td>
+              <td>$12–15 / month</td>
+              <td>$8 / month</td>
+              <td>Included</td>
             </tr>
             <tr>
-              <td>Latenz</td>
-              <td class="col-focus">~0,7s (Neural Engine)</td>
-              <td>1,2s–2,5s (Netzwerk)</td>
-              <td>~0,9s</td>
-              <td>Variabel</td>
+              <td>Latency</td>
+              <td class="col-focus">~0.7s (Neural Engine)</td>
+              <td>1.2s–2.5s (network)</td>
+              <td>~0.9s</td>
+              <td>Varies</td>
             </tr>
             <tr>
-              <td>Audiodaten-Upload</td>
-              <td class="col-focus"><span class="tag-yes">Keiner (0 Byte)</span></td>
-              <td>Ja (Cloud API)</td>
-              <td>Je nach Modus</td>
-              <td>Teilweise</td>
+              <td>Audio uploaded</td>
+              <td class="col-focus"><span class="tag-yes">None (0 bytes)</span></td>
+              <td>Yes (cloud API)</td>
+              <td>Depends on mode</td>
+              <td>Partly</td>
             </tr>
             <tr>
-              <td>Füllwort-Filter</td>
-              <td class="col-focus"><span class="tag-yes">Integriert</span></td>
-              <td>Integriert</td>
-              <td>Nur Pro-Version</td>
-              <td><span class="tag-no">Nein</span></td>
+              <td>Filler-word removal</td>
+              <td class="col-focus"><span class="tag-yes">Built in</span></td>
+              <td>Built in</td>
+              <td>Pro only</td>
+              <td><span class="tag-no">No</span></td>
             </tr>
             <tr>
-              <td>Selbstkorrekturen</td>
-              <td class="col-focus"><span class="tag-yes">Lokal analysiert</span></td>
-              <td>Cloud-LLM</td>
-              <td>Nur Pro-Version</td>
-              <td><span class="tag-no">Nein</span></td>
+              <td>Self-correction handling</td>
+              <td class="col-focus"><span class="tag-yes">Resolved locally</span></td>
+              <td>Cloud LLM</td>
+              <td>Pro only</td>
+              <td><span class="tag-no">No</span></td>
+            </tr>
+            <tr>
+              <td>Source available</td>
+              <td class="col-focus"><span class="tag-yes">Yes (MIT)</span></td>
+              <td><span class="tag-no">No</span></td>
+              <td><span class="tag-no">No</span></td>
+              <td><span class="tag-no">No</span></td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- GitHub Sponsors Section — Clean Graphite / Monochrome (No Pink) -->
+    <!-- FAQ -->
+    <section id="faq" class="section-wrap">
+      <div class="section-header">
+        <div class="section-tag">FAQ</div>
+        <h2 class="section-title">Questions worth asking</h2>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>Does any audio really never leave my Mac?</summary>
+          <p>Yes. There is no networking code in the transcription path at all. The only time LocalFlow talks to the internet is when you explicitly download a speech model, and that is a one-off fetch from Hugging Face. You can verify this in the source, or just pull the network cable and keep dictating.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Which languages does it handle?</summary>
+          <p>Whisper's multilingual models, so most major languages. German and English are what the cleanup rules are tuned for. Auto-detect copes well with mixing the two mid-sentence; naming a language explicitly helps on very short phrases.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Why does macOS warn me on first launch?</summary>
+          <p>The app is code-signed but not notarised through the Apple Developer Program. Right-click the app and choose Open once, and macOS stops asking. If you would rather not trust the build, the whole thing compiles from source with one script.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Does it work on Intel Macs?</summary>
+          <p>It runs, using the whisper.cpp backend instead of the Neural Engine. Expect noticeably higher latency than the sub-second figures quoted here, which are measured on Apple Silicon.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Why does it need Accessibility access?</summary>
+          <p>That is the only supported way for an app to type into another app's text field on macOS. LocalFlow uses it to insert your text at the cursor, and — if you leave the option on — to read the few characters before the cursor so it can match capitalisation. That context is never stored and never read from password fields.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How much disk and memory does it use?</summary>
+          <p>The app itself is 2.4 MB. Speech models are 75 MB to 470 MB depending on which tier you pick, downloaded once. You can choose whether the model stays resident in RAM for the fastest first word or loads on demand to save memory.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- Sponsors -->
     <section id="sponsors" class="sponsors-wrap">
       <div class="sponsors-card">
         <div class="sponsors-header">
           <div class="sponsors-info">
-            <h2>Projekt unterstützen via GitHub Sponsors</h2>
+            <h2>Support the project on GitHub Sponsors</h2>
             <p>
-              LocalFlow wird unabhängig und ohne Wagniskapital entwickelt. Sponsoring unterstützt die Pflege zukünftiger macOS-Kompatibilität, Modell-Updates und die Implementierung weiterer lokaler Sprachfeatures.
+              LocalFlow is built independently, with no venture funding and nothing to upsell. Sponsoring pays for keeping up with new macOS releases, refreshing the speech models, and building out more of the local language features.
             </p>
           </div>
-          <a href="https://github.com/sponsors/therealone00" target="_blank" class="btn-gh-sponsor">
-            <svg viewBox="0 0 16 16"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.6-1.2-1.6 1.2a.25.25 0 0 1-.4-.2Z"/></svg>
-            Auf GitHub unterstützen
+          <a href="https://github.com/sponsors/therealone00" class="btn-gh-sponsor">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.6-1.2-1.6 1.2a.25.25 0 0 1-.4-.2Z"/></svg>
+            Sponsor on GitHub
           </a>
         </div>
 
         <div class="tier-matrix">
           <div class="tier-item">
             <div class="tier-badge">Supporter</div>
-            <div class="tier-amount">5 $ <span>/ Monat</span></div>
-            <div class="tier-desc">Unterstützt die laufende Wartung und kontinuierliche Fehlerbehebungen für neue macOS-Versionen.</div>
+            <div class="tier-amount">$5 <span>/ month</span></div>
+            <div class="tier-desc">Keeps maintenance and macOS compatibility fixes coming.</div>
           </div>
 
           <div class="tier-item">
             <div class="tier-badge">Power User</div>
-            <div class="tier-amount">15 $ <span>/ Monat</span></div>
-            <div class="tier-desc">Priorisierter Issue-Support und Abstimmung über nächste Funktionserweiterungen.</div>
+            <div class="tier-amount">$15 <span>/ month</span></div>
+            <div class="tier-desc">Prioritised issue support and a say in what gets built next.</div>
           </div>
 
           <div class="tier-item">
             <div class="tier-badge">Backer</div>
-            <div class="tier-amount">50 $ <span>einmalig</span></div>
-            <div class="tier-desc">Dauerhafte Nennung in den Versionshinweisen und im Repository für Einzelpersonen und Teams.</div>
+            <div class="tier-amount">$50 <span>one-off</span></div>
+            <div class="tier-desc">A permanent credit in the release notes and the repository.</div>
           </div>
         </div>
       </div>
@@ -1045,13 +1372,14 @@
   <footer>
     <div class="container footer-content">
       <div>
-        <p>© 2026 LocalFlow Contributors & <a href="https://github.com/therealone00" style="color: inherit; text-decoration: underline;">therealone00</a>. MIT License.</p>
+        <p>&copy; 2026 LocalFlow contributors &amp; <a href="https://github.com/therealone00" style="color: inherit; text-decoration: underline;">therealone00</a>. MIT licensed.</p>
       </div>
       <div class="footer-links">
-        <a href="https://github.com/therealone00/LocalFlow" target="_blank">Repository</a>
-        <a href="https://github.com/therealone00/LocalFlow/releases" target="_blank">Releases</a>
-        <a href="https://github.com/sponsors/therealone00" target="_blank">GitHub Sponsors</a>
-        <a href="https://github.com/therealone00/LocalFlow/blob/main/LICENSE" target="_blank">Lizenz</a>
+        <a href="https://github.com/therealone00/LocalFlow">Repository</a>
+        <a href="https://github.com/therealone00/LocalFlow/releases">Releases</a>
+        <a href="https://github.com/therealone00/LocalFlow/issues">Issues</a>
+        <a href="https://github.com/sponsors/therealone00">Sponsors</a>
+        <a href="https://github.com/therealone00/LocalFlow/blob/main/LICENSE">License</a>
       </div>
     </div>
   </footer>
@@ -1059,19 +1387,25 @@
   <script>
     const demos = {
       1: {
-        raw: "Ich habe, äh, die Datenpipeline jetzt fertiggestellt und sozusagen für das Release vorbereitet.",
-        cleaned: "Ich habe die Datenpipeline jetzt fertiggestellt und für das Release vorbereitet."
+        raw: "So I've, uh, finished the data pipeline and, like, got it ready for the release.",
+        cleaned: "I've finished the data pipeline and got it ready for the release."
       },
       2: {
-        raw: "Lass uns den Termin morgen um 14 Uhr, nein warte um 15 Uhr 30 machen.",
-        cleaned: "Lass uns den Termin morgen um 15:30 Uhr machen."
+        raw: "Let's move the meeting to tomorrow at two, no wait, at half three.",
+        cleaned: "Let's move the meeting to tomorrow at 3:30."
       },
       3: {
-        raw: "Hier müssen wir den buffer threadsafe mit einem lock absichern damit keine race conditions entstehen punkt",
-        cleaned: "Hier müssen wir den Buffer thread-safe mit einem Lock absichern, damit keine Race Conditions entstehen."
+        raw: "we need to guard the buffer with a lock so no race conditions show up period",
+        cleaned: "We need to guard the buffer with a lock so no race conditions show up."
+      },
+      4: {
+        raw: "Ich habe, äh, die Datenpipeline jetzt fertiggestellt und sozusagen für das Release vorbereitet.",
+        cleaned: "Ich habe die Datenpipeline fertiggestellt und für das Release vorbereitet."
       }
     };
 
+    const IDLE_STATUS = "Ready — hold your hotkey";
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let typingTimer = null;
 
     function runDemo(id) {
@@ -1082,18 +1416,33 @@
       const demo = demos[id];
       const editor = document.getElementById('editorContent');
       const status = document.getElementById('demoStatus');
-      
+
       clearTimeout(typingTimer);
-      
-      status.innerText = "Transkribiere lokal (ANE)…";
-      editor.innerHTML = `<span style="color: #71717A; font-style: italic;">"${demo.raw}"</span>`;
+
+      status.innerText = "Transcribing locally (ANE)…";
+      editor.innerHTML = '';
+      const rawSpan = document.createElement('span');
+      rawSpan.style.color = '#71717A';
+      rawSpan.style.fontStyle = 'italic';
+      rawSpan.innerText = '"' + demo.raw + '"';
+      editor.appendChild(rawSpan);
+
+      // Reduced motion gets the result immediately instead of a typing crawl.
+      if (prefersReducedMotion) {
+        typingTimer = setTimeout(() => {
+          status.innerText = "Inserted (0.72s)";
+          editor.innerText = demo.cleaned;
+          typingTimer = setTimeout(() => { status.innerText = IDLE_STATUS; }, 1400);
+        }, 400);
+        return;
+      }
 
       typingTimer = setTimeout(() => {
-        status.innerText = "Eingefügt (0.72s)";
-        
+        status.innerText = "Inserted (0.72s)";
+
         let currentText = "";
         let charIndex = 0;
-        
+
         const typeChar = () => {
           if (charIndex < demo.cleaned.length) {
             currentText += demo.cleaned[charIndex];
@@ -1101,8 +1450,8 @@
             charIndex++;
             typingTimer = setTimeout(typeChar, 14);
           } else {
-            setTimeout(() => {
-              status.innerText = "Bereit (HotKey halten)";
+            typingTimer = setTimeout(() => {
+              status.innerText = IDLE_STATUS;
             }, 1400);
           }
         };

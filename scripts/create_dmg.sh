@@ -5,15 +5,20 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 APP_NAME="LocalFlow"
-VERSION="1.0.0"
+# Single source of truth: the version ships in Info.plist, never duplicated here.
+VERSION="$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "${ROOT_DIR}/Config/Info.plist")"
 BUILD_DIR="${ROOT_DIR}/build"
 APP_BUNDLE="${BUILD_DIR}/${APP_NAME}.app"
 DMG_NAME="${APP_NAME}-v${VERSION}.dmg"
 DMG_PATH="${BUILD_DIR}/${DMG_NAME}"
+# Stable-named copy so https://.../releases/latest/download/LocalFlow.dmg keeps
+# working across releases. A versioned filename there breaks every download
+# link on the website the moment a new version ships.
+DMG_STABLE_PATH="${BUILD_DIR}/${APP_NAME}.dmg"
 DMG_TMP_DIR="/tmp/${APP_NAME}_dmg_staging"
 
-echo "==> Preparing DMG staging area..."
-rm -rf "${DMG_TMP_DIR}" "${DMG_PATH}"
+echo "==> Building ${APP_NAME} v${VERSION} disk image..."
+rm -rf "${DMG_TMP_DIR}" "${DMG_PATH}" "${DMG_STABLE_PATH}"
 mkdir -p "${DMG_TMP_DIR}"
 
 if [ ! -d "${APP_BUNDLE}" ]; then
@@ -40,8 +45,13 @@ rm -rf "${DMG_TMP_DIR}"
 echo "==> Verifying DMG..."
 hdiutil verify "${DMG_PATH}"
 
+echo "==> Writing stable-named copy for permalinks..."
+cp "${DMG_PATH}" "${DMG_STABLE_PATH}"
+
 echo "=================================================="
-echo " DMG created successfully at:"
+echo " DMG created successfully:"
 echo " ${DMG_PATH}"
+echo " ${DMG_STABLE_PATH}"
+echo " Version: ${VERSION}"
 echo " Size: $(du -h "${DMG_PATH}" | awk '{print $1}')"
 echo "=================================================="

@@ -44,12 +44,14 @@ Holding your configured hotkey triggers real-time audio capture, routes 16kHz au
 
 ### Direct DMG Download (Recommended)
 
-1. Download **[LocalFlow-v1.0.0.dmg](https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow-v1.0.0.dmg)**.
+1. Download **[LocalFlow.dmg](https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow.dmg)** — this link always points at the newest release.
 2. Open the disk image and drag **LocalFlow.app** into your **Applications** folder.
-3. Launch LocalFlow from Applications or Spotlight (`Cmd + Space`).
-4. Grant the standard macOS permissions:
-   - **Microphone**: Local audio capture.
-   - **Accessibility**: Required to inject text directly into third-party active fields.
+3. **Right-click the app and choose Open**, then confirm. The build is code-signed but not notarised, so macOS asks once; it remembers the decision from then on.
+4. Grant the two macOS permissions the setup guide asks for:
+   - **Microphone**: local audio capture.
+   - **Accessibility**: required to type into the text field you are focused on.
+
+The setup guide continues on its own once each permission is granted, so you do not have to come back and click Continue.
 
 ### Build from Source
 
@@ -66,16 +68,20 @@ open build/LocalFlow.app
 
 - **Universal Direct Text Injection**: Direct AX selected text injection or synchronized HID keyboard events into Safari, Chrome, Slack, VS Code, Notes, Xcode, Terminal, etc.
 - **Apple Silicon Neural Engine Acceleration**: WhisperKit CoreML inference executes on the 16-core ANE in ~0.7s at 16x real-time factor.
-- **Obsidian-Glass Floating Panel**: Minimalist `.ultraThinMaterial` panel with dynamic 7-bar vertical gradient equalizer and non-activating window level.
+- **Obsidian-Glass Floating Panel**: Minimalist `.ultraThinMaterial` panel that sizes itself to its content, appears on the display under your pointer, shows an elapsed timer, and forwards mouse events to the app underneath unless it is offering a control. The meter draws a rolling history of real microphone levels rather than a decorative animation.
 - **Push-to-Talk & Hands-Free Modes**:
   - Hold `Fn` (Globe) or `Right Option` to speak, release to commit.
-  - Brief tap triggers hands-free mode; press `Return` or hotkey again to finish.
-  - Also supports `Control + Option` and custom keybindings.
+  - Double-press triggers hands-free mode; press the hotkey again to finish, or just stop talking and it ends on its own after your configured silence threshold.
+  - `Esc` throws away the dictation in progress.
+  - Also supports `Fn + Space`, `Control + Option`, the dedicated dictation key, and custom keybindings.
 - **Deterministic Text Intelligence**:
   - Filters German & English conversational filler words (*„äh“, „ähm“, „quasi“, „sozusagen“, „like“*).
   - Spoken self-correction parser (*„morgen um 14, nein um 15 Uhr“ ➔ „morgen um 15 Uhr“*).
   - Contextual punctuation and capitalization.
-- **Zero Data Retention**: Audio buffers exist solely in volatile RAM during recording and are purged immediately after transcription.
+- **Local History**: The last 100 transcripts are kept on-device so you can search, copy and re-insert them. Off with one toggle, and clearable at any time.
+- **Personal Dictionary**: Teach LocalFlow the names, jargon and shorthand it should always spell your way.
+- **Zero Data Retention**: Audio buffers exist solely in volatile RAM during recording and are purged immediately after transcription. Audio is never written to disk, under any setting.
+- **Accessible by Default**: Honours Reduce Motion — both the app's own setting and the macOS one — and every preference in Settings is wired to real behaviour.
 
 ---
 
@@ -135,6 +141,14 @@ Sponsorship support directly funds:
 - Model fine-tuning and multilingual optimization.
 - Maintenance across upcoming macOS operating system releases.
 - Local on-device LLM integration via MLX / CoreML.
+
+---
+
+## Contributing
+
+Pull requests are welcome. See **[CONTRIBUTING.md](CONTRIBUTING.md)** for the build steps and the one hard rule: nothing leaves the user's Mac.
+
+Found a security issue? Please report it privately — see **[SECURITY.md](SECURITY.md)**.
 
 ---
 

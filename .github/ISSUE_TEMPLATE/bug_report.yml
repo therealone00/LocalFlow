@@ -1,0 +1,65 @@
+name: Bug report
+description: Something in LocalFlow does not work as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file this. Please do not paste transcripts
+        or recordings that contain anything private — a paraphrase is fine.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Hold fn in Safari
+        2. Say "…"
+        3. Release
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: LocalFlow version
+      description: Settings › General › Version, or the DMG filename.
+      placeholder: "1.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac model
+      placeholder: "macOS 15.2, MacBook Pro M3"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: model
+    attributes:
+      label: Speech model in use
+      options:
+        - Tiny
+        - Base
+        - Small
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console output (optional)
+      description: |
+        Console.app, filter by process `LocalFlow`. Redact anything private.
+      render: text
