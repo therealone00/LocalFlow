@@ -1,12 +1,8 @@
-<p align="center">
-  <img src="assets/hero.jpg" alt="LocalFlow Banner" width="100%" style="border-radius: 8px;" />
-</p>
-
 <h1 align="center">LocalFlow</h1>
 
 <p align="center">
-  <strong>100% Offline, Native macOS Speech-to-Text — Powered by Apple Neural Engine & WhisperKit</strong><br>
-  <em>System-wide voice input. Sub-0.8s on-device inference. Zero cloud dependencies. Zero subscriptions.</em>
+  <strong>On-device dictation for macOS — powered by the Apple Neural Engine</strong><br>
+  <em>Hold a key, talk, and your words are typed into whatever app you are in. Nothing leaves your Mac.</em>
 </p>
 
 <p align="center">
@@ -14,46 +10,69 @@
   <img src="https://img.shields.io/badge/macOS-14.0%2B-black?style=flat-square&logo=apple" alt="macOS 14.0+">
   <img src="https://img.shields.io/badge/Apple%20Silicon-Neural%20Engine-black?style=flat-square" alt="Apple Silicon ANE">
   <img src="https://img.shields.io/badge/Privacy-100%25%20On--Device-34C759?style=flat-square" alt="100% On-Device">
-  <a href="https://github.com/sponsors/therealone00"><img src="https://img.shields.io/badge/Sponsor-therealone00-24292F?style=flat-square&logo=github" alt="Sponsor"></a>
-  <img src="https://img.shields.io/badge/License-Elastic%202.0-blue?style=flat-square" alt="License">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Elastic%202.0-blue?style=flat-square" alt="License"></a>
 </p>
 
 <p align="center">
-  <a href="#-download--installation"><strong>Download DMG</strong></a> •
-  <a href="#-features"><strong>Features</strong></a> •
-  <a href="#-architecture"><strong>Architecture</strong></a> •
-  <a href="#-comparison"><strong>Comparison</strong></a> •
-  <a href="#-support--sponsorship"><strong>Sponsor</strong></a> •
-  <a href="https://therealone00.github.io/LocalFlow/"><strong>Website</strong></a>
+  <a href="#download">Download</a> •
+  <a href="#free--pro">Pricing</a> •
+  <a href="#features">Features</a> •
+  <a href="#how-it-works">How it works</a> •
+  <a href="https://therealone00.github.io/LocalFlow/">Website</a>
 </p>
 
 ---
 
 ## Overview
 
-LocalFlow provides frictionless, system-wide speech dictation across macOS with a strict design requirement:
+LocalFlow gives you system-wide voice input on macOS under one strict rule:
 
-> **All audio processing, feature extraction, neural inference, and text polishing run entirely on-device.**
-> No cloud transcription. No external APIs. Zero data egress. No user accounts. No subscription walls.
+> **All audio capture, inference and text cleanup happen on your Mac.**
+> No cloud transcription. No external APIs. No account. Zero data egress.
 
-Holding your configured hotkey triggers real-time audio capture, routes 16kHz audio buffers to WhisperKit on the Apple Neural Engine, runs deterministic text cleanup, and writes directly into your focused cursor position in **under 0.8 seconds**.
+Hold your hotkey, speak, release. Audio goes to WhisperKit on the Apple Neural
+Engine, the transcript is cleaned up, and the result is typed at your cursor —
+usually in under a second.
 
 ---
 
-## Download & Installation
+## Free & Pro
 
-### Direct DMG Download (Recommended)
+Free is a complete dictation app. Not a trial, not time-limited, no nag screens.
+
+| | Free | Pro — €15 once |
+| :--- | :---: | :---: |
+| Dictation | Unlimited | Unlimited |
+| Rule-based cleanup | ✓ | ✓ |
+| Speech models | Tiny, Base | + **Small** |
+| Dictionary rules | 10 | Unlimited |
+| History in reach | Last 25 | All of it |
+| Smart AI polish (local LLM) | — | ✓ |
+| Per-app writing styles | — | ✓ |
+
+One payment, every Mac you own, all future updates included.
+
+**The license key is verified offline** — an Ed25519 signature checked against a
+public key compiled into the app. LocalFlow never contacts a server to confirm
+you paid, so Pro keeps working with no network at all.
+
+Buy it on [the website](https://therealone00.github.io/LocalFlow/#pricing), then
+paste the key into Settings › Pro.
+
+---
+
+## Download
 
 1. Download **[LocalFlow.dmg](https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow.dmg)** — this link always points at the newest release.
-2. Open the disk image and drag **LocalFlow.app** into your **Applications** folder.
-3. **Right-click the app and choose Open**, then confirm. The build is code-signed but not notarised, so macOS asks once; it remembers the decision from then on.
-4. Grant the two macOS permissions the setup guide asks for:
-   - **Microphone**: local audio capture.
-   - **Accessibility**: required to type into the text field you are focused on.
+2. Open it and drag **LocalFlow.app** into **Applications**.
+3. **Right-click the app and choose Open**, then confirm. The build is signed but not notarised, so macOS asks once and then remembers.
+4. Grant the two permissions the setup guide asks for:
+   - **Microphone** — to hear you. Audio never touches the disk.
+   - **Accessibility** — to type into the app you are focused on.
 
-The setup guide continues on its own once each permission is granted, so you do not have to come back and click Continue.
+The setup guide continues by itself once each permission is granted.
 
-### Build from Source
+### Build it yourself
 
 ```bash
 git clone https://github.com/therealone00/LocalFlow.git
@@ -62,127 +81,76 @@ cd LocalFlow
 open build/LocalFlow.app
 ```
 
----
-
-## Core Specifications
-
-- **Universal Direct Text Injection**: Direct AX selected text injection or synchronized HID keyboard events into Safari, Chrome, Slack, VS Code, Notes, Xcode, Terminal, etc.
-- **Apple Silicon Neural Engine Acceleration**: WhisperKit CoreML inference executes on the 16-core ANE in ~0.7s at 16x real-time factor.
-- **Obsidian-Glass Floating Panel**: Minimalist `.ultraThinMaterial` panel that sizes itself to its content, appears on the display under your pointer, shows an elapsed timer, and forwards mouse events to the app underneath unless it is offering a control. The meter draws a rolling history of real microphone levels rather than a decorative animation.
-- **Push-to-Talk & Hands-Free Modes**:
-  - Hold `Fn` (Globe) or `Right Option` to speak, release to commit.
-  - Double-press triggers hands-free mode; press the hotkey again to finish, or just stop talking and it ends on its own after your configured silence threshold.
-  - `Esc` throws away the dictation in progress.
-  - Also supports `Fn + Space`, `Control + Option`, the dedicated dictation key, and custom keybindings.
-- **Deterministic Text Intelligence**:
-  - Filters German & English conversational filler words (*„äh“, „ähm“, „quasi“, „sozusagen“, „like“*).
-  - Spoken self-correction parser (*„morgen um 14, nein um 15 Uhr“ ➔ „morgen um 15 Uhr“*).
-  - Contextual punctuation and capitalization.
-- **Local History**: Transcripts are kept on-device so you can search, copy and re-insert them. Off with one toggle, and clearable at any time.
-- **Personal Dictionary**: Teach LocalFlow the names, jargon and shorthand it should always spell your way.
-- **Zero Data Retention**: Audio buffers exist solely in volatile RAM during recording and are purged immediately after transcription. Audio is never written to disk, under any setting.
-- **Accessible by Default**: Honours Reduce Motion — both the app's own setting and the macOS one — and every preference in Settings is wired to real behaviour.
+Requires macOS 14+ and a Swift 6 toolchain. Nothing else — WhisperKit is
+resolved by SwiftPM.
 
 ---
 
-## Architecture
+## Features
 
-<p align="center">
-  <img src="assets/architecture.jpg" alt="LocalFlow Architecture" width="100%" style="border-radius: 8px;" />
-</p>
+- **Types where your cursor is.** Inserts through the macOS Accessibility APIs, so it works in Safari, Chrome, Slack, VS Code, Notes, Xcode, Terminal and everything else.
+- **Neural Engine inference.** WhisperKit via CoreML on Apple Silicon, ~0.7s for a normal sentence. Intel Macs fall back to whisper.cpp and are noticeably slower.
+- **A floating bar that stays out of the way.** Sizes itself to its content, appears on the display under your pointer, shows elapsed recording time, and passes clicks through to the app underneath unless it is offering a control. The meter draws a rolling history of real microphone levels rather than a decorative animation.
+- **Push-to-talk and hands-free.** Hold `fn` or right `⌥` and release to insert. Double-press for hands-free, which ends on its own after your silence threshold. `Esc` throws a dictation away.
+- **Cleanup you control.** Filler words, spoken self-corrections (*"morgen um 14, nein um 15 Uhr" → "morgen um 15 Uhr"*), punctuation and capitalisation — each rule switchable on its own.
+- **Local history and dictionary.** Search everything you have dictated and re-insert it. Teach LocalFlow the names and jargon it should always spell your way.
+- **Zero data retention.** Audio exists in memory for one transcription and is then released. There is no setting to change that because there is no code path that writes it.
+- **Accessible by default.** Honours Reduce Motion, both the app's own setting and the macOS one.
+
+---
+
+## How it works
 
 ```
-[ Microphone Input ] 
-       │ 16kHz Float32 Ring Buffer (os_unfair_lock, Zero Jitter)
-       ▼
-[ Voice Activity Detector (VAD) ]
-       │ Energy-adaptive silence detection
-       ▼
-[ WhisperKit Engine ] ──► Apple Neural Engine (ANE) / CoreML
-       │ ~0.7s local inference
-       ▼
-[ Text Intelligence Pipeline ]
-       │ 1. Filler Word Removal
-       │ 2. Spoken Self-Correction Parser
-       │ 3. Contextual Punctuation Engine
-       ▼
-[ Accessibility & Direct Injection ] ──► Focused macOS Cursor
+[ Microphone ]
+      │  16 kHz Float32, lock-protected ring buffer
+      ▼
+[ Voice Activity Detector ]
+      │  energy-adaptive silence detection
+      ▼
+[ WhisperKit ] ──► Apple Neural Engine / CoreML
+      │  ~0.7s, on-device
+      ▼
+[ Text cleanup ]
+      │  filler words → self-corrections → punctuation → dictionary
+      ▼
+[ Accessibility insertion ] ──► your cursor
 ```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the reasoning behind each stage.
 
 ---
 
-## Technical Comparison
+## Comparison
 
-| Specification | LocalFlow | Wispr Flow | Superwhisper | macOS Dictation |
+| | LocalFlow | Wispr Flow | Superwhisper | macOS Dictation |
 | :--- | :---: | :---: | :---: | :---: |
-| **Inference Location** | **100% On-Device** | Cloud Server | Local / Hybrid | Hybrid |
-| **Cost** | **$0 / MIT Open Source** | $12–$15 / mo | $8 / mo | Included |
-| **Hardware Target** | **Apple Neural Engine** | Cloud GPU | Local CoreML | Standard |
-| **Audio Egress** | **0 Bytes (RAM only)** | Uploaded | Mode-dependent | Partial |
-| **Direct Text Insertion** | Universal | Universal | Universal | Basic |
-| **Self-Correction Logic** | Local Parser | Cloud LLM | Pro tier only | None |
-| **Filler Filtering** | German & English | Cloud LLM | Pro tier only | None |
-
----
-
-## Support & Sponsorship
-
-LocalFlow is developed independently as free, open-source software.
-
-If LocalFlow accelerates your workflow, you can back ongoing maintenance, new language models, and future macOS compatibility through **[GitHub Sponsors](https://github.com/sponsors/therealone00)**:
-
-<p align="center">
-  <a href="https://github.com/sponsors/therealone00">
-    <img src="https://img.shields.io/badge/Sponsor%20LocalFlow-GitHub%20Sponsors-24292F?style=for-the-badge&logo=github" alt="Sponsor on GitHub" height="38">
-  </a>
-</p>
-
-Sponsorship support directly funds:
-- Model fine-tuning and multilingual optimization.
-- Maintenance across upcoming macOS operating system releases.
-- Local on-device LLM integration via MLX / CoreML.
-
----
-
-## Free & Pro
-
-LocalFlow is free and unlimited. There is no trial, no word cap and no nag screen.
-
-| | Free | Pro — €15 once |
-| :--- | :---: | :---: |
-| Dictation | Unlimited | Unlimited |
-| Rule-based cleanup | Yes | Yes |
-| Speech models | Tiny, Base | Tiny, Base, **Small** |
-| Dictionary rules | 10 | Unlimited |
-| History in reach | Last 25 | All of it |
-| Smart AI polish (local LLM) | — | Yes |
-| Per-app writing styles | — | Yes |
-
-Pro is a one-time purchase that works on every Mac you own, with all future
-updates included. **The license key is verified offline** using an Ed25519
-signature checked against a public key compiled into the app — LocalFlow never
-contacts a server to confirm it, so Pro keeps working with no network at all.
-
-Buy it at **[the website](https://therealone00.github.io/LocalFlow/#pricing)**,
-then paste the key into Settings › Pro.
+| **Where inference runs** | **On-device (ANE)** | Cloud servers | Local / hybrid | Hybrid |
+| **Cost** | **Free, €15 once for Pro** | $12–15 / mo | $8 / mo | Included |
+| **Audio uploaded** | **None (0 bytes)** | Yes | Depends on mode | Partly |
+| **Works offline** | **Always** | No | Depends on mode | Partly |
+| **Account required** | **No** | Yes | Yes | Apple ID |
+| **Source readable** | **Yes** | No | No | No |
+| **Self-correction handling** | Local parser | Cloud LLM | Pro tier only | None |
 
 ---
 
 ## Contributing
 
-Pull requests are welcome. See **[CONTRIBUTING.md](CONTRIBUTING.md)** for the build steps and the one hard rule: nothing leaves the user's Mac.
+Pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) has the build
+steps and the one hard rule: nothing leaves the user's Mac.
 
-Found a security issue? Please report it privately — see **[SECURITY.md](SECURITY.md)**.
+Found a security issue? Report it privately — see [SECURITY.md](SECURITY.md).
 
 ---
 
 ## License
 
-**[Elastic License 2.0](LICENSE)** © 2026 Maximilian Leinz ([therealone00](https://github.com/therealone00)).
+**[Elastic License 2.0](LICENSE)** © 2026 loomlytic.
 
-Read, fork, modify and build it yourself — that is all explicitly allowed. What
-is not allowed is stripping the license key check or reselling LocalFlow as a
+Read it, fork it, modify it, build your own copy — all explicitly allowed. What
+is not allowed is removing the license key check or reselling LocalFlow as a
 hosted service.
 
 Versions 1.0.0 and 1.1.0 were released under MIT and stay MIT forever. See
-**[NOTICE.md](NOTICE.md)** for the full history and reasoning.
+[NOTICE.md](NOTICE.md) for the full history.

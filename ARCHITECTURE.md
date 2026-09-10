@@ -44,7 +44,7 @@ To provide an optimal universal experience across both modern Apple Silicon and 
 - **Framework**: `AVAudioEngine` with `inputNode`.
 - **Target Format**: 16,000 Hz, 1 channel (Mono), Float32.
 - **Resampling**: `AVAudioConverter` seamlessly converts from device hardware rates (44.1 kHz, 48 kHz stereo) to the single-channel 16 kHz Float32 format expected by Whisper.
-- **Thread-Safety**: Audio buffers are written into an actor-isolated `AudioBufferStore` during recording to prevent race conditions.
+- **Thread-Safety**: The CoreAudio tap runs on a realtime thread, so samples are appended to a `SynchronizedAudioBuffer` guarded by an `os_unfair_lock` rather than an actor — awaiting an actor from that thread would risk audio dropouts.
 - **Metering**: RMS calculation is computed on each frame using Apple's `Accelerate` framework (`vDSP_rmsqv`), publishing normalized 0.0–1.0 values to drive the UI waveform animation at 60 Hz.
 - **Zero Disk Leakage**: Audio data is held exclusively in volatile RAM and completely cleared upon session completion.
 
@@ -121,3 +121,55 @@ Raw automatic speech recognition (ASR) output contains hesitation sounds, retrac
 - **Secure Text Fields**: If `FocusedElementReader` detects an `AXSecureTextField` or password field, context reading is suppressed.
 - **No Background Audio Eavesdropping**: The microphone is only energized while the hotkey is depressed (or during active hands-free mode).
 - **Modern Launch at Login**: Uses Apple's `SMAppService.mainApp.register()` without deprecated helper bundles or legacy scripts.
+
+---
+
+## 8. UI Layer & Design Tokens
+
+Every spacing value, radius, colour and animation curve lives in `DS`
+(`UI/DesignSystem/`). This is not cosmetic tidiness — it is what makes a single
+Reduce Motion switch silence the whole interface, because every animation is
+constructed through `DS.Motion` and each curve collapses to `nil` when motion is
+reduced (the app's own setting *or* the macOS one).
+
+Two rules the codebase enforces:
+
+- **A preference that is rendered must be read.** Version 1.1 existed largely
+  because six settings were displayed and consulted by nothing.
+- **Enum `rawValue`s are persistence keys, not labels.** They are what gets
+  encoded into `UserDefaults`; renaming one silently resets every user's
+  settings, because a decode failure falls back to defaults. User-facing text
+  lives in `Models/SettingsDisplay.swift`.
+
+The floating bar is an `NSPanel` that measures the ideal size of its SwiftUI
+content and resizes to match, instead of picking a width per state. It appears
+on the screen under the pointer rather than the primary display, and sets
+`ignoresMouseEvents` unless it is actually showing a control, so it never
+swallows a click meant for the app underneath.
+
+---
+
+## 9. Licensing
+
+LocalFlow has a paid tier, and the licensing design is constrained by the same
+guarantee as everything else: it must work with no network.
+
+- **Offline verification.** A key is `LF1.<payload>.<signature>`, an Ed25519
+  signature over the payload, checked against a public key compiled into the
+  app. The signature is verified *before* the payload is decoded, so untrusted
+  bytes are never parsed. There is no activation server and no phone-home.
+- **Entitlements resolve in one place.** The pipeline reads
+  `SettingsManager.effectiveSettings`, which downgrades Pro-only choices on the
+  free tier. Engines contain no `isPro` checks. The user's stored preference is
+  never overwritten, so buying Pro restores what they had picked.
+- **Free limits hide data, they never delete it.** History keeps storing 100
+  transcripts and surfaces 25; the dictionary keeps every existing rule working
+  and only blocks new ones past the ceiling. Upgrading must return someone's
+  data intact, not reveal that it was discarded.
+- **Issuing lives outside the app.** A Cloudflare Worker (`server/`) creates
+  Stripe Checkout sessions, verifies webhook signatures with a timing-safe
+  comparison and a replay window, and signs licenses idempotently — Stripe
+  delivers webhooks at least once, so issuing must be safe to run twice.
+
+The signing key is the one irreplaceable artefact in the project: losing it
+invalidates every license ever sold.
