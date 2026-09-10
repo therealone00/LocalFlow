@@ -11,6 +11,7 @@ public enum SettingsTab: String, CaseIterable, Identifiable, Hashable {
     case privacy = "Privacy"
     case appearance = "Appearance"
     case advanced = "Advanced"
+    case license = "Pro"
 
     public var id: String { rawValue }
 
@@ -27,6 +28,7 @@ public enum SettingsTab: String, CaseIterable, Identifiable, Hashable {
         case .privacy: return "lock.shield"
         case .appearance: return "paintpalette"
         case .advanced: return "slider.horizontal.3"
+        case .license: return "seal"
         }
     }
 
@@ -36,6 +38,7 @@ public enum SettingsTab: String, CaseIterable, Identifiable, Hashable {
         case text = "Text"
         case engine = "Engine"
         case data = "Data"
+        case account = "License"
 
         public var id: String { rawValue }
 
@@ -45,6 +48,7 @@ public enum SettingsTab: String, CaseIterable, Identifiable, Hashable {
             case .text: return [.intelligence, .dictionary]
             case .engine: return [.models, .advanced]
             case .data: return [.history, .privacy]
+            case .account: return [.license]
             }
         }
     }
@@ -103,6 +107,7 @@ public struct SettingsView: View {
         case .privacy: PrivacySettingsView()
         case .appearance: AppearanceSettingsView()
         case .advanced: AdvancedSettingsView()
+        case .license: LicenseSettingsView()
         }
     }
 }

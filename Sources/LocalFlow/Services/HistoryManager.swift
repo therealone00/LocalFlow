@@ -45,6 +45,21 @@ public final class HistoryManager: ObservableObject {
     public var lastDictationText: String? {
         items.first?.text
     }
+
+    /// The transcripts the current tier can reach.
+    ///
+    /// Everything stays on disk regardless of tier — the free ceiling hides the
+    /// older entries rather than deleting them, so buying Pro brings the whole
+    /// archive back instead of revealing that it was thrown away.
+    public var accessibleItems: [DictationHistoryItem] {
+        guard let limit = LicenseManager.shared.limit(for: .fullHistory) else { return items }
+        return Array(items.prefix(limit))
+    }
+
+    /// How many stored transcripts the free tier is currently hiding.
+    public var lockedItemCount: Int {
+        max(0, items.count - accessibleItems.count)
+    }
     
     private func load() {
         let url = AppConstants.historyFileURL

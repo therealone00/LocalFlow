@@ -9,6 +9,7 @@ import AppKit
 public struct HistorySettingsView: View {
     @ObservedObject var historyManager = HistoryManager.shared
     @ObservedObject var settingsManager = SettingsManager.shared
+    @ObservedObject var licenseManager = LicenseManager.shared
 
     @State private var searchText = ""
     @State private var copiedItemId: UUID?
@@ -17,8 +18,8 @@ public struct HistorySettingsView: View {
 
     private var filteredItems: [DictationHistoryItem] {
         let query = searchText.trimmingCharacters(in: .whitespaces)
-        guard !query.isEmpty else { return historyManager.items }
-        return historyManager.items.filter {
+        guard !query.isEmpty else { return historyManager.accessibleItems }
+        return historyManager.accessibleItems.filter {
             $0.text.localizedCaseInsensitiveContains(query)
                 || $0.targetAppName.localizedCaseInsensitiveContains(query)
         }
@@ -49,9 +50,13 @@ public struct HistorySettingsView: View {
                     emptyState
                 }
             } else {
-                SettingsCard("\(historyManager.items.count) transcripts") {
+                SettingsCard(transcriptCountLabel) {
                     TextField("Search transcripts", text: $searchText)
                         .textFieldStyle(.roundedBorder)
+
+                    if historyManager.lockedItemCount > 0 {
+                        ProUpsellRow(.fullHistory)
+                    }
 
                     if filteredItems.isEmpty {
                         Text("Nothing matches “\(searchText)”.")
@@ -77,6 +82,12 @@ public struct HistorySettingsView: View {
                 }
             }
         }
+    }
+
+    private var transcriptCountLabel: String {
+        let locked = historyManager.lockedItemCount
+        guard locked > 0 else { return "\(historyManager.items.count) transcripts" }
+        return "\(historyManager.accessibleItems.count) of \(historyManager.items.count) transcripts"
     }
 
     private var emptyState: some View {

@@ -371,6 +371,14 @@ public struct OnboardingView: View {
                 Text("Press esc while recording to throw a dictation away.")
                     .font(DS.Font.rowDetail)
                     .foregroundStyle(.secondary)
+
+                if !LicenseManager.shared.isPro {
+                    Text("Everything you just set up is free and unlimited. Pro adds smarter cleanup and the most accurate model when you want them — Settings › Pro.")
+                        .font(DS.Font.rowDetail)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, DS.Spacing.s)
+                }
             }
         }
     }

@@ -3,6 +3,7 @@ import SwiftUI
 public struct ModelsSettingsView: View {
     @ObservedObject var settingsManager = SettingsManager.shared
     @ObservedObject var modelManager = ModelManager.shared
+    @ObservedObject var licenseManager = LicenseManager.shared
 
     public init() {}
 
@@ -19,13 +20,18 @@ public struct ModelsSettingsView: View {
                 ForEach(modelManager.availableModels) { model in
                     ModelRow(
                         model: model,
-                        isActive: settingsManager.settings.speechModelTier == model.tier,
+                        isActive: settingsManager.effectiveSettings.speechModelTier == model.tier,
+                        isLocked: model.tier == .small && !licenseManager.isPro,
                         downloadStatus: modelManager.currentDownloadStatus,
                         onSelect: { settingsManager.settings.speechModelTier = model.tier },
                         onDownload: { modelManager.downloadModel(tier: model.tier) },
                         onCancel: { modelManager.cancelDownload() },
                         onDelete: { try? modelManager.deleteModel(tier: model.tier) }
                     )
+                }
+
+                if !licenseManager.isPro {
+                    ProUpsellRow(.largeModel, compact: true)
                 }
             }
 
@@ -47,6 +53,7 @@ public struct ModelsSettingsView: View {
 private struct ModelRow: View {
     let model: ModelInfo
     let isActive: Bool
+    let isLocked: Bool
     let downloadStatus: String
     let onSelect: () -> Void
     let onDownload: () -> Void
@@ -70,6 +77,9 @@ private struct ModelRow: View {
                             .font(DS.Font.rowDetail)
                             .foregroundStyle(.secondary)
 
+                        if isLocked {
+                            ProBadge()
+                        }
                         if model.tier == .base {
                             StatusChip("RECOMMENDED", kind: .neutral)
                         }
@@ -101,15 +111,18 @@ private struct ModelRow: View {
             }
         }
         .padding(.vertical, DS.Spacing.xs)
+        .opacity(isLocked ? 0.55 : 1)
         .contentShape(Rectangle())
         .onTapGesture {
-            if model.isDownloaded && !isActive { onSelect() }
+            if model.isDownloaded && !isActive && !isLocked { onSelect() }
         }
     }
 
     @ViewBuilder
     private var actions: some View {
-        if model.isDownloading {
+        if isLocked {
+            EmptyView()
+        } else if model.isDownloading {
             Button("Cancel", action: onCancel)
                 .controlSize(.small)
         } else if model.isDownloaded {

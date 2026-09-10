@@ -1,1463 +1,821 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>LocalFlow — On-device AI dictation for macOS</title>
-  <meta name="description" content="LocalFlow is a native macOS dictation app. WhisperKit inference on the Apple Neural Engine in under a second. 100% offline, nothing uploaded, no subscription.">
-  <link rel="canonical" href="https://therealone00.github.io/LocalFlow/">
-  <meta name="theme-color" content="#070709">
-  <meta name="color-scheme" content="dark">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LocalFlow — On-device dictation for macOS</title>
+<meta name="description" content="Hold a key, talk, and your words are typed into whatever app you are in. Runs entirely on your Mac. Free, with a €15 one-time Pro upgrade.">
+<link rel="canonical" href="https://therealone00.github.io/LocalFlow/">
+<meta name="theme-color" content="#08080B">
+<meta name="color-scheme" content="dark">
 
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="LocalFlow">
-  <meta property="og:url" content="https://therealone00.github.io/LocalFlow/">
-  <meta property="og:title" content="LocalFlow — On-device AI dictation for macOS">
-  <meta property="og:description" content="Native voice input straight into any text field. 100% local on Apple Silicon. No cloud, no subscription.">
-  <meta property="og:image" content="https://therealone00.github.io/LocalFlow/assets/hero.jpg">
-  <meta property="og:image:width" content="1376">
-  <meta property="og:image:height" content="768">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="LocalFlow — On-device AI dictation for macOS">
-  <meta name="twitter:description" content="Native voice input straight into any text field. 100% local on Apple Silicon. No cloud, no subscription.">
-  <meta name="twitter:image" content="https://therealone00.github.io/LocalFlow/assets/hero.jpg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LocalFlow">
+<meta property="og:url" content="https://therealone00.github.io/LocalFlow/">
+<meta property="og:title" content="LocalFlow — On-device dictation for macOS">
+<meta property="og:description" content="Hold a key, talk, and your words are typed into whatever app you are in. Runs entirely on your Mac.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="LocalFlow — On-device dictation for macOS">
+<meta name="twitter:description" content="Hold a key, talk, and your words are typed into whatever app you are in. Runs entirely on your Mac.">
 
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230D0E12'/%3E%3Cg stroke='%23EDEDED' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M9 13v6M16 8v16M23 13v6'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230D0E12'/%3E%3Cg stroke='%23EDEDED' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M9 13v6M16 8v16M23 13v6'/%3E%3C/g%3E%3C/svg%3E">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="image" href="assets/hero.jpg" fetchpriority="high">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "LocalFlow",
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "macOS 14.0 or later",
-    "url": "https://therealone00.github.io/LocalFlow/",
-    "downloadUrl": "https://github.com/therealone00/LocalFlow/releases/latest",
-    "softwareVersion": "1.1.0",
-    "license": "https://opensource.org/licenses/MIT",
-    "description": "Native macOS dictation powered by WhisperKit on the Apple Neural Engine. Runs fully offline with no cloud services and no subscription.",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "author": { "@type": "Person", "name": "therealone00", "url": "https://github.com/therealone00" }
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "LocalFlow",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "macOS 14.0 or later",
+  "url": "https://therealone00.github.io/LocalFlow/",
+  "downloadUrl": "https://github.com/therealone00/LocalFlow/releases/latest",
+  "softwareVersion": "1.2.0",
+  "description": "On-device dictation for macOS. Hold a key, talk, and your words are typed into whatever app you are in.",
+  "offers": [
+    { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "EUR" },
+    { "@type": "Offer", "name": "Pro", "price": "15", "priceCurrency": "EUR" }
+  ],
+  "author": { "@type": "Person", "name": "therealone00", "url": "https://github.com/therealone00" }
+}
+</script>
+<style>
+/* ============================================================ tokens */
+:root {
+  --bg: #08080B;
+  --bg-lift: #0E0F14;
+  --panel: rgba(255,255,255,.028);
+  --panel-solid: #111218;
+  --line: rgba(255,255,255,.09);
+  --line-strong: rgba(255,255,255,.16);
+  --ink: #F2F2F4;
+  --ink-dim: #A0A2AC;
+  --ink-faint: #62646E;
+  --coral: #FF6B4A;
+  --violet: #B740FF;
+  --cyan: #22D3EE;
+  --green: #34C759;
+  --ramp: linear-gradient(100deg, var(--coral), var(--violet) 52%, var(--cyan));
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-full: 999px;
+  --shell: 1100px;
+  --pad: clamp(20px, 5vw, 28px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+  font-feature-settings: 'cv02','cv03','cv04';
+}
+
+/* Ambient glow behind the fold — replaces the hero screenshot. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -30vh 0 auto 0;
+  height: 90vh;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(50% 40% at 22% 32%, rgba(255,107,74,.14), transparent 70%),
+    radial-gradient(46% 40% at 78% 24%, rgba(34,211,238,.13), transparent 70%),
+    radial-gradient(40% 34% at 50% 8%, rgba(183,64,255,.14), transparent 70%);
+  filter: blur(20px);
+}
+
+.shell { width: 100%; max-width: var(--shell); margin: 0 auto; padding: 0 var(--pad); position: relative; z-index: 1; }
+
+section { padding: clamp(64px, 9vw, 112px) 0; position: relative; z-index: 1; }
+
+a { color: inherit; }
+
+.skip {
+  position: absolute; left: -9999px; top: 10px; z-index: 200;
+  padding: 10px 16px; border-radius: var(--r-full);
+  background: var(--ink); color: var(--bg); font-weight: 600; text-decoration: none;
+}
+.skip:focus { left: 20px; }
+
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--cyan); outline-offset: 3px; border-radius: var(--r-sm);
+}
+
+/* ============================================================ type */
+.eyebrow {
+  display: inline-block;
+  font-size: .72rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase;
+  color: var(--ink-faint); margin-bottom: 14px;
+}
+h1, h2, h3 { letter-spacing: -.032em; line-height: 1.08; font-weight: 700; }
+h2 { font-size: clamp(1.75rem, 3.6vw, 2.6rem); }
+h3 { font-size: 1rem; letter-spacing: -.012em; line-height: 1.4; }
+.lede { color: var(--ink-dim); font-size: clamp(.98rem, 1.5vw, 1.06rem); max-width: 58ch; }
+.section-head { margin-bottom: clamp(32px, 5vw, 48px); }
+.section-head .lede { margin-top: 14px; }
+
+.grad { background: var(--ramp); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* ============================================================ header */
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(8,8,11,.72);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-bottom: 1px solid var(--line);
+}
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 62px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 650; letter-spacing: -.02em; flex-shrink: 0; }
+.brand-mark {
+  width: 27px; height: 27px; border-radius: 8px;
+  background: var(--bg-lift); border: 1px solid var(--line-strong);
+  display: grid; place-items: center;
+}
+.brand-mark svg { width: 14px; height: 14px; }
+.nav-links { display: flex; align-items: center; gap: 22px; }
+.nav-links a { color: var(--ink-dim); text-decoration: none; font-size: .875rem; font-weight: 500; transition: color .15s; }
+.nav-links a:hover { color: var(--ink); }
+/* The nav link colour must not win over a button's own foreground. */
+.nav-links a.btn-primary, .nav-links a.btn-primary:hover { color: #08080B; }
+
+/* ============================================================ buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 11px 20px; border-radius: var(--r-full);
+  font-size: .9rem; font-weight: 600; font-family: inherit;
+  text-decoration: none; cursor: pointer; border: 1px solid transparent;
+  transition: transform .12s ease, background .15s, border-color .15s, opacity .15s;
+  white-space: nowrap;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--ink); color: #08080B; }
+.btn-primary:hover { background: #fff; }
+.btn-ghost { background: rgba(255,255,255,.05); border-color: var(--line-strong); color: var(--ink); }
+.btn-ghost:hover { background: rgba(255,255,255,.1); }
+.btn-pro { background: var(--ramp); color: #fff; }
+.btn-pro:hover { filter: brightness(1.08); }
+.btn-sm { padding: 7px 14px; font-size: .82rem; }
+.btn[disabled], .btn[aria-busy="true"] { opacity: .6; pointer-events: none; }
+
+/* ============================================================ hero */
+.hero { padding-top: clamp(56px, 8vw, 92px); padding-bottom: clamp(40px, 6vw, 64px); text-align: center; }
+.hero h1 { font-size: clamp(2.3rem, 6.4vw, 4.1rem); font-weight: 800; margin-bottom: 20px; }
+.hero .lede { margin: 0 auto; font-size: clamp(1rem, 1.8vw, 1.16rem); }
+.pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 13px 5px 9px; margin-bottom: 24px;
+  border-radius: var(--r-full); border: 1px solid var(--line-strong);
+  background: rgba(255,255,255,.04);
+  font-size: .78rem; color: var(--ink-dim); font-weight: 500;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(52,199,89,.16); }
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 30px 0 16px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 14px; justify-content: center; font-size: .8rem; color: var(--ink-faint); }
+.meta span:not(:last-child)::after { content: '·'; margin-left: 14px; opacity: .5; }
+
+/* ============================================================ bar mockup */
+.stage { margin-top: clamp(44px, 7vw, 72px); display: grid; place-items: center; gap: 18px; }
+.bar {
+  display: inline-flex; align-items: center; gap: 13px;
+  padding: 10px 16px; border-radius: var(--r-full);
+  background: linear-gradient(180deg, rgba(20,21,27,.96), rgba(11,11,15,.98));
+  border: 1px solid rgba(255,255,255,.13);
+  box-shadow: 0 22px 50px -14px rgba(0,0,0,.9), 0 0 0 1px rgba(0,0,0,.4);
+  font-size: .82rem; font-weight: 600; letter-spacing: -.01em;
+  min-height: 44px;
+}
+.rec { width: 8px; height: 8px; border-radius: 50%; background: #FF3B30; box-shadow: 0 0 10px rgba(255,59,48,.9); flex-shrink: 0; }
+.rec.pulsing { animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+.wave { display: flex; align-items: center; gap: 2.5px; height: 22px; }
+.wave i {
+  display: block; width: 3px; border-radius: 2px; background: var(--ramp);
+  height: 3px; transition: height .12s ease-out;
+}
+.bar-time { font-family: 'JetBrains Mono', monospace; font-size: .74rem; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+.bar-sep { width: 1px; height: 16px; background: rgba(255,255,255,.14); }
+.bar-app { color: var(--ink); }
+.bar-status { color: var(--ink-dim); font-weight: 500; }
+.bar-btn { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; }
+.bar-btn.ok { background: rgba(52,199,89,.2); color: var(--green); }
+.bar-btn.no { background: rgba(255,255,255,.08); color: var(--ink-faint); }
+.bar-btn svg { width: 10px; height: 10px; }
+.stage-caption { font-size: .8rem; color: var(--ink-faint); }
+
+/* ============================================================ steps */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+.step { background: var(--bg-lift); padding: 26px 24px; }
+.step-k { font-family: 'JetBrains Mono', monospace; font-size: .74rem; color: var(--ink-faint); margin-bottom: 12px; }
+.step h3 { margin-bottom: 7px; }
+.step p { font-size: .875rem; color: var(--ink-dim); }
+
+kbd {
+  display: inline-block; padding: 2px 7px; border-radius: 6px;
+  border: 1px solid var(--line-strong); border-bottom-width: 2px;
+  background: rgba(255,255,255,.07);
+  font-family: 'JetBrains Mono', monospace; font-size: .78rem; line-height: 1.5;
+}
+code { font-family: 'JetBrains Mono', monospace; font-size: .84em; background: rgba(255,255,255,.07); padding: 1px 6px; border-radius: 5px; }
+
+/* ============================================================ simulator */
+.sim { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-lift); padding: clamp(18px, 3vw, 28px); }
+.sim-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.sim-badge { font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--ink-faint); }
+.editor { border: 1px solid var(--line); border-radius: var(--r-md); background: #0A0A0D; overflow: hidden; }
+.editor-bar { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-bottom: 1px solid var(--line); font-size: .74rem; color: var(--ink-faint); }
+.editor-bar .lights { display: flex; gap: 5px; }
+.editor-bar .lights i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+.editor-body { padding: 22px; min-height: 108px; font-size: .9rem; line-height: 1.7; }
+.caret { display: inline-block; width: 2px; height: 1.05em; background: var(--cyan); vertical-align: text-bottom; animation: blink 1.05s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.raw { color: var(--ink-faint); font-style: italic; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.chip {
+  padding: 7px 14px; border-radius: var(--r-full);
+  border: 1px solid var(--line); background: rgba(255,255,255,.03);
+  color: var(--ink-dim); font: inherit; font-size: .82rem; font-weight: 500; cursor: pointer;
+  transition: all .15s;
+}
+.chip:hover { border-color: var(--line-strong); color: var(--ink); }
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+
+/* ============================================================ features */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(268px, 1fr)); gap: 16px; }
+.card { padding: 26px 24px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--panel); transition: border-color .18s, background .18s; }
+.card:hover { border-color: var(--line-strong); background: rgba(255,255,255,.045); }
+.card-icon { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; margin-bottom: 16px; background: rgba(255,255,255,.06); border: 1px solid var(--line); }
+.card-icon svg { width: 16px; height: 16px; stroke: var(--ink); }
+.card h3 { margin-bottom: 8px; }
+.card p { font-size: .875rem; color: var(--ink-dim); }
+
+/* ============================================================ pricing */
+.tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; align-items: start; }
+.tier { padding: 30px 28px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--panel-solid); }
+.tier.featured { border-color: transparent; background: linear-gradient(var(--panel-solid), var(--panel-solid)) padding-box, var(--ramp) border-box; border: 1px solid transparent; position: relative; }
+.tier-tag { font-size: .72rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-faint); }
+.tier.featured .tier-tag { color: transparent; background: var(--ramp); -webkit-background-clip: text; background-clip: text; }
+.price { display: flex; align-items: baseline; gap: 9px; margin: 14px 0 6px; }
+.price b { font-size: 2.7rem; font-weight: 800; letter-spacing: -.04em; }
+.price span { color: var(--ink-dim); font-size: .88rem; }
+.tier > p { font-size: .875rem; color: var(--ink-dim); margin-bottom: 22px; }
+.tier .btn { width: 100%; margin-bottom: 22px; }
+.feats { list-style: none; display: grid; gap: 11px; }
+.feats li { display: flex; gap: 11px; font-size: .875rem; color: var(--ink-dim); align-items: flex-start; }
+.feats svg { width: 15px; height: 15px; flex-shrink: 0; margin-top: 3px; }
+.feats .yes svg { stroke: var(--green); }
+.feats .no { color: var(--ink-faint); }
+.feats .no svg { stroke: var(--ink-faint); }
+.feats b { color: var(--ink); font-weight: 600; }
+.pay-note { margin-top: 22px; font-size: .8rem; color: var(--ink-faint); text-align: center; }
+.pay-error { margin-top: 12px; font-size: .84rem; color: #FFB020; text-align: center; }
+
+/* ============================================================ table */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-lg); }
+table { width: 100%; border-collapse: collapse; min-width: 620px; font-size: .875rem; }
+th, td { padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--line); }
+thead th { font-size: .72rem; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-faint); font-weight: 600; background: rgba(255,255,255,.02); }
+tbody tr:last-child td { border-bottom: none; }
+td:first-child { color: var(--ink-dim); }
+.hi { background: rgba(255,255,255,.035); color: var(--ink); font-weight: 600; }
+thead .hi { color: var(--ink); }
+.ok-t { color: var(--green); }
+.no-t { color: var(--ink-faint); }
+
+/* ============================================================ faq */
+.faq { display: grid; gap: 10px; }
+details { border: 1px solid var(--line); border-radius: var(--r-md); background: var(--panel); overflow: hidden; }
+summary { list-style: none; cursor: pointer; padding: 16px 20px; font-size: .93rem; font-weight: 550; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: '+'; color: var(--ink-faint); font-size: 1.15rem; line-height: 1; flex-shrink: 0; }
+details[open] summary::after { content: '\2212'; }
+summary:hover { color: #fff; }
+details p { padding: 0 20px 18px; font-size: .875rem; color: var(--ink-dim); }
+details p + p { padding-top: 0; }
+
+/* ============================================================ footer */
+footer { border-top: 1px solid var(--line); padding: 32px 0; position: relative; z-index: 1; }
+.foot { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; justify-content: space-between; font-size: .82rem; color: var(--ink-faint); }
+.foot-links { display: flex; flex-wrap: wrap; gap: 20px; }
+.foot-links a { text-decoration: none; transition: color .15s; }
+.foot-links a:hover { color: var(--ink); }
+
+/* ============================================================ responsive */
+@media (max-width: 860px) {
+  .nav-links a:not(.btn) { display: none; }
+}
+@media (max-width: 520px) {
+  .bar { gap: 9px; padding: 9px 13px; font-size: .78rem; }
+  .bar-sep, .bar-app { display: none; }
+  .cta-row .btn { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important; scroll-behavior: auto !important;
   }
-  </script>
-
-  <style>
-    :root {
-      --bg: #070709;
-      --bg-panel: #0D0E12;
-      --card-bg: rgba(16, 17, 22, 0.85);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --card-border-hover: rgba(255, 255, 255, 0.18);
-      --text: #EDEDED;
-      --text-muted: #9CA3AF;
-      --text-subtle: #636366;
-      --accent-coral: #FF6B4A;
-      --accent-violet: #B740FF;
-      --accent-cyan: #00D2FF;
-      --radius-sm: 6px;
-      --radius-md: 12px;
-      --radius-lg: 18px;
-      --radius-full: 9999px;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-font-smoothing: antialiased;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-      overflow-x: hidden;
-      line-height: 1.55;
-    }
-
-    /* Subtle technical grid background */
-    .bg-grid {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 0;
-      background-size: 32px 32px;
-      background-image: 
-        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-      mask-image: radial-gradient(ellipse at 50% 15%, black 40%, transparent 80%);
-      -webkit-mask-image: radial-gradient(ellipse at 50% 15%, black 40%, transparent 80%);
-    }
-
-    .container {
-      width: 100%;
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 0 20px;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* Header */
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      background: rgba(7, 7, 9, 0.88);
-      border-bottom: 1px solid var(--card-border);
-      padding: 12px 0;
-    }
-    .nav-wrap {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: var(--text);
-      font-weight: 600;
-      font-size: 1.05rem;
-      letter-spacing: -0.01em;
-      flex-shrink: 0;
-    }
-    .brand-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 7px;
-      background: #14151A;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .brand-icon svg {
-      width: 15px;
-      height: 15px;
-      color: #EDEDED;
-    }
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-    }
-    .nav-link {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.88rem;
-      font-weight: 500;
-      transition: color 0.15s;
-    }
-    .nav-link:hover {
-      color: var(--text);
-    }
-    .btn-nav-download {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 13px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-full);
-      color: var(--text);
-      text-decoration: none;
-      font-size: 0.82rem;
-      font-weight: 500;
-      white-space: nowrap;
-      transition: all 0.15s;
-      flex-shrink: 0;
-    }
-    .btn-nav-download:hover {
-      background: rgba(255, 255, 255, 0.15);
-      border-color: rgba(255, 255, 255, 0.25);
-    }
-
-    /* Hero */
-    .hero {
-      padding: 60px 0 40px;
-      text-align: center;
-    }
-    .badge-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 12px;
-      border-radius: var(--radius-full);
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: var(--text-muted);
-      font-size: 0.78rem;
-      font-weight: 500;
-      margin-bottom: 20px;
-      max-width: 100%;
-    }
-    .badge-pill .status-indicator {
-      width: 6px;
-      height: 6px;
-      background: #34C759;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .hero-title {
-      font-size: clamp(2rem, 5.5vw, 3.8rem);
-      font-weight: 700;
-      letter-spacing: -0.04em;
-      line-height: 1.15;
-      margin-bottom: 18px;
-      color: #FFFFFF;
-    }
-    .hero-title span {
-      color: var(--text-muted);
-      font-weight: 400;
-    }
-    .hero-desc {
-      font-size: clamp(0.98rem, 1.8vw, 1.15rem);
-      color: var(--text-muted);
-      max-width: 660px;
-      margin: 0 auto 30px;
-      font-weight: 400;
-      line-height: 1.6;
-    }
-    .hero-cta-group {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 13px 26px;
-      border-radius: var(--radius-md);
-      background: #EDEDED;
-      color: #070709;
-      text-decoration: none;
-      font-size: 0.95rem;
-      font-weight: 600;
-      transition: all 0.15s ease;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-    }
-    .btn-primary:hover {
-      background: #FFFFFF;
-      transform: translateY(-1px);
-    }
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 13px 22px;
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--card-border);
-      color: var(--text);
-      text-decoration: none;
-      font-size: 0.95rem;
-      font-weight: 500;
-      transition: all 0.15s ease;
-    }
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-    .hero-meta {
-      font-size: 0.8rem;
-      color: var(--text-subtle);
-      margin-top: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    /* Showcase Frame */
-    .showcase-frame {
-      margin: 36px auto 0;
-      max-width: 960px;
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: #0D0E12;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-      overflow: hidden;
-    }
-    .showcase-frame img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    /* Section Typography */
-    .section-wrap {
-      padding: 70px 0 20px;
-    }
-    .section-header {
-      margin-bottom: 32px;
-    }
-    .section-tag {
-      font-size: 0.74rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--accent-cyan);
-      margin-bottom: 6px;
-    }
-    .section-title {
-      font-size: clamp(1.5rem, 3.2vw, 2.2rem);
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      color: #FFFFFF;
-      margin-bottom: 8px;
-    }
-    .section-desc {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      max-width: 620px;
-      line-height: 1.55;
-    }
-
-    /* Premium Interactive Simulator */
-    .demo-sandbox {
-      background: var(--bg-panel);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-lg);
-      padding: 28px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
-    }
-    
-    /* The Obsidian Pill Header */
-    .sandbox-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 22px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid var(--card-border);
-      flex-wrap: wrap;
-    }
-    .floating-bar-replica {
-      background: rgba(18, 19, 24, 0.92);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: var(--radius-full);
-      padding: 6px 14px 6px 10px;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-      max-width: 100%;
-    }
-    .rec-indicator-wrap {
-      position: relative;
-      width: 12px;
-      height: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .rec-indicator {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: #FF3B30;
-      box-shadow: 0 0 6px #FF3B30;
-    }
-    .rec-pulse-ring {
-      position: absolute;
-      top: -3px;
-      left: -3px;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(255, 59, 48, 0.5);
-      animation: pulseAnim 1.8s infinite ease-out;
-    }
-    @keyframes pulseAnim {
-      0% { transform: scale(0.8); opacity: 1; }
-      100% { transform: scale(1.6); opacity: 0; }
-    }
-    .app-tag {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      padding-right: 4px;
-      border-right: 1px solid rgba(255, 255, 255, 0.12);
-    }
-    .app-tag svg {
-      width: 12px;
-      height: 12px;
-      color: var(--accent-cyan);
-    }
-    /* 7-Bar Equalizer */
-    .eq-bars {
-      display: flex;
-      align-items: center;
-      gap: 3.5px;
-      height: 18px;
-    }
-    .eq-bar {
-      width: 3px;
-      border-radius: 1.5px;
-      background: linear-gradient(180deg, var(--accent-coral), var(--accent-violet) 55%, var(--accent-cyan));
-      animation: eqBounce 1.2s infinite ease-in-out alternate;
-    }
-    .eq-bar:nth-child(1) { height: 6px; animation-delay: 0.1s; }
-    .eq-bar:nth-child(2) { height: 13px; animation-delay: 0.25s; }
-    .eq-bar:nth-child(3) { height: 18px; animation-delay: 0.4s; }
-    .eq-bar:nth-child(4) { height: 15px; animation-delay: 0.15s; }
-    .eq-bar:nth-child(5) { height: 11px; animation-delay: 0.5s; }
-    .eq-bar:nth-child(6) { height: 8px; animation-delay: 0.3s; }
-    .eq-bar:nth-child(7) { height: 5px; animation-delay: 0.6s; }
-
-    @keyframes eqBounce {
-      0% { transform: scaleY(0.3); }
-      100% { transform: scaleY(1.0); }
-    }
-
-    .pill-state-text {
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--accent-cyan);
-      white-space: nowrap;
-    }
-    .inference-badge {
-      font-size: 0.76rem;
-      color: var(--text-subtle);
-      font-family: 'JetBrains Mono', monospace;
-      white-space: nowrap;
-    }
-
-    /* Virtual macOS Editor Card */
-    .editor-window {
-      background: #070709;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-    }
-    .editor-titlebar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(255, 255, 255, 0.02);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      padding: 10px 14px;
-      font-size: 0.78rem;
-      color: var(--text-subtle);
-    }
-    .window-dots {
-      display: flex;
-      gap: 6px;
-    }
-    .w-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-    }
-    .w-dot.red { background: #FF5F56; }
-    .w-dot.yellow { background: #FFBD2E; }
-    .w-dot.green { background: #27C93F; }
-
-    .editor-body {
-      padding: 18px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9rem;
-      line-height: 1.65;
-      color: #D4D4D8;
-      min-height: 110px;
-    }
-    .cursor-caret {
-      display: inline-block;
-      width: 2px;
-      height: 1.1em;
-      background: var(--accent-cyan);
-      vertical-align: text-bottom;
-      margin-left: 2px;
-      animation: blink 1s infinite;
-    }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-    .sample-triggers {
-      display: flex;
-      gap: 8px;
-      margin-top: 18px;
-      flex-wrap: wrap;
-    }
-    .btn-sample {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--card-border);
-      color: var(--text-muted);
-      border-radius: var(--radius-sm);
-      padding: 8px 14px;
-      font-size: 0.82rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s;
-      text-align: left;
-    }
-    .btn-sample:hover, .btn-sample.active {
-      background: rgba(255, 255, 255, 0.09);
-      color: var(--text);
-      border-color: rgba(255, 255, 255, 0.22);
-    }
-
-    /* Specifications Grid */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 16px;
-    }
-    .spec-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-md);
-      padding: 24px;
-      transition: border-color 0.2s;
-    }
-    .spec-card:hover {
-      border-color: var(--card-border-hover);
-    }
-    .spec-icon {
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 14px;
-      color: #EDEDED;
-    }
-    .spec-icon svg {
-      width: 17px;
-      height: 17px;
-    }
-    .spec-card h3 {
-      font-size: 1.02rem;
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: #FFFFFF;
-    }
-    .spec-card p {
-      color: var(--text-muted);
-      font-size: 0.88rem;
-      line-height: 1.55;
-    }
-
-    /* Comparison Matrix */
-    .matrix-box {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-md);
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    .matrix-scroll-hint {
-      display: none;
-      font-size: 0.75rem;
-      color: var(--text-subtle);
-      text-align: right;
-      margin-bottom: 8px;
-      padding-right: 4px;
-    }
-    table {
-      width: 100%;
-      min-width: 580px;
-      border-collapse: collapse;
-      text-align: left;
-    }
-    th, td {
-      padding: 13px 18px;
-      border-bottom: 1px solid var(--card-border);
-      font-size: 0.86rem;
-    }
-    th {
-      font-weight: 600;
-      color: var(--text-subtle);
-      text-transform: uppercase;
-      font-size: 0.72rem;
-      letter-spacing: 0.05em;
-    }
-    th.col-focus, td.col-focus {
-      background: rgba(255, 255, 255, 0.03);
-      color: #FFFFFF;
-      font-weight: 500;
-    }
-    td {
-      color: var(--text-muted);
-    }
-    .tag-yes {
-      color: #34C759;
-      font-weight: 500;
-    }
-    .tag-no {
-      color: #71717A;
-    }
-
-    /* GitHub Sponsors Section — Clean Graphite / Monochrome (No Pink) */
-    .sponsors-wrap {
-      padding: 70px 0 90px;
-    }
-    .sponsors-card {
-      background: #0C0D11;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: var(--radius-lg);
-      padding: 38px;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
-    }
-    .sponsors-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 24px;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-    }
-    .sponsors-info h2 {
-      font-size: clamp(1.4rem, 2.5vw, 1.8rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: #FFFFFF;
-      margin-bottom: 8px;
-    }
-    .sponsors-info p {
-      color: var(--text-muted);
-      font-size: 0.92rem;
-      max-width: 580px;
-      line-height: 1.6;
-    }
-    .btn-gh-sponsor {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 11px 20px;
-      border-radius: var(--radius-md);
-      background: #21262D;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #EDEDED;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: all 0.15s;
-      white-space: nowrap;
-    }
-    .btn-gh-sponsor:hover {
-      background: #30363D;
-      border-color: rgba(255, 255, 255, 0.28);
-      color: #FFFFFF;
-    }
-    .btn-gh-sponsor svg {
-      width: 16px;
-      height: 16px;
-      fill: currentColor;
-    }
-
-    .tier-matrix {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 14px;
-      padding-top: 20px;
-      border-top: 1px solid var(--card-border);
-    }
-    .tier-item {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-md);
-      padding: 18px;
-      transition: border-color 0.15s;
-    }
-    .tier-item:hover {
-      border-color: rgba(255, 255, 255, 0.18);
-    }
-    .tier-badge {
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-    .tier-amount {
-      font-size: 1.45rem;
-      font-weight: 700;
-      color: #FFFFFF;
-      margin-bottom: 6px;
-    }
-    .tier-amount span {
-      font-size: 0.82rem;
-      color: var(--text-subtle);
-      font-weight: 400;
-    }
-    .tier-desc {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-
-    /* Footer */
-    footer {
-      border-top: 1px solid var(--card-border);
-      padding: 34px 0;
-      color: var(--text-subtle);
-      font-size: 0.82rem;
-    }
-    .footer-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 14px;
-    }
-    .footer-links {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    .footer-links a {
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color 0.15s;
-    }
-    .footer-links a:hover {
-      color: var(--text);
-    }
-
-    /* Responsive Mobile Tweaks */
-    @media (max-width: 768px) {
-      .hero { padding: 44px 0 28px; }
-      .hero-cta-group { flex-direction: column; width: 100%; }
-      .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
-      .nav-links .nav-link { display: none; }
-      .demo-sandbox { padding: 18px 14px; }
-      .sandbox-top { flex-direction: column; align-items: flex-start; gap: 10px; }
-      .floating-bar-replica { width: 100%; justify-content: space-between; }
-      .sample-triggers { flex-direction: column; }
-      .btn-sample { width: 100%; }
-      .matrix-scroll-hint { display: block; }
-      .sponsors-card { padding: 22px 18px; }
-      .sponsors-header { flex-direction: column; align-items: stretch; }
-      .btn-gh-sponsor { width: 100%; }
-      .tier-matrix { grid-template-columns: 1fr; }
-      .footer-content { flex-direction: column; align-items: flex-start; }
-    }
-
-    @media (max-width: 480px) {
-      .container { padding: 0 16px; }
-      .brand span { font-size: 0.98rem; }
-      .btn-nav-download { font-size: 0.78rem; padding: 5px 10px; }
-      .badge-pill { font-size: 0.74rem; }
-      .editor-body { font-size: 0.84rem; padding: 14px; }
-    }
-    /* --- Accessibility & motion --------------------------------------- */
-
-    .skip-link {
-      position: absolute;
-      left: -9999px;
-      top: 8px;
-      z-index: 200;
-      padding: 10px 16px;
-      border-radius: var(--radius-full);
-      background: var(--text);
-      color: var(--bg);
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-decoration: none;
-    }
-    .skip-link:focus {
-      left: 20px;
-    }
-
-    a:focus-visible,
-    button:focus-visible {
-      outline: 2px solid var(--accent-cyan);
-      outline-offset: 3px;
-      border-radius: var(--radius-sm);
-    }
-
-    /* Honour the same preference the app itself honours. */
-    @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-        animation-duration: 0.001ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.001ms !important;
-        scroll-behavior: auto !important;
-      }
-    }
-
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-
-    /* --- What's new strip --------------------------------------------- */
-
-    .whatsnew {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 14px;
-      margin-top: 8px;
-    }
-    .whatsnew-item {
-      padding: 18px;
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-md);
-      background: var(--card-bg);
-    }
-    .whatsnew-item h3 {
-      font-size: 0.95rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      margin-bottom: 6px;
-    }
-    .whatsnew-item p {
-      font-size: 0.86rem;
-      color: var(--text-muted);
-      line-height: 1.6;
-    }
-    .version-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 10px;
-      margin-bottom: 14px;
-      border-radius: var(--radius-full);
-      border: 1px solid rgba(0, 210, 255, 0.28);
-      background: rgba(0, 210, 255, 0.08);
-      color: var(--accent-cyan);
-      font-family: 'JetBrains Mono', ui-monospace, monospace;
-      font-size: 0.74rem;
-      font-weight: 500;
-    }
-
-    /* --- Install steps -------------------------------------------------- */
-
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 14px;
-    }
-    .step {
-      position: relative;
-      padding: 20px 20px 20px 54px;
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-md);
-      background: var(--card-bg);
-    }
-    .step-num {
-      position: absolute;
-      left: 18px;
-      top: 20px;
-      width: 24px;
-      height: 24px;
-      border-radius: var(--radius-full);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text);
-      font-family: 'JetBrains Mono', ui-monospace, monospace;
-      font-size: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .step h3 {
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-    .step p {
-      font-size: 0.86rem;
-      color: var(--text-muted);
-      line-height: 1.6;
-    }
-    .step code {
-      font-family: 'JetBrains Mono', ui-monospace, monospace;
-      font-size: 0.8rem;
-      color: var(--text);
-      background: rgba(255, 255, 255, 0.07);
-      border-radius: 4px;
-      padding: 1px 5px;
-    }
-
-    kbd {
-      display: inline-block;
-      padding: 2px 7px;
-      border-radius: 5px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-bottom-width: 2px;
-      background: rgba(255, 255, 255, 0.07);
-      font-family: 'JetBrains Mono', ui-monospace, monospace;
-      font-size: 0.78rem;
-      color: var(--text);
-      line-height: 1.5;
-    }
-
-    /* --- FAQ ------------------------------------------------------------ */
-
-    .faq-list {
-      display: grid;
-      gap: 10px;
-    }
-    .faq-item {
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-md);
-      background: var(--card-bg);
-      overflow: hidden;
-    }
-    .faq-item summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 16px 20px;
-      font-size: 0.94rem;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary::after {
-      content: "+";
-      color: var(--text-subtle);
-      font-size: 1.1rem;
-      line-height: 1;
-      flex-shrink: 0;
-    }
-    .faq-item[open] summary::after { content: "\2212"; }
-    .faq-item summary:hover { color: #fff; }
-    .faq-item p {
-      padding: 0 20px 18px;
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      line-height: 1.65;
-    }
-
-  </style>
+}
+</style>
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
-  <div class="bg-grid" aria-hidden="true"></div>
+<a class="skip" href="#main">Skip to content</a>
 
-  <!-- Header -->
-  <header>
-    <div class="container nav-wrap">
-      <a href="#" class="brand">
-        <div class="brand-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-            <line x1="12" y1="19" x2="12" y2="22"></line>
-          </svg>
-        </div>
-        <span>LocalFlow</span>
-      </a>
-      <nav class="nav-links" aria-label="Primary">
-        <a href="#demo" class="nav-link">Demo</a>
-        <a href="#features" class="nav-link">Features</a>
-        <a href="#install" class="nav-link">Install</a>
-        <a href="#matrix" class="nav-link">Compare</a>
-        <a href="#faq" class="nav-link">FAQ</a>
-        <a href="https://github.com/therealone00/LocalFlow" class="nav-link">GitHub</a>
-        <a href="https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow.dmg" class="btn-nav-download">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-1.08 1.73-.95 2.76 1.01.08 2.05-.51 2.68-1.26z"/></svg>
-          Download
+<header>
+  <div class="shell nav">
+    <a href="#" class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 10v4M12 5v14M18 10v4"/></svg>
+      </span>
+      LocalFlow
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#how">How it works</a>
+      <a href="#try">Try it</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://github.com/therealone00/LocalFlow">GitHub</a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow.dmg">Download</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ===================================================== hero -->
+  <section class="hero">
+    <div class="shell">
+      <span class="pill"><span class="dot" aria-hidden="true"></span> Runs on the Apple Neural Engine · macOS 14+</span>
+
+      <h1>Hold a key. Talk.<br><span class="grad">It's already typed.</span></h1>
+
+      <p class="lede">Dictation that works in every app on your Mac and never sends a byte anywhere. Your voice is transcribed on the Neural Engine in under a second, cleaned up, and typed straight at your cursor.</p>
+
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow.dmg">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-1.08 1.73-.95 2.76 1.01.08 2.05-.51 2.68-1.26z"/></svg>
+          Download free
         </a>
-      </nav>
+        <a class="btn btn-ghost" href="#pricing">Get Pro — €15 once</a>
+      </div>
+
+      <p class="meta"><span>Free forever</span><span>2.5 MB</span><span>Apple Silicon &amp; Intel</span><span>No account</span></p>
+
+      <!-- The product itself, drawn in CSS. No screenshot needed. -->
+      <div class="stage">
+        <div class="bar" id="bar" role="img" aria-label="The LocalFlow bar, cycling through recording, transcribing and inserting">
+          <span class="rec pulsing" id="barRec"></span>
+          <span class="wave" id="barWave" aria-hidden="true"></span>
+          <span class="bar-time" id="barTime">0:03</span>
+          <span class="bar-sep" aria-hidden="true"></span>
+          <span class="bar-app" id="barApp">Mail</span>
+          <span class="bar-status" id="barStatus" hidden></span>
+          <span class="bar-btn ok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <span class="bar-btn no" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
+        </div>
+        <p class="stage-caption">The bar sits above your dock while you speak, and gets out of the way when you stop.</p>
+      </div>
     </div>
-  </header>
+  </section>
 
-  <main class="container" id="main">
-    <!-- Hero -->
-    <section class="hero">
-      <div class="badge-pill">
-        <span class="status-indicator" aria-hidden="true"></span>
-        <span>Neural Engine &bull; Zero cloud &bull; macOS 14+</span>
+  <!-- ===================================================== how -->
+  <section id="how">
+    <div class="shell">
+      <div class="section-head">
+        <span class="eyebrow">How it works</span>
+        <h2>Three seconds of setup per sentence.</h2>
       </div>
-
-      <h1 class="hero-title">
-        Speak. It's already typed.<br>
-        <span>Entirely on your Mac.</span>
-      </h1>
-
-      <p class="hero-desc">
-        LocalFlow transcribes speech with WhisperKit on the Apple Silicon Neural Engine in under a second, cleans up the filler words and self-corrections, and types the result straight into whatever app you are already in. No server, no round trip, no monthly bill.
-      </p>
-
-      <div class="hero-cta-group">
-        <a href="https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow.dmg" class="btn-primary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8.92-2.85-.9.04-2 .6-2.65 1.35-.58.66-1.08 1.73-.95 2.76 1.01.08 2.05-.51 2.68-1.26z"/></svg>
-          Download for macOS
-        </a>
-        <a href="https://github.com/therealone00/LocalFlow" class="btn-secondary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-          Source on GitHub
-        </a>
-      </div>
-
-      <div class="hero-meta">
-        <span>v1.1.0</span>
-        <span>&bull;</span>
-        <span>macOS 14.0+</span>
-        <span>&bull;</span>
-        <span>Apple Silicon &amp; Intel</span>
-        <span>&bull;</span>
-        <span>2.4 MB</span>
-        <span>&bull;</span>
-        <span>MIT</span>
-      </div>
-
-      <div class="showcase-frame">
-        <img src="assets/hero.jpg" width="1376" height="768" fetchpriority="high" decoding="async" alt="The LocalFlow floating bar showing a live audio meter while dictating into a macOS app">
-      </div>
-    </section>
-
-    <!-- What's new -->
-    <section id="whatsnew" class="section-wrap">
-      <div class="section-header">
-        <div class="section-tag">Changelog</div>
-        <h2 class="section-title">New in 1.1</h2>
-        <p class="section-desc">A full pass over every surface of the app, and a set of preferences that finally do what they say.</p>
-      </div>
-
-      <span class="version-tag">v1.1.0</span>
-
-      <div class="whatsnew">
-        <div class="whatsnew-item">
-          <h3>A bar that fits its content</h3>
-          <p>The floating bar sizes itself to what it is showing instead of picking one of eight fixed widths, appears on the display you are actually using, and stops swallowing clicks when it has nothing to click.</p>
-        </div>
-        <div class="whatsnew-item">
-          <h3>Honest audio meter</h3>
-          <p>The meter now draws a rolling history of real microphone levels, so it reflects what you said rather than animating decoratively. An elapsed timer keeps long dictations in check.</p>
-        </div>
-        <div class="whatsnew-item">
-          <h3>Searchable history</h3>
-          <p>Your last 100 transcripts were already stored locally but only five were reachable. There is now a proper history pane with search, copy and delete.</p>
-        </div>
-        <div class="whatsnew-item">
-          <h3>Preferences that work</h3>
-          <p>Theme, bar size, bar position, transcript preview and reduced motion were rendered but never read by the app. All of them now drive real behaviour.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Interactive simulator -->
-    <section id="demo" class="section-wrap">
-      <div class="section-header">
-        <div class="section-tag">Simulator</div>
-        <h2 class="section-title">Watch the cleanup happen</h2>
-        <p class="section-desc">Pick an example to see what LocalFlow strips out between the microphone and the text field. Everything below runs in your browser — it is an illustration of the pipeline, not live transcription.</p>
-      </div>
-
-      <div class="demo-sandbox">
-        <div class="sandbox-top">
-          <div class="floating-bar-replica" id="demoPill">
-            <div class="rec-indicator-wrap" aria-hidden="true">
-              <div class="rec-pulse-ring"></div>
-              <div class="rec-indicator"></div>
-            </div>
-            <div class="app-tag">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-              <span>TextEdit</span>
-            </div>
-            <div class="eq-bars" aria-hidden="true">
-              <div class="eq-bar"></div>
-              <div class="eq-bar"></div>
-              <div class="eq-bar"></div>
-              <div class="eq-bar"></div>
-              <div class="eq-bar"></div>
-              <div class="eq-bar"></div>
-              <div class="eq-bar"></div>
-            </div>
-            <span class="pill-state-text" id="demoStatus" role="status">Ready — hold your hotkey</span>
-          </div>
-          <span class="inference-badge">Apple Neural Engine &bull; 0.72s</span>
-        </div>
-
-        <div class="editor-window">
-          <div class="editor-titlebar">
-            <div class="window-dots" aria-hidden="true">
-              <span class="w-dot red"></span>
-              <span class="w-dot yellow"></span>
-              <span class="w-dot green"></span>
-            </div>
-            <span>TextEdit — Untitled.txt</span>
-            <span style="opacity: 0.6;">Focused</span>
-          </div>
-          <div class="editor-body">
-            <span id="editorContent">Pick an example below to see the cleanup run…</span><span class="cursor-caret" aria-hidden="true"></span>
-          </div>
-        </div>
-
-        <div class="sample-triggers">
-          <button type="button" class="btn-sample active" onclick="runDemo(1)">Filler words</button>
-          <button type="button" class="btn-sample" onclick="runDemo(2)">Self-correction</button>
-          <button type="button" class="btn-sample" onclick="runDemo(3)">Technical punctuation</button>
-          <button type="button" class="btn-sample" onclick="runDemo(4)">German</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Features -->
-    <section id="features" class="section-wrap">
-      <div class="section-header">
-        <div class="section-tag">How it works</div>
-        <h2 class="section-title">Native. Frugal. Self-contained.</h2>
-        <p class="section-desc">Written in Swift and SwiftUI, shipped as a 2.4 MB menu bar agent with no runtime dependencies beyond macOS itself.</p>
-      </div>
-
-      <div class="features-grid">
-        <div class="spec-card">
-          <div class="spec-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6v6H9z"/><path d="M15 3v6"/><path d="M9 3v6"/><path d="M9 15v6"/><path d="M15 15v6"/></svg>
-          </div>
-          <h3>Apple Neural Engine</h3>
-          <p>CoreML inference through WhisperKit, running on the hardware-accelerated Neural Engine of Apple Silicon rather than on a CPU thread or a datacentre GPU.</p>
-        </div>
-
-        <div class="spec-card">
-          <div class="spec-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <h3>Nothing leaves the machine</h3>
-          <p>No audio and no transcript is ever sent anywhere. Recordings exist only in memory for the duration of a transcription and are discarded immediately after.</p>
-        </div>
-
-        <div class="spec-card">
-          <div class="spec-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
-          </div>
-          <h3>Types where your cursor is</h3>
-          <p>Inserts text at the caret through the macOS Accessibility APIs — Safari, Slack, VS Code, Mail, Obsidian, Terminal and anything else with a text field.</p>
-        </div>
-
-        <div class="spec-card">
-          <div class="spec-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
-          </div>
-          <h3>Cleanup you can tune</h3>
-          <p>Deterministic rules drop filler words, resolve self-corrections and fix punctuation in milliseconds. Turn each rule off individually, or hand the text to a local model for a fuller polish.</p>
-        </div>
-
-        <div class="spec-card">
-          <div class="spec-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
-          </div>
-          <h3>Your choice of hotkey</h3>
-          <p>Push-to-talk on <kbd>fn</kbd>, right <kbd>&#8997;</kbd> or the dictation key, or a toggle on <kbd>fn</kbd>&nbsp;+&nbsp;<kbd>Space</kbd>. Double-press for hands-free, <kbd>esc</kbd> to throw a dictation away.</p>
-        </div>
-
-        <div class="spec-card">
-          <div class="spec-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-          </div>
-          <h3>No subscription</h3>
-          <p>MIT licensed and free. There is no account, no trial, no seat count and nothing to cancel — because there is no server to pay for.</p>
-        </div>
-      </div>
-
-      <div class="showcase-frame" style="margin-top: 36px;">
-        <img src="assets/architecture.jpg" width="1376" height="768" loading="lazy" decoding="async" alt="Diagram of the LocalFlow pipeline from microphone capture through WhisperKit transcription and text cleanup to insertion">
-      </div>
-    </section>
-
-    <!-- Install -->
-    <section id="install" class="section-wrap">
-      <div class="section-header">
-        <div class="section-tag">Getting started</div>
-        <h2 class="section-title">Running in about a minute</h2>
-        <p class="section-desc">The app is signed but not notarised, so macOS asks once before the first launch. Here is the whole path.</p>
-      </div>
-
       <div class="steps">
         <div class="step">
-          <div class="step-num">1</div>
-          <h3>Install</h3>
-          <p>Download the DMG and drag <code>LocalFlow.app</code> into your Applications folder.</p>
+          <div class="step-k">01</div>
+          <h3>Hold <kbd>fn</kbd> anywhere</h3>
+          <p>In Mail, Slack, your editor, a browser field. LocalFlow does not care which app has focus — it works with all of them.</p>
         </div>
         <div class="step">
-          <div class="step-num">2</div>
-          <h3>Open it once</h3>
-          <p>Right-click the app and choose <strong>Open</strong>, then confirm. macOS remembers the decision from then on.</p>
+          <div class="step-k">02</div>
+          <h3>Say what you mean</h3>
+          <p>Stumble, correct yourself, use filler words. That is what the cleanup is for. Press <kbd>esc</kbd> to throw one away.</p>
         </div>
         <div class="step">
-          <div class="step-num">3</div>
-          <h3>Grant two permissions</h3>
-          <p>Microphone, to hear you, and Accessibility, to type for you. The setup guide walks you through both and continues by itself once you grant them.</p>
+          <div class="step-k">03</div>
+          <h3>Let go</h3>
+          <p>The transcript is cleaned up and typed at your cursor. Under a second on Apple Silicon, with nothing sent anywhere.</p>
         </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <h3>Hold and talk</h3>
-          <p>Press <kbd>fn</kbd> anywhere in macOS, say your sentence, release. The text lands at your cursor.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== simulator -->
+  <section id="try">
+    <div class="shell">
+      <div class="section-head">
+        <span class="eyebrow">Try it</span>
+        <h2>What the cleanup actually removes.</h2>
+        <p class="lede">Pick an example to see what happens between the microphone and the text field. This runs in your browser — it illustrates the pipeline rather than transcribing live.</p>
+      </div>
+
+      <div class="sim">
+        <div class="sim-top">
+          <div class="bar" style="box-shadow:none">
+            <span class="rec" id="simRec"></span>
+            <span class="wave" id="simWave" aria-hidden="true"></span>
+            <span class="bar-status" id="simStatus">Ready — hold your hotkey</span>
+          </div>
+          <span class="sim-badge">Neural Engine · 0.72s</span>
+        </div>
+
+        <div class="editor">
+          <div class="editor-bar">
+            <span class="lights" aria-hidden="true"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i></span>
+            <span style="margin-left:6px">Untitled.txt</span>
+          </div>
+          <div class="editor-body"><span id="out">Pick an example below…</span><span class="caret" aria-hidden="true"></span></div>
+        </div>
+
+        <div class="chips" role="group" aria-label="Cleanup examples">
+          <button class="chip" type="button" aria-pressed="true" data-demo="0">Filler words</button>
+          <button class="chip" type="button" aria-pressed="false" data-demo="1">Self-correction</button>
+          <button class="chip" type="button" aria-pressed="false" data-demo="2">Punctuation</button>
+          <button class="chip" type="button" aria-pressed="false" data-demo="3">German</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== features -->
+  <section id="features">
+    <div class="shell">
+      <div class="section-head">
+        <span class="eyebrow">Features</span>
+        <h2>Native, frugal, self-contained.</h2>
+        <p class="lede">Written in Swift and SwiftUI. A 2.5 MB menu bar agent with no runtime dependencies beyond macOS itself.</p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9zM9 3v6M15 3v6M9 15v6M15 15v6"/></svg></div>
+          <h3>Neural Engine inference</h3>
+          <p>WhisperKit through CoreML, running on Apple Silicon's dedicated hardware rather than burning a CPU core or a datacentre GPU.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <h3>Nothing leaves your Mac</h3>
+          <p>No audio, transcript or usage data is ever transmitted. Recordings exist in memory for the length of a transcription and are then gone.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></div>
+          <h3>Types where your cursor is</h3>
+          <p>Inserts at the caret through the macOS Accessibility APIs, so it works in Safari, Slack, VS Code, Notes, Terminal and everything else.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 3.9 3.9M14.5 9.5l3.9-3.9M14.5 14.5l3.9 3.9M9.5 14.5l-3.9 3.9"/></svg></div>
+          <h3>Cleanup you control</h3>
+          <p>Filler words, self-corrections and punctuation are handled by rules you can switch off one by one. Nothing is rewritten behind your back.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3a3 3 0 1 0 0 6H6a3 3 0 1 0 0 6h12a3 3 0 1 0 0 6"/></svg></div>
+          <h3>Your choice of hotkey</h3>
+          <p>Push-to-talk on <kbd>fn</kbd>, right <kbd>⌥</kbd> or the dictation key. Or toggle with <kbd>fn</kbd>+<kbd>Space</kbd>. Double-press for hands-free.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.7 9.7 0 0 0-6.7 2.8L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg></div>
+          <h3>Local history &amp; dictionary</h3>
+          <p>Search everything you have dictated and re-insert it. Teach LocalFlow the names and jargon it should always spell your way.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== pricing -->
+  <section id="pricing">
+    <div class="shell">
+      <div class="section-head">
+        <span class="eyebrow">Pricing</span>
+        <h2>Free to use. €15 if you want the smart parts.</h2>
+        <p class="lede">One payment, no subscription, no account. Works on every Mac you own and every future update is included.</p>
+      </div>
+
+      <div class="tiers">
+        <div class="tier">
+          <span class="tier-tag">Free</span>
+          <div class="price"><b>€0</b><span>forever</span></div>
+          <p>A complete dictation app. Not a trial, and not time-limited.</p>
+          <a class="btn btn-ghost" href="https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow.dmg">Download</a>
+          <ul class="feats">
+            <li class="yes"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><b>Unlimited dictation</b> — no word or time caps</span></li>
+            <li class="yes"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Rule-based cleanup, filler words and self-corrections</span></li>
+            <li class="yes"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Tiny and Base speech models</span></li>
+            <li class="yes"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>10 dictionary rules · last 25 transcripts</span></li>
+            <li class="no"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg><span>Smart AI polish</span></li>
+            <li class="no"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg><span>Whisper Small model</span></li>
+          </ul>
+        </div>
+
+        <div class="tier featured">
+          <span class="tier-tag">Pro</span>
+          <div class="price"><b>€15</b><span>once, not per month</span></div>
+          <p>Everything in Free, plus the parts that take real work to maintain.</p>
+          <button class="btn btn-pro" type="button" id="buy">Get LocalFlow Pro</button>
+          <ul class="feats">
+            <li class="yes"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><b>Smart AI polish</b> — a local language model cleans up the whole transcript</span></li>
+            <li class="yes"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><b>Whisper Small</b> — the most accurate tier, for technical vocabulary</span></li>
+            <li class="yes"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span><b>Per-app writing styles</b> — formal in Mail, casual in chat, code-aware in editors</span></li>
+            <li class="yes"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Unlimited dictionary rules and full history</span></li>
+            <li class="yes"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Every Mac you own · all future updates</span></li>
+          </ul>
+          <p class="pay-error" id="buyError" hidden></p>
         </div>
       </div>
 
-      <p style="margin-top: 18px; font-size: 0.86rem; color: var(--text-subtle);">
-        Prefer to build it yourself? <code style="font-family: 'JetBrains Mono', ui-monospace, monospace;">git clone</code> the repo and run <code style="font-family: 'JetBrains Mono', ui-monospace, monospace;">./scripts/build_app.sh</code> — Swift 6 toolchain, macOS 14 SDK, no other setup.
-      </p>
-    </section>
+      <p class="pay-note">Payment and EU VAT handled by Stripe. Your license key is verified offline — LocalFlow never checks in with a server, not even to confirm you paid.</p>
+    </div>
+  </section>
 
-    <!-- Comparison -->
-    <section id="matrix" class="section-wrap">
-      <div class="section-header">
-        <div class="section-tag">Comparison</div>
-        <h2 class="section-title">How it stacks up</h2>
-        <p class="section-desc">LocalFlow next to the cloud services and the dictation macOS already ships with.</p>
+  <!-- ===================================================== comparison -->
+  <section id="compare">
+    <div class="shell">
+      <div class="section-head">
+        <span class="eyebrow">Comparison</span>
+        <h2>Against the alternatives.</h2>
       </div>
-
-      <div class="matrix-scroll-hint">&larr; Swipe the table horizontally &rarr;</div>
-      <div class="matrix-box">
+      <div class="table-wrap">
         <table>
           <thead>
-            <tr>
-              <th>Capability</th>
-              <th class="col-focus">LocalFlow</th>
-              <th>Wispr Flow</th>
-              <th>Superwhisper</th>
-              <th>macOS built-in</th>
-            </tr>
+            <tr><th>Capability</th><th class="hi">LocalFlow</th><th>Wispr Flow</th><th>Superwhisper</th><th>macOS built-in</th></tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Where inference runs</td>
-              <td class="col-focus"><span class="tag-yes">On-device (ANE)</span></td>
-              <td>Cloud servers</td>
-              <td>Local / hybrid</td>
-              <td>Hybrid</td>
-            </tr>
-            <tr>
-              <td>Price</td>
-              <td class="col-focus"><span class="tag-yes">Free (MIT)</span></td>
-              <td>$12–15 / month</td>
-              <td>$8 / month</td>
-              <td>Included</td>
-            </tr>
-            <tr>
-              <td>Latency</td>
-              <td class="col-focus">~0.7s (Neural Engine)</td>
-              <td>1.2s–2.5s (network)</td>
-              <td>~0.9s</td>
-              <td>Varies</td>
-            </tr>
-            <tr>
-              <td>Audio uploaded</td>
-              <td class="col-focus"><span class="tag-yes">None (0 bytes)</span></td>
-              <td>Yes (cloud API)</td>
-              <td>Depends on mode</td>
-              <td>Partly</td>
-            </tr>
-            <tr>
-              <td>Filler-word removal</td>
-              <td class="col-focus"><span class="tag-yes">Built in</span></td>
-              <td>Built in</td>
-              <td>Pro only</td>
-              <td><span class="tag-no">No</span></td>
-            </tr>
-            <tr>
-              <td>Self-correction handling</td>
-              <td class="col-focus"><span class="tag-yes">Resolved locally</span></td>
-              <td>Cloud LLM</td>
-              <td>Pro only</td>
-              <td><span class="tag-no">No</span></td>
-            </tr>
-            <tr>
-              <td>Source available</td>
-              <td class="col-focus"><span class="tag-yes">Yes (MIT)</span></td>
-              <td><span class="tag-no">No</span></td>
-              <td><span class="tag-no">No</span></td>
-              <td><span class="tag-no">No</span></td>
-            </tr>
+            <tr><td>Where inference runs</td><td class="hi ok-t">On-device (ANE)</td><td>Cloud servers</td><td>Local / hybrid</td><td>Hybrid</td></tr>
+            <tr><td>Cost</td><td class="hi ok-t">Free, €15 once for Pro</td><td>$12–15 / month</td><td>$8 / month</td><td>Included</td></tr>
+            <tr><td>Latency</td><td class="hi">~0.7s</td><td>1.2–2.5s (network)</td><td>~0.9s</td><td>Varies</td></tr>
+            <tr><td>Audio uploaded</td><td class="hi ok-t">None (0 bytes)</td><td>Yes</td><td>Depends on mode</td><td>Partly</td></tr>
+            <tr><td>Works offline</td><td class="hi ok-t">Always</td><td class="no-t">No</td><td>Depends on mode</td><td>Partly</td></tr>
+            <tr><td>Account required</td><td class="hi ok-t">No</td><td>Yes</td><td>Yes</td><td>Apple ID</td></tr>
+            <tr><td>Source readable</td><td class="hi ok-t">Yes</td><td class="no-t">No</td><td class="no-t">No</td><td class="no-t">No</td></tr>
           </tbody>
         </table>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- FAQ -->
-    <section id="faq" class="section-wrap">
-      <div class="section-header">
-        <div class="section-tag">FAQ</div>
-        <h2 class="section-title">Questions worth asking</h2>
+  <!-- ===================================================== faq -->
+  <section id="faq">
+    <div class="shell">
+      <div class="section-head">
+        <span class="eyebrow">FAQ</span>
+        <h2>Questions worth asking.</h2>
       </div>
 
-      <div class="faq-list">
-        <details class="faq-item">
-          <summary>Does any audio really never leave my Mac?</summary>
-          <p>Yes. There is no networking code in the transcription path at all. The only time LocalFlow talks to the internet is when you explicitly download a speech model, and that is a one-off fetch from Hugging Face. You can verify this in the source, or just pull the network cable and keep dictating.</p>
+      <div class="faq">
+        <details>
+          <summary>Does audio really never leave my Mac?</summary>
+          <p>Yes. There is no networking code in the transcription path. LocalFlow touches the internet exactly twice: when you download a speech model, and when you buy Pro. Pull the network cable and everything else keeps working — including your Pro license, which is verified offline.</p>
         </details>
-        <details class="faq-item">
+        <details>
+          <summary>What is the catch with the free version?</summary>
+          <p>There isn't one. Free is unlimited dictation with the full rule-based cleanup and two of the three speech models. No word caps, no trial period, no nag screens. Pro adds the local language model polish, the most accurate Whisper tier and per-app styles.</p>
+        </details>
+        <details>
+          <summary>The source is public. Can't I just remove the license check?</summary>
+          <p>You can, and nothing technical stops you. LocalFlow is maintained by one person, and €15 once is what makes that sustainable. If you genuinely cannot afford it, use the free version with a clear conscience — it is a real product, not crippleware.</p>
+        </details>
+        <details>
           <summary>Which languages does it handle?</summary>
-          <p>Whisper's multilingual models, so most major languages. German and English are what the cleanup rules are tuned for. Auto-detect copes well with mixing the two mid-sentence; naming a language explicitly helps on very short phrases.</p>
+          <p>Whisper's multilingual models, so most major languages. The cleanup rules are tuned for German and English. Auto-detect copes well with mixing the two mid-sentence; naming a language explicitly helps on very short phrases.</p>
         </details>
-        <details class="faq-item">
+        <details>
           <summary>Why does macOS warn me on first launch?</summary>
-          <p>The app is code-signed but not notarised through the Apple Developer Program. Right-click the app and choose Open once, and macOS stops asking. If you would rather not trust the build, the whole thing compiles from source with one script.</p>
+          <p>The app is code-signed but not notarised through the Apple Developer Program. Right-click it and choose Open once, and macOS stops asking. If you would rather not trust the build, it compiles from source with one script.</p>
         </details>
-        <details class="faq-item">
+        <details>
           <summary>Does it work on Intel Macs?</summary>
-          <p>It runs, using the whisper.cpp backend instead of the Neural Engine. Expect noticeably higher latency than the sub-second figures quoted here, which are measured on Apple Silicon.</p>
+          <p>It runs, using the whisper.cpp backend instead of the Neural Engine. Expect noticeably higher latency than the sub-second figures here, which are measured on Apple Silicon.</p>
         </details>
-        <details class="faq-item">
+        <details>
           <summary>Why does it need Accessibility access?</summary>
-          <p>That is the only supported way for an app to type into another app's text field on macOS. LocalFlow uses it to insert your text at the cursor, and — if you leave the option on — to read the few characters before the cursor so it can match capitalisation. That context is never stored and never read from password fields.</p>
+          <p>It is the only supported way for a macOS app to type into another app's text field. LocalFlow uses it to insert at your cursor and — if you leave the option on — to read the few characters before the cursor so it can match capitalisation. That context is never stored and never read from password fields.</p>
         </details>
-        <details class="faq-item">
-          <summary>How much disk and memory does it use?</summary>
-          <p>The app itself is 2.4 MB. Speech models are 75 MB to 470 MB depending on which tier you pick, downloaded once. You can choose whether the model stays resident in RAM for the fastest first word or loads on demand to save memory.</p>
+        <details>
+          <summary>I lost my license key.</summary>
+          <p>It is in your purchase confirmation email from Stripe. The success page link in that email also still works — open it again and the key is there. Failing that, open an issue with your order number.</p>
         </details>
-      </div>
-    </section>
-
-    <!-- Sponsors -->
-    <section id="sponsors" class="sponsors-wrap">
-      <div class="sponsors-card">
-        <div class="sponsors-header">
-          <div class="sponsors-info">
-            <h2>Support the project on GitHub Sponsors</h2>
-            <p>
-              LocalFlow is built independently, with no venture funding and nothing to upsell. Sponsoring pays for keeping up with new macOS releases, refreshing the speech models, and building out more of the local language features.
-            </p>
-          </div>
-          <a href="https://github.com/sponsors/therealone00" class="btn-gh-sponsor">
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.6-1.2-1.6 1.2a.25.25 0 0 1-.4-.2Z"/></svg>
-            Sponsor on GitHub
-          </a>
-        </div>
-
-        <div class="tier-matrix">
-          <div class="tier-item">
-            <div class="tier-badge">Supporter</div>
-            <div class="tier-amount">$5 <span>/ month</span></div>
-            <div class="tier-desc">Keeps maintenance and macOS compatibility fixes coming.</div>
-          </div>
-
-          <div class="tier-item">
-            <div class="tier-badge">Power User</div>
-            <div class="tier-amount">$15 <span>/ month</span></div>
-            <div class="tier-desc">Prioritised issue support and a say in what gets built next.</div>
-          </div>
-
-          <div class="tier-item">
-            <div class="tier-badge">Backer</div>
-            <div class="tier-amount">$50 <span>one-off</span></div>
-            <div class="tier-desc">A permanent credit in the release notes and the repository.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Footer -->
-  <footer>
-    <div class="container footer-content">
-      <div>
-        <p>&copy; 2026 LocalFlow contributors &amp; <a href="https://github.com/therealone00" style="color: inherit; text-decoration: underline;">therealone00</a>. MIT licensed.</p>
-      </div>
-      <div class="footer-links">
-        <a href="https://github.com/therealone00/LocalFlow">Repository</a>
-        <a href="https://github.com/therealone00/LocalFlow/releases">Releases</a>
-        <a href="https://github.com/therealone00/LocalFlow/issues">Issues</a>
-        <a href="https://github.com/sponsors/therealone00">Sponsors</a>
-        <a href="https://github.com/therealone00/LocalFlow/blob/main/LICENSE">License</a>
       </div>
     </div>
-  </footer>
+  </section>
+</main>
 
-  <script>
-    const demos = {
-      1: {
-        raw: "So I've, uh, finished the data pipeline and, like, got it ready for the release.",
-        cleaned: "I've finished the data pipeline and got it ready for the release."
-      },
-      2: {
-        raw: "Let's move the meeting to tomorrow at two, no wait, at half three.",
-        cleaned: "Let's move the meeting to tomorrow at 3:30."
-      },
-      3: {
-        raw: "we need to guard the buffer with a lock so no race conditions show up period",
-        cleaned: "We need to guard the buffer with a lock so no race conditions show up."
-      },
-      4: {
-        raw: "Ich habe, äh, die Datenpipeline jetzt fertiggestellt und sozusagen für das Release vorbereitet.",
-        cleaned: "Ich habe die Datenpipeline fertiggestellt und für das Release vorbereitet."
+<footer>
+  <div class="shell foot">
+    <span>© 2026 LocalFlow · Built by <a href="https://github.com/therealone00" style="color:inherit">therealone00</a></span>
+    <nav class="foot-links" aria-label="Footer">
+      <a href="https://github.com/therealone00/LocalFlow">Source</a>
+      <a href="https://github.com/therealone00/LocalFlow/releases">Releases</a>
+      <a href="https://github.com/therealone00/LocalFlow/issues">Support</a>
+      <a href="https://github.com/therealone00/LocalFlow/blob/main/LICENSE">License</a>
+    </nav>
+  </div>
+</footer>
+<script>
+(() => {
+  'use strict';
+
+  // Set this to the deployed Cloudflare Worker URL. See server/README.md.
+  const LICENSING_API = 'https://localflow-licensing.workers.dev';
+
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ------------------------------------------------------------ waveforms
+  const BARS = 14;
+
+  function buildWave(el) {
+    for (let i = 0; i < BARS; i += 1) el.appendChild(document.createElement('i'));
+    return [...el.children];
+  }
+
+  function setWave(bars, level) {
+    bars.forEach((bar, i) => {
+      const falloff = 1 - Math.abs(i - (BARS - 1) / 2) / BARS;
+      const height = 3 + level * 19 * (0.45 + falloff) * (0.55 + Math.random() * 0.45);
+      bar.style.height = `${Math.min(22, height).toFixed(1)}px`;
+    });
+  }
+
+  // ------------------------------------------------------ hero bar cycle
+  const heroBars = buildWave(document.getElementById('barWave'));
+  const heroRec = document.getElementById('barRec');
+  const heroTime = document.getElementById('barTime');
+  const heroApp = document.getElementById('barApp');
+  const heroStatus = document.getElementById('barStatus');
+
+  setWave(heroBars, 0.55);
+
+  if (!reduced) {
+    let tick = 0;
+    setInterval(() => {
+      tick += 1;
+      // 0–5s recording, then a beat of transcribing, then inserted.
+      const phase = tick % 14;
+      if (phase < 9) {
+        heroRec.hidden = false;
+        heroRec.classList.add('pulsing');
+        heroTime.hidden = false;
+        heroApp.hidden = false;
+        heroStatus.hidden = true;
+        heroTime.textContent = `0:0${Math.floor(phase / 2) + 1}`;
+        setWave(heroBars, 0.35 + Math.random() * 0.6);
+      } else if (phase < 12) {
+        heroRec.classList.remove('pulsing');
+        heroRec.hidden = true;
+        heroTime.hidden = true;
+        heroApp.hidden = true;
+        heroStatus.hidden = false;
+        heroStatus.textContent = 'Transcribing…';
+        setWave(heroBars, 0.3 + Math.random() * 0.3);
+      } else {
+        heroStatus.textContent = 'Inserted';
+        setWave(heroBars, 0.12);
       }
-    };
+    }, 420);
+  }
 
-    const IDLE_STATUS = "Ready — hold your hotkey";
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let typingTimer = null;
+  // ----------------------------------------------------------- simulator
+  const DEMOS = [
+    {
+      raw: "So I've, uh, finished the data pipeline and, like, got it ready for the release.",
+      clean: "I've finished the data pipeline and got it ready for the release.",
+    },
+    {
+      raw: "Let's move the meeting to tomorrow at two, no wait, at half three.",
+      clean: "Let's move the meeting to tomorrow at 3:30.",
+    },
+    {
+      raw: "we need to guard the buffer with a lock so no race conditions show up period",
+      clean: "We need to guard the buffer with a lock so no race conditions show up.",
+    },
+    {
+      raw: "Ich habe, äh, die Datenpipeline jetzt fertiggestellt und sozusagen für das Release vorbereitet.",
+      clean: "Ich habe die Datenpipeline fertiggestellt und für das Release vorbereitet.",
+    },
+  ];
 
-    function runDemo(id) {
-      document.querySelectorAll('.btn-sample').forEach((btn, idx) => {
-        btn.classList.toggle('active', idx === id - 1);
-      });
+  const IDLE = 'Ready — hold your hotkey';
+  const out = document.getElementById('out');
+  const simStatus = document.getElementById('simStatus');
+  const simRec = document.getElementById('simRec');
+  const simBars = buildWave(document.getElementById('simWave'));
+  const chips = [...document.querySelectorAll('.chip')];
 
-      const demo = demos[id];
-      const editor = document.getElementById('editorContent');
-      const status = document.getElementById('demoStatus');
+  let timer = null;
+  let waveTimer = null;
 
-      clearTimeout(typingTimer);
+  setWave(simBars, 0.1);
 
-      status.innerText = "Transcribing locally (ANE)…";
-      editor.innerHTML = '';
-      const rawSpan = document.createElement('span');
-      rawSpan.style.color = '#71717A';
-      rawSpan.style.fontStyle = 'italic';
-      rawSpan.innerText = '"' + demo.raw + '"';
-      editor.appendChild(rawSpan);
+  function stopWave() {
+    clearInterval(waveTimer);
+    waveTimer = null;
+    simRec.classList.remove('pulsing');
+    setWave(simBars, 0.1);
+  }
 
-      // Reduced motion gets the result immediately instead of a typing crawl.
-      if (prefersReducedMotion) {
-        typingTimer = setTimeout(() => {
-          status.innerText = "Inserted (0.72s)";
-          editor.innerText = demo.cleaned;
-          typingTimer = setTimeout(() => { status.innerText = IDLE_STATUS; }, 1400);
-        }, 400);
-        return;
-      }
+  function runDemo(index) {
+    const demo = DEMOS[index];
+    if (!demo) return;
 
-      typingTimer = setTimeout(() => {
-        status.innerText = "Inserted (0.72s)";
+    chips.forEach((chip, i) => chip.setAttribute('aria-pressed', String(i === index)));
 
-        let currentText = "";
-        let charIndex = 0;
+    clearTimeout(timer);
+    stopWave();
 
-        const typeChar = () => {
-          if (charIndex < demo.cleaned.length) {
-            currentText += demo.cleaned[charIndex];
-            editor.innerText = currentText;
-            charIndex++;
-            typingTimer = setTimeout(typeChar, 14);
-          } else {
-            typingTimer = setTimeout(() => {
-              status.innerText = IDLE_STATUS;
-            }, 1400);
-          }
-        };
-        typeChar();
-      }, 500);
+    simStatus.textContent = 'Transcribing locally…';
+    out.textContent = '';
+    const raw = document.createElement('span');
+    raw.className = 'raw';
+    raw.textContent = `"${demo.raw}"`;
+    out.appendChild(raw);
+
+    if (!reduced) {
+      simRec.classList.add('pulsing');
+      waveTimer = setInterval(() => setWave(simBars, 0.3 + Math.random() * 0.6), 110);
     }
-  </script>
+
+    // Reduced motion skips the typing crawl and shows the result outright.
+    if (reduced) {
+      timer = setTimeout(() => {
+        simStatus.textContent = 'Inserted (0.72s)';
+        out.textContent = demo.clean;
+        timer = setTimeout(() => { simStatus.textContent = IDLE; }, 1600);
+      }, 350);
+      return;
+    }
+
+    timer = setTimeout(() => {
+      stopWave();
+      simStatus.textContent = 'Inserted (0.72s)';
+
+      let i = 0;
+      const type = () => {
+        if (i < demo.clean.length) {
+          out.textContent = demo.clean.slice(0, i + 1);
+          i += 1;
+          timer = setTimeout(type, 15);
+        } else {
+          timer = setTimeout(() => { simStatus.textContent = IDLE; }, 1600);
+        }
+      };
+      type();
+    }, 700);
+  }
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => runDemo(Number(chip.dataset.demo)));
+  });
+
+  // -------------------------------------------------------------- buy
+  const buy = document.getElementById('buy');
+  const buyError = document.getElementById('buyError');
+
+  function showBuyError(message) {
+    buyError.textContent = message;
+    buyError.hidden = false;
+  }
+
+  buy.addEventListener('click', async () => {
+    buyError.hidden = true;
+    buy.setAttribute('aria-busy', 'true');
+    const label = buy.textContent;
+    buy.textContent = 'Opening checkout…';
+
+    try {
+      const response = await fetch(`${LICENSING_API}/api/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const body = await response.json();
+      if (!response.ok || !body.url) {
+        throw new Error(body.error || 'Checkout is unavailable right now.');
+      }
+      window.location.href = body.url;
+    } catch (error) {
+      // A failed fetch surfaces as "Failed to fetch", which tells nobody anything.
+      const reason = error instanceof TypeError
+        ? 'Could not reach the checkout server.'
+        : error.message;
+      showBuyError(`${reason} Please try again in a moment, or open an issue and I'll sort it out directly.`);
+      buy.removeAttribute('aria-busy');
+      buy.textContent = label;
+    }
+  });
+})();
+</script>
 </body>
 </html>

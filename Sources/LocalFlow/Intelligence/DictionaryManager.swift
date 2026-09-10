@@ -10,11 +10,26 @@ public final class DictionaryManager: ObservableObject {
         load()
     }
     
+    /// Free-tier headroom. Existing rules always keep working — the ceiling
+    /// only stops new ones being added, so upgrading never silently disables
+    /// something the user set up earlier.
+    public var canAddEntry: Bool {
+        guard let limit = LicenseManager.shared.limit(for: .unlimitedDictionary) else { return true }
+        return entries.count < limit
+    }
+
     public func addEntry(spokenPhrase: String, writtenReplacement: String, isCaseSensitive: Bool = false) {
         let trimmedPhrase = spokenPhrase.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedReplacement = writtenReplacement.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedPhrase.isEmpty, !trimmedReplacement.isEmpty else { return }
-        
+
+        // Replacing an existing rule is always allowed; only growing the list
+        // is gated.
+        let isReplacement = entries.contains {
+            $0.spokenPhrase.caseInsensitiveCompare(trimmedPhrase) == .orderedSame
+        }
+        guard isReplacement || canAddEntry else { return }
+
         // Remove existing entry for same phrase if present
         entries.removeAll { $0.spokenPhrase.caseInsensitiveCompare(trimmedPhrase) == .orderedSame }
         

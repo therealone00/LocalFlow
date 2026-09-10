@@ -23,6 +23,16 @@ falls back to ad-hoc signing when it does not. Ad-hoc builds are fine for local
 work but give users a much rougher first launch, which is why release DMGs are
 built and signed locally rather than in CI.
 
+## Licensing
+
+LocalFlow is under the [Elastic License 2.0](LICENSE) from 1.2.0 onwards. By
+contributing you agree that your contribution is licensed the same way.
+
+Two limits worth stating plainly, because they affect what a PR may do: the
+license key functionality may not be removed, disabled or worked around, and
+LocalFlow may not be offered to third parties as a hosted service. Everything
+else — reading, forking, modifying, building your own copy — is fine.
+
 ## The one rule
 
 **Nothing leaves the user's Mac.** No telemetry, no crash reporting, no
@@ -38,6 +48,10 @@ A pull request that adds an outbound request anywhere else will not be merged.
   from one place.
 - A preference that is rendered must be read. If you add a toggle, wire it up in
   the same change — the 1.1 release existed largely to fix six that were not.
+- Pro gating goes through `SettingsManager.effectiveSettings` and
+  `LicenseManager.limit(for:)`, never an ad-hoc `isPro` check in a view that
+  matters. A free-tier ceiling hides data, it never deletes it: a user who buys
+  Pro must get their old history and dictionary rules back intact.
 - Enum `rawValue`s are persistence keys, not labels. User-facing text belongs in
   `Models/SettingsDisplay.swift` so that renaming a label cannot reset anyone's
   settings.

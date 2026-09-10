@@ -7,8 +7,8 @@ project; fixes land in a new release rather than in backports.
 
 | Version | Supported |
 | ------- | --------- |
-| 1.1.x   | Yes       |
-| < 1.1   | No        |
+| 1.2.x   | Yes       |
+| < 1.2   | No        |
 
 ## Reporting a vulnerability
 
@@ -31,6 +31,14 @@ Anything that abuses those — reading from secure or password fields, retaining
 audio beyond a transcription, writing transcripts somewhere unexpected, or
 escalating the app's reach into other applications — is in scope, as is any
 outbound network traffic other than an explicit, user-initiated model download.
+
+## Licensing is not a security boundary
+
+The Pro license check is an Ed25519 signature verified locally. Being able to
+patch it out of your own build is not a vulnerability — the source is public and
+that is expected. What *is* worth reporting: a way to forge a signature that the
+shipping public key accepts, or anything that makes the licensing code leak data
+off the machine.
 
 ## What is not a vulnerability
 

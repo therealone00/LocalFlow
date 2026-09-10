@@ -2,10 +2,13 @@ import SwiftUI
 
 public struct IntelligenceSettingsView: View {
     @ObservedObject var settingsManager = SettingsManager.shared
+    @ObservedObject var licenseManager = LicenseManager.shared
 
     public init() {}
 
-    private var tier: IntelligenceTier { settingsManager.settings.intelligenceTier }
+    /// What the pipeline will actually use, which is not always what is stored:
+    /// a saved Smart preference falls back to Balanced without a license.
+    private var tier: IntelligenceTier { settingsManager.effectiveSettings.intelligenceTier }
 
     public var body: some View {
         SettingsPane(
@@ -14,13 +17,24 @@ public struct IntelligenceSettingsView: View {
             systemImage: "sparkles"
         ) {
             SettingsCard("Cleanup Level", footnote: tier.summary) {
-                Picker("", selection: $settingsManager.settings.intelligenceTier) {
-                    ForEach(IntelligenceTier.allCases, id: \.self) { tier in
-                        Text(tier.displayName).tag(tier)
+                Picker("", selection: Binding(
+                    get: { tier },
+                    set: { settingsManager.settings.intelligenceTier = $0 }
+                )) {
+                    ForEach(IntelligenceTier.allCases, id: \.self) { candidate in
+                        if candidate == .smart && !licenseManager.isPro {
+                            Text("\(candidate.displayName) · Pro").tag(candidate)
+                        } else {
+                            Text(candidate.displayName).tag(candidate)
+                        }
                     }
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
+
+                if !licenseManager.isPro {
+                    ProUpsellRow(.smartCleanup)
+                }
             }
 
             SettingsCard("Cleanup Rules") {
@@ -53,11 +67,15 @@ public struct IntelligenceSettingsView: View {
                 "Context",
                 footnote: "Cursor context is never stored and is never read from secure or password fields."
             ) {
-                SettingToggle(
-                    "Adapt to the app you are in",
-                    detail: "Writes more formally in Mail, more casually in chat, and code-aware in editors.",
-                    isOn: $settingsManager.settings.useAppContext
-                )
+                if licenseManager.isPro {
+                    SettingToggle(
+                        "Adapt to the app you are in",
+                        detail: "Writes more formally in Mail, more casually in chat, and code-aware in editors.",
+                        isOn: $settingsManager.settings.useAppContext
+                    )
+                } else {
+                    ProUpsellRow(.appContextStyles)
+                }
 
                 SettingToggle(
                     "Use text around the cursor",

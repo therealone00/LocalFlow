@@ -179,6 +179,13 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate 
             menu.addItem(NSMenuItem.separator())
         }
 
+        if !LicenseManager.shared.isPro {
+            let upgrade = NSMenuItem(title: "Get LocalFlow Pro — \(AppConstants.proPrice) once", action: #selector(showLicense), keyEquivalent: "")
+            upgrade.image = NSImage(systemSymbolName: "sparkles", accessibilityDescription: nil)
+            menu.addItem(upgrade)
+            menu.addItem(NSMenuItem.separator())
+        }
+
         menu.addItem(NSMenuItem(title: "Settings…", action: #selector(showSettings), keyEquivalent: ","))
         menu.addItem(NSMenuItem(title: "Setup Guide…", action: #selector(showOnboarding), keyEquivalent: ""))
         menu.addItem(NSMenuItem.separator())
@@ -215,7 +222,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate 
 
     private func prewarmSpeechEngine() {
         Task.detached(priority: .background) {
-            let settings = await SettingsManager.shared.settings
+            let settings = await SettingsManager.shared.effectiveSettings
             if settings.prewarmPolicy != .never {
                 _ = try? await TranscriptionCoordinator.shared.getEngine(settings: settings)
             }
@@ -252,6 +259,10 @@ public final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate 
 
     @objc public func showHistory() {
         openSettings(tab: .history)
+    }
+
+    @objc public func showLicense() {
+        openSettings(tab: .license)
     }
 
     @objc public func showSettings() {

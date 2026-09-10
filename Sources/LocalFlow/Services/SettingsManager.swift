@@ -30,4 +30,24 @@ public final class SettingsManager: ObservableObject {
     public func resetToDefaults() {
         self.settings = LocalFlowSettings()
     }
+
+    /// Settings with Pro-only choices downgraded for the free tier.
+    ///
+    /// The pipeline reads this rather than `settings`, so entitlement checks
+    /// live in exactly one place instead of being scattered across the engines.
+    /// The user's stored preference is left untouched, so buying Pro restores
+    /// whatever they had picked without them having to set it again.
+    public var effectiveSettings: LocalFlowSettings {
+        guard !LicenseManager.shared.isPro else { return settings }
+
+        var resolved = settings
+        if resolved.intelligenceTier == .smart {
+            resolved.intelligenceTier = .balanced
+        }
+        if resolved.speechModelTier == .small {
+            resolved.speechModelTier = .base
+        }
+        resolved.useAppContext = false
+        return resolved
+    }
 }

@@ -12,9 +12,15 @@ public enum AppConstants {
     /// Application version string, read from the bundle so it can never drift
     /// from `Config/Info.plist`.
     public static var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.1.0"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.2.0"
     }
     
+    /// Where people buy and manage a Pro license.
+    public static let purchaseURL = URL(string: "https://therealone00.github.io/LocalFlow/#pricing")!
+
+    /// One-time price shown in the app, kept in sync with the website.
+    public static let proPrice = "€15"
+
     /// Base directory in Application Support for storing models, caches, and local configurations.
     public static var applicationSupportDirectory: URL {
         let fileManager = FileManager.default

@@ -108,7 +108,7 @@ public final class AppState: ObservableObject {
         
         // Read context from currently focused element
         let context = FocusedElementReader.shared.readCurrentContext(
-            readPrecedingText: SettingsManager.shared.settings.useCursorContext
+            readPrecedingText: SettingsManager.shared.effectiveSettings.useCursorContext
         )
         
         self.activeAppName = targetApp?.localizedName ?? context.appName ?? "Active App"
@@ -121,7 +121,7 @@ public final class AppState: ObservableObject {
         )
         
         do {
-            try recorder.startRecording(deviceUID: SettingsManager.shared.settings.selectedAudioDeviceUID)
+            try recorder.startRecording(deviceUID: SettingsManager.shared.effectiveSettings.selectedAudioDeviceUID)
             recordingStartedAt = Date()
             dictationState = .listening
             SoundManager.shared.playStartSound()
@@ -153,7 +153,7 @@ public final class AppState: ObservableObject {
                 return
             }
             
-            let settings = SettingsManager.shared.settings
+            let settings = SettingsManager.shared.effectiveSettings
             let startTime = Date()
             
             do {

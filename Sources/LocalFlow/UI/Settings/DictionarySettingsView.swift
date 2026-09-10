@@ -2,6 +2,7 @@ import SwiftUI
 
 public struct DictionarySettingsView: View {
     @ObservedObject var dictionaryManager = DictionaryManager.shared
+    @ObservedObject var licenseManager = LicenseManager.shared
 
     @State private var newSpoken = ""
     @State private var newWritten = ""
@@ -14,6 +15,11 @@ public struct DictionarySettingsView: View {
     private var canAdd: Bool {
         !newSpoken.trimmingCharacters(in: .whitespaces).isEmpty
             && !newWritten.trimmingCharacters(in: .whitespaces).isEmpty
+            && (dictionaryManager.canAddEntry || overwritesExisting)
+    }
+
+    private var isAtFreeLimit: Bool {
+        !dictionaryManager.canAddEntry
     }
 
     /// True when saving would silently replace an existing rule.
@@ -68,9 +74,13 @@ public struct DictionarySettingsView: View {
                 Toggle("Match capitalisation exactly", isOn: $isCaseSensitive)
                     .toggleStyle(.checkbox)
                     .font(DS.Font.rowDetail)
+
+                if isAtFreeLimit {
+                    ProUpsellRow(.unlimitedDictionary)
+                }
             }
 
-            SettingsCard("Rules (\(dictionaryManager.entries.count))") {
+            SettingsCard(ruleCountLabel) {
                 if dictionaryManager.entries.isEmpty {
                     emptyState
                 } else {
@@ -100,6 +110,14 @@ public struct DictionarySettingsView: View {
                 }
             }
         }
+    }
+
+    private var ruleCountLabel: String {
+        let count = dictionaryManager.entries.count
+        guard let limit = licenseManager.limit(for: .unlimitedDictionary) else {
+            return "Rules (\(count))"
+        }
+        return "Rules (\(count) of \(limit))"
     }
 
     private var emptyState: some View {

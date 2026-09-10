@@ -4,3 +4,9 @@ build/
 .DS_Store
 *.swp
 DerivedData/
+
+# Stripe / licensing secrets — never commit
+server/.signing-key.json
+server/.dev.vars
+server/node_modules/
+.wrangler/

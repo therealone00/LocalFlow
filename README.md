@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/Apple%20Silicon-Neural%20Engine-black?style=flat-square" alt="Apple Silicon ANE">
   <img src="https://img.shields.io/badge/Privacy-100%25%20On--Device-34C759?style=flat-square" alt="100% On-Device">
   <a href="https://github.com/sponsors/therealone00"><img src="https://img.shields.io/badge/Sponsor-therealone00-24292F?style=flat-square&logo=github" alt="Sponsor"></a>
-  <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/License-Elastic%202.0-blue?style=flat-square" alt="License">
 </p>
 
 <p align="center">
@@ -78,7 +78,7 @@ open build/LocalFlow.app
   - Filters German & English conversational filler words (*„äh“, „ähm“, „quasi“, „sozusagen“, „like“*).
   - Spoken self-correction parser (*„morgen um 14, nein um 15 Uhr“ ➔ „morgen um 15 Uhr“*).
   - Contextual punctuation and capitalization.
-- **Local History**: The last 100 transcripts are kept on-device so you can search, copy and re-insert them. Off with one toggle, and clearable at any time.
+- **Local History**: Transcripts are kept on-device so you can search, copy and re-insert them. Off with one toggle, and clearable at any time.
 - **Personal Dictionary**: Teach LocalFlow the names, jargon and shorthand it should always spell your way.
 - **Zero Data Retention**: Audio buffers exist solely in volatile RAM during recording and are purged immediately after transcription. Audio is never written to disk, under any setting.
 - **Accessible by Default**: Honours Reduce Motion — both the app's own setting and the macOS one — and every preference in Settings is wired to real behaviour.
@@ -144,6 +144,30 @@ Sponsorship support directly funds:
 
 ---
 
+## Free & Pro
+
+LocalFlow is free and unlimited. There is no trial, no word cap and no nag screen.
+
+| | Free | Pro — €15 once |
+| :--- | :---: | :---: |
+| Dictation | Unlimited | Unlimited |
+| Rule-based cleanup | Yes | Yes |
+| Speech models | Tiny, Base | Tiny, Base, **Small** |
+| Dictionary rules | 10 | Unlimited |
+| History in reach | Last 25 | All of it |
+| Smart AI polish (local LLM) | — | Yes |
+| Per-app writing styles | — | Yes |
+
+Pro is a one-time purchase that works on every Mac you own, with all future
+updates included. **The license key is verified offline** using an Ed25519
+signature checked against a public key compiled into the app — LocalFlow never
+contacts a server to confirm it, so Pro keeps working with no network at all.
+
+Buy it at **[the website](https://therealone00.github.io/LocalFlow/#pricing)**,
+then paste the key into Settings › Pro.
+
+---
+
 ## Contributing
 
 Pull requests are welcome. See **[CONTRIBUTING.md](CONTRIBUTING.md)** for the build steps and the one hard rule: nothing leaves the user's Mac.
@@ -154,4 +178,11 @@ Found a security issue? Please report it privately — see **[SECURITY.md](SECUR
 
 ## License
 
-MIT License © 2026 LocalFlow Contributors & [therealone00](https://github.com/therealone00).
+**[Elastic License 2.0](LICENSE)** © 2026 Maximilian Leinz ([therealone00](https://github.com/therealone00)).
+
+Read, fork, modify and build it yourself — that is all explicitly allowed. What
+is not allowed is stripping the license key check or reselling LocalFlow as a
+hosted service.
+
+Versions 1.0.0 and 1.1.0 were released under MIT and stay MIT forever. See
+**[NOTICE.md](NOTICE.md)** for the full history and reasoning.
