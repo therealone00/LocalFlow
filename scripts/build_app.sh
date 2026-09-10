@@ -95,20 +95,86 @@ if [ -f "/tmp/LocalFlow_512.png" ]; then
 fi
 
 echo "==> Resolving code signing identity..."
-SIGNING_IDENTITY=$(security find-identity -p codesigning -v 2>/dev/null | grep "Apple Development" | head -n 1 | sed -n 's/.*"\(.*\)".*/\1/p')
 
-if [ -n "${SIGNING_IDENTITY}" ]; then
-    echo "==> Using detected developer identity: ${SIGNING_IDENTITY}"
-else
-    echo "==> No Apple Development identity found, using ad-hoc signing (-)..."
-    SIGNING_IDENTITY="-"
+# Distribution outside the App Store requires a "Developer ID Application"
+# certificate. "Apple Development" is for your own machines and "Apple
+# Distribution" is for App Store submission — neither lets someone else open
+# the app without Gatekeeper getting in the way.
+find_identity() {
+    security find-identity -p codesigning -v 2>/dev/null \
+        | grep "$1" | head -n 1 | sed -n 's/.*"\(.*\)".*/\1/p'
+}
+
+SIGNING_IDENTITY="$(find_identity "Developer ID Application")"
+IDENTITY_KIND="developer-id"
+
+if [ -z "${SIGNING_IDENTITY}" ]; then
+    SIGNING_IDENTITY="$(find_identity "Apple Development")"
+    IDENTITY_KIND="development"
 fi
 
-echo "==> Signing application bundle..."
-codesign --force --deep --sign "${SIGNING_IDENTITY}" --entitlements "${ROOT_DIR}/Config/LocalFlow.entitlements" "${APP_BUNDLE}"
+if [ -z "${SIGNING_IDENTITY}" ]; then
+    SIGNING_IDENTITY="-"
+    IDENTITY_KIND="ad-hoc"
+fi
+
+echo "==> Signing with: ${SIGNING_IDENTITY}"
+
+# The hardened runtime is mandatory for notarization, and harmless without it.
+# --deep is deliberately not used: Apple discourages it, and this bundle has no
+# nested code to descend into anyway.
+CODESIGN_FLAGS=(--force --options runtime --entitlements "${ROOT_DIR}/Config/LocalFlow.entitlements")
+if [ "${IDENTITY_KIND}" != "ad-hoc" ]; then
+    # A secure timestamp is required for notarization and keeps the signature
+    # valid after the certificate eventually expires.
+    CODESIGN_FLAGS+=(--timestamp)
+fi
+
+codesign "${CODESIGN_FLAGS[@]}" --sign "${SIGNING_IDENTITY}" "${APP_BUNDLE}"
+
+echo "==> Verifying signature..."
+codesign --verify --strict --verbose=2 "${APP_BUNDLE}" 2>&1 | sed 's/^/    /'
+
+if codesign -d -vv "${APP_BUNDLE}" 2>&1 | grep -q "flags=.*runtime"; then
+    echo "    hardened runtime: enabled"
+else
+    echo "    hardened runtime: MISSING — notarization will be rejected"
+fi
 
 echo ""
 echo "=================================================="
-echo " BUILD SUCCESSFUL!"
-echo " App location: ${APP_BUNDLE}"
+echo " BUILD SUCCESSFUL"
+echo " ${APP_BUNDLE}"
 echo "=================================================="
+
+case "${IDENTITY_KIND}" in
+    developer-id)
+        echo " Signed for distribution. Notarize before shipping:"
+        echo "   ./scripts/notarize.sh"
+        ;;
+    development)
+        cat <<'WARNING'
+
+ WARNING — this build is signed with an Apple Development certificate.
+
+ That certificate is for running the app on your own machines. On someone
+ else's Mac, Gatekeeper will refuse it, and "right-click, Open" is not a
+ reliable way around that. Do not publish this build.
+
+ You already have a paid Apple Developer Program membership, so creating the
+ right certificate costs nothing:
+
+   Xcode -> Settings -> Accounts -> your team -> Manage Certificates
+   -> + -> Developer ID Application
+
+ Then run this script again and notarize with ./scripts/notarize.sh
+WARNING
+        ;;
+    ad-hoc)
+        cat <<'WARNING'
+
+ WARNING — ad-hoc signed. Fine for local work, unusable for distribution.
+ macOS will report the app as damaged on any other machine.
+WARNING
+        ;;
+esac

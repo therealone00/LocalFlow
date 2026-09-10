@@ -18,10 +18,21 @@ swift test           # run the test suite
 Requirements: macOS 14 or later and a Swift 6 toolchain. There is nothing else
 to install — WhisperKit is resolved by SwiftPM.
 
-`build_app.sh` signs with your Apple Development identity when it finds one and
-falls back to ad-hoc signing when it does not. Ad-hoc builds are fine for local
-work but give users a much rougher first launch, which is why release DMGs are
-built and signed locally rather than in CI.
+`build_app.sh` prefers a **Developer ID Application** certificate, signs with the
+hardened runtime and a secure timestamp, and falls back to Apple Development or
+ad-hoc signing with a loud warning. Only the Developer ID path produces
+something another person can open.
+
+Release builds are signed and notarized locally rather than in CI, because CI
+has no access to the signing certificate:
+
+```bash
+./scripts/build_app.sh
+./scripts/notarize.sh --setup   # once, stores credentials in your keychain
+./scripts/notarize.sh           # submits and staples the app and the DMG
+```
+
+Notarization credentials live in the login keychain and never in the repo.
 
 ## Licensing
 

@@ -21,10 +21,17 @@ echo "==> Building ${APP_NAME} v${VERSION} disk image..."
 rm -rf "${DMG_TMP_DIR}" "${DMG_PATH}" "${DMG_STABLE_PATH}"
 mkdir -p "${DMG_TMP_DIR}"
 
-# Always rebuild. Reusing an existing bundle silently ships whatever was built
-# last time — including a stale version number after a version bump.
-echo "==> Building app bundle..."
-"${ROOT_DIR}/scripts/build_app.sh"
+# Always rebuild, unless a caller has deliberately prepared the bundle already.
+# Reusing a stale bundle silently ships the previous version; rebuilding a
+# stapled one silently throws the notarization ticket away. SKIP_BUILD=1 is how
+# notarize.sh asks for the latter to be preserved.
+if [ "${SKIP_BUILD:-0}" = "1" ]; then
+    [ -d "${APP_BUNDLE}" ] || { echo "SKIP_BUILD=1 but no app bundle exists." >&2; exit 1; }
+    echo "==> Reusing the existing app bundle (SKIP_BUILD=1)."
+else
+    echo "==> Building app bundle..."
+    "${ROOT_DIR}/scripts/build_app.sh"
+fi
 
 echo "==> Copying application to staging..."
 cp -R "${APP_BUNDLE}" "${DMG_TMP_DIR}/"
