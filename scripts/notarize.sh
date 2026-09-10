@@ -56,7 +56,11 @@ xcrun --find notarytool >/dev/null 2>&1 || die "notarytool not found. Install Xc
 [ -d "${APP_BUNDLE}" ] || die "No app bundle at ${APP_BUNDLE}. Run ./scripts/build_app.sh first."
 
 step "Checking the signature"
-AUTHORITY="$(codesign -dvv "${APP_BUNDLE}" 2>&1 | grep '^Authority=' | head -1 | cut -d= -f2-)"
+# Captured in one go rather than piped: under `set -o pipefail`, grep -q closes
+# the pipe on its first match, codesign takes SIGPIPE, and the whole pipeline
+# reports failure — which made this script reject its own correct build.
+SIGN_INFO="$(codesign -dvv "${APP_BUNDLE}" 2>&1 || true)"
+AUTHORITY="$(printf '%s\n' "${SIGN_INFO}" | awk -F= '/^Authority=/ {print substr($0, index($0, "=") + 1); exit}')"
 echo "    ${AUTHORITY}"
 
 case "${AUTHORITY}" in
@@ -69,8 +73,10 @@ case "${AUTHORITY}" in
      ./scripts/build_app.sh" ;;
 esac
 
-codesign -d -vv "${APP_BUNDLE}" 2>&1 | grep -q "flags=.*runtime" \
-    || die "The app is not signed with the hardened runtime. Re-run ./scripts/build_app.sh"
+case "${SIGN_INFO}" in
+    *"flags="*"runtime"*) : ;;
+    *) die "The app is not signed with the hardened runtime. Re-run ./scripts/build_app.sh" ;;
+esac
 
 xcrun notarytool history --keychain-profile "${KEYCHAIN_PROFILE}" >/dev/null 2>&1 \
     || die "No notarization credentials stored.

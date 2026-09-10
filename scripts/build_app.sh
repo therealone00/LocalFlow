@@ -135,7 +135,8 @@ codesign "${CODESIGN_FLAGS[@]}" --sign "${SIGNING_IDENTITY}" "${APP_BUNDLE}"
 echo "==> Verifying signature..."
 codesign --verify --strict --verbose=2 "${APP_BUNDLE}" 2>&1 | sed 's/^/    /'
 
-if codesign -d -vv "${APP_BUNDLE}" 2>&1 | grep -q "flags=.*runtime"; then
+SIGN_INFO="$(codesign -d -vv "${APP_BUNDLE}" 2>&1 || true)"
+if [[ "${SIGN_INFO}" == *"flags="*"runtime"* ]]; then
     echo "    hardened runtime: enabled"
 else
     echo "    hardened runtime: MISSING — notarization will be rejected"
