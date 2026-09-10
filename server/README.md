@@ -15,6 +15,24 @@ locally, so buying Pro is the only moment LocalFlow touches a network at all.
 
 ## Setup
 
+### The short way
+
+```bash
+./server/scripts/setup.sh
+```
+
+Installs wrangler, logs in to Cloudflare, creates the KV namespace, wires
+`wrangler.toml`, uploads the secrets, deploys, points both website pages at the
+deployed URL and smoke-tests the result.
+
+It prompts you for the two Stripe secrets. They are read without echoing, piped
+straight into Cloudflare's secret store, and never written to disk or to your
+shell history. **If a key has ever been pasted into a chat, an email or a
+ticket, roll it in Stripe first and give the script the new one** — a leaked
+`sk_live_` key can move real money.
+
+The manual steps below are the same thing, one at a time.
+
 ### 1. Signing keypair
 
 ```bash
