@@ -54,21 +54,56 @@ echo "Signing key matches the key compiled into the app."
 step "Installing wrangler"
 npm install --silent
 
+# Wrangler sends anonymous usage telemetry by default. Not on this project.
+npx wrangler telemetry disable >/dev/null 2>&1 || true
+
 # ---------------------------------------------------------------- 2. login
 step "Connecting to Cloudflare"
-if npx wrangler whoami >/dev/null 2>&1; then
-    npx wrangler whoami | head -5
+
+# `wrangler whoami` exits 0 whether or not you are logged in, so the exit code
+# says nothing. The output is what has to be read.
+is_authenticated() {
+    local out
+    out="$(npx wrangler whoami 2>&1 || true)"
+    if echo "${out}" | grep -qiE "not authenticated|you are not logged in"; then
+        return 1
+    fi
+    echo "${out}" | grep -qiE "account name|account id|associated with the email"
+}
+
+if is_authenticated; then
+    npx wrangler whoami 2>&1 | grep -iE "email|account name" | head -3
+    echo "Already connected."
 else
-    echo "A browser window will open. Approve the request, then come back here."
+    if [ -n "${CLOUDFLARE_API_TOKEN:-}" ]; then
+        die "CLOUDFLARE_API_TOKEN is set but Cloudflare rejected it. Unset it to log in
+     through the browser instead, or replace it with a valid token."
+    fi
+    echo "Not logged in yet. A browser window will open — approve the request,"
+    echo "then come back to this window."
+    echo
+    # Deliberately not captured: wrangler needs a real terminal to run the
+    # OAuth flow, and any redirection here makes it bail out as non-interactive.
     npx wrangler login
+    is_authenticated || die "Cloudflare login did not complete. Run it again with:
+       cd server && npx wrangler login
+     Or, if this machine cannot open a browser, create an API token at
+     https://developers.cloudflare.com/fundamentals/api/get-started/create-token/
+     and re-run this script with CLOUDFLARE_API_TOKEN=... in front of it."
+    echo "Connected."
 fi
 
 # ---------------------------------------------------------------- 3. KV
 step "Setting up the KV namespace"
 if grep -q 'REPLACE_WITH_KV_NAMESPACE_ID' wrangler.toml; then
-    KV_OUTPUT="$(npx wrangler kv namespace create LICENSES 2>&1 || true)"
-    echo "${KV_OUTPUT}"
-    KV_ID="$(echo "${KV_OUTPUT}" | grep -oE '"?id"?[ =:]+"?[0-9a-f]{32}' | grep -oE '[0-9a-f]{32}' | head -1)"
+    # tee rather than $(...) so wrangler keeps printing to the terminal and its
+    # output can still be parsed.
+    KV_LOG="$(mktemp)"
+    npx wrangler kv namespace create LICENSES 2>&1 | tee "${KV_LOG}" || true
+    KV_ID="$(grep -oE 'id[[:space:]]*=[[:space:]]*"[0-9a-f]{32}"' "${KV_LOG}" \
+        | grep -oE '[0-9a-f]{32}' | head -1)"
+    [ -n "${KV_ID}" ] || KV_ID="$(grep -oE '[0-9a-f]{32}' "${KV_LOG}" | head -1)"
+    rm -f "${KV_LOG}"
     [ -n "${KV_ID}" ] || die "Could not read the namespace id from wrangler's output. Paste it into wrangler.toml by hand and re-run."
     # Portable in-place edit; BSD sed needs the empty -i argument.
     sed -i '' "s/REPLACE_WITH_KV_NAMESPACE_ID/${KV_ID}/" wrangler.toml
@@ -123,9 +158,10 @@ node -e "process.stdout.write(require('${SERVER_DIR}/.signing-key.json').private
 
 # ---------------------------------------------------------------- 5. deploy
 step "Deploying the Worker"
-DEPLOY_OUTPUT="$(npx wrangler deploy 2>&1)"
-echo "${DEPLOY_OUTPUT}"
-WORKER_URL="$(echo "${DEPLOY_OUTPUT}" | grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' | head -1)"
+DEPLOY_LOG="$(mktemp)"
+npx wrangler deploy 2>&1 | tee "${DEPLOY_LOG}"
+WORKER_URL="$(grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' "${DEPLOY_LOG}" | head -1)"
+rm -f "${DEPLOY_LOG}"
 [ -n "${WORKER_URL}" ] || die "Deploy finished but no Worker URL was found in the output. Set LICENSING_API in docs/*.html by hand."
 
 # ---------------------------------------------------------------- 6. wire the site
