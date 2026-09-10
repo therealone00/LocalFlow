@@ -20,7 +20,9 @@ public final class AppState: ObservableObject {
     
     private let recorder = AudioRecorder()
     private let vad = VoiceActivityDetector()
-    private var currentSession: DictationSession?
+    /// Bundle id of the app the dictation is destined for, used to pick a
+    /// writing style during cleanup.
+    private var targetBundleId: String?
     private var targetApplication: NSRunningApplication?
     private var dismissTask: Task<Void, Never>?
     
@@ -114,11 +116,7 @@ public final class AppState: ObservableObject {
         self.activeAppName = targetApp?.localizedName ?? context.appName ?? "Active App"
         self.activeAppIcon = targetApp?.icon ?? NSWorkspace.shared.frontmostApplication?.icon
         
-        currentSession = DictationSession(
-            targetAppName: self.activeAppName,
-            targetBundleId: targetApp?.bundleIdentifier ?? context.bundleId,
-            status: .preparing
-        )
+        self.targetBundleId = targetApp?.bundleIdentifier ?? context.bundleId
         
         do {
             try recorder.startRecording(deviceUID: SettingsManager.shared.effectiveSettings.selectedAudioDeviceUID)
@@ -185,7 +183,7 @@ public final class AppState: ObservableObject {
                 let cleanedText = await TextCleanupEngine.shared.process(
                     rawTranscript: rawText,
                     settings: settings,
-                    targetBundleId: self.currentSession?.targetBundleId
+                    targetBundleId: self.targetBundleId
                 )
                 
                 self.lastTranscribedText = cleanedText

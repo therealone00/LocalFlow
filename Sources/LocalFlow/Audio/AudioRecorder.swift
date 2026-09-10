@@ -3,7 +3,8 @@ import Foundation
 import Accelerate
 
 /// Thread-safe synchronized sample storage using os_unfair_lock for real-time audio callbacks.
-public final class SynchronizedAudioBuffer: @unchecked Sendable {
+// Internal to the recorder: the ring buffer never crosses this file.
+final class SynchronizedAudioBuffer: @unchecked Sendable {
     private var samples: [Float] = []
     private var lock = os_unfair_lock_s()
     

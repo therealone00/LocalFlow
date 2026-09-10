@@ -171,7 +171,8 @@ public final class GlobalHotkeyManager: ObservableObject {
             return
         }
         
-        switch settings.shortcutMode {
+        // `.resolved` maps the unconfigurable .custom case onto Hold Fn.
+        switch settings.shortcutMode.resolved {
         case .holdFn:
             if type == .flagsChanged {
                 let isFnActive: Bool
@@ -230,11 +231,9 @@ public final class GlobalHotkeyManager: ObservableObject {
             }
             
         case .custom:
-            if type == .keyDown && keyCode == settings.customShortcutKey {
-                DispatchQueue.main.async { [weak self] in
-                    self?.onAction?(.toggleHandsFree)
-                }
-            }
+            // Unreachable: `.resolved` never returns .custom. Kept so the
+            // switch stays exhaustive if a recorder is added later.
+            break
         }
     }
     

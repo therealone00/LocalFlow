@@ -83,8 +83,6 @@ public struct LocalFlowSettings: Codable, Equatable, Sendable {
     
     // Dictation & Input
     public var shortcutMode: ShortcutMode = .holdFn
-    public var customShortcutKey: Int = 49 // Space keycode
-    public var customShortcutModifiers: UInt = 0
     public var doubleTapHandsFree: Bool = true
     public var selectedAudioDeviceUID: String? = nil
     public var language: String = "auto" // "auto", "de", "en"
@@ -112,9 +110,11 @@ public struct LocalFlowSettings: Codable, Equatable, Sendable {
     public var reduceMotion: Bool = false
     
     // Privacy
-    public var neverSaveAudio: Bool = true
+    //
+    // There is no "never save audio" setting because there is no code path that
+    // writes audio to disk. Samples live in memory for one transcription and
+    // are released. A toggle would imply the alternative exists.
     public var saveDictationHistory: Bool = true
-    public var historyRetentionDays: Int = 30
     
     // Onboarding
     public var hasCompletedOnboarding: Bool = false

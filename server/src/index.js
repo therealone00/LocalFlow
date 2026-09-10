@@ -106,7 +106,16 @@ async function handleLicenseLookup(url, env, origin) {
 
   // The success page usually loads before the webhook lands. Confirm payment
   // directly with Stripe rather than making the customer wait or refresh.
-  const session = await retrieveCheckoutSession(env.STRIPE_SECRET_KEY, sessionId);
+  let session;
+  try {
+    session = await retrieveCheckoutSession(env.STRIPE_SECRET_KEY, sessionId);
+  } catch (error) {
+    // An id Stripe does not recognise is the customer's problem to see, not a
+    // server fault: returning 500 here made a mistyped link look like an outage.
+    console.error(`license lookup for ${sessionId}:`, error?.message ?? error);
+    return json({ error: 'We could not find that order.' }, 404, origin, env);
+  }
+
   if (session.payment_status !== 'paid') {
     return json({ error: 'This purchase is not complete yet.' }, 402, origin, env);
   }

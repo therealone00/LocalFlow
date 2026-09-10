@@ -6,7 +6,7 @@ public struct DictationSettingsView: View {
 
     public init() {}
 
-    private var mode: ShortcutMode { settingsManager.settings.shortcutMode }
+    private var mode: ShortcutMode { settingsManager.settings.shortcutMode.resolved }
 
     public var body: some View {
         SettingsPane(
@@ -16,7 +16,7 @@ public struct DictationSettingsView: View {
         ) {
             SettingsCard("Shortcut") {
                 VStack(alignment: .leading, spacing: DS.Spacing.m) {
-                    ForEach(ShortcutMode.allCases, id: \.self) { candidate in
+                    ForEach(ShortcutMode.selectableCases, id: \.self) { candidate in
                         ShortcutOptionRow(
                             mode: candidate,
                             isSelected: candidate == mode

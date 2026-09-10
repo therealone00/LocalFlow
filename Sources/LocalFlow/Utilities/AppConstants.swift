@@ -12,7 +12,7 @@ public enum AppConstants {
     /// Application version string, read from the bundle so it can never drift
     /// from `Config/Info.plist`.
     public static var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.2.0"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.2.1"
     }
     
     /// Where people buy and manage a Pro license.

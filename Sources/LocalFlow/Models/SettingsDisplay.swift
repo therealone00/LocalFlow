@@ -7,6 +7,21 @@ import Foundation
 // settings decodable while labels are free to evolve.
 
 public extension ShortcutMode {
+    /// Modes the user can actually pick.
+    ///
+    /// `.custom` is excluded: there is no shortcut recorder, so it fell back to
+    /// a bare keycode with no modifier check — selecting it made the plain
+    /// Space key trigger dictation system-wide. The case is kept so existing
+    /// stored settings still decode, and behaves like `.holdFn`.
+    static var selectableCases: [ShortcutMode] {
+        allCases.filter { $0 != .custom }
+    }
+
+    /// The mode actually used at runtime.
+    var resolved: ShortcutMode {
+        self == .custom ? .holdFn : self
+    }
+
     /// Short label used in pickers and menus.
     var displayName: String {
         switch self {

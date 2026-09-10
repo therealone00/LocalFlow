@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Ordered setup steps. Using a named enum instead of loose integers keeps the
 /// progress indicator, the navigation and the gating rules in sync.
-public enum OnboardingStep: Int, CaseIterable, Identifiable, Comparable {
+enum OnboardingStep: Int, CaseIterable, Identifiable, Comparable {
     case welcome
     case privacy
     case microphone
@@ -12,9 +12,9 @@ public enum OnboardingStep: Int, CaseIterable, Identifiable, Comparable {
     case test
     case finish
 
-    public var id: Int { rawValue }
+    var id: Int { rawValue }
 
-    public static func < (lhs: OnboardingStep, rhs: OnboardingStep) -> Bool {
+    static func < (lhs: OnboardingStep, rhs: OnboardingStep) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 
@@ -237,7 +237,7 @@ public struct OnboardingView: View {
             subtitle: "This is how you start talking from anywhere on macOS."
         ) {
             VStack(alignment: .leading, spacing: DS.Spacing.m) {
-                ForEach(ShortcutMode.allCases, id: \.self) { mode in
+                ForEach(ShortcutMode.selectableCases, id: \.self) { mode in
                     Button {
                         settingsManager.settings.shortcutMode = mode
                     } label: {
