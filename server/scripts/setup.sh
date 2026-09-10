@@ -162,6 +162,20 @@ if [ "${SKIP_STRIPE_KEY}" = true ]; then
 else
     read -rsp $'\nStripe secret key (sk_live_… or sk_test_…): ' STRIPE_KEY </dev/tty; echo
 fi
+# A paste that arrives twice yields a string of exactly double length, which is
+# invisible at a prompt that echoes nothing. Repair it rather than letting
+# Stripe answer "Invalid API Key" a deploy later.
+if [ -n "${STRIPE_KEY}" ]; then
+    STRIPE_KEY="$(printf '%s' "${STRIPE_KEY}" | tr -d '[:space:]')"
+    STRIPE_HALF=$(( ${#STRIPE_KEY} / 2 ))
+    if [ $(( ${#STRIPE_KEY} % 2 )) -eq 0 ] && [ "${STRIPE_HALF}" -gt 20 ] \
+       && [ "${STRIPE_KEY:0:$STRIPE_HALF}" = "${STRIPE_KEY:$STRIPE_HALF}" ]; then
+        STRIPE_KEY="${STRIPE_KEY:0:$STRIPE_HALF}"
+        echo "That paste arrived twice — using one copy."
+    fi
+    echo "Read ${#STRIPE_KEY} characters."
+fi
+
 if [ -n "${STRIPE_KEY}" ]; then
     case "${STRIPE_KEY}" in
         sk_live_*|sk_test_*) : ;;
