@@ -45,7 +45,8 @@ if [ $STATUS -eq 0 ]; then
     printf '\033[32mDone. You can close this window.\033[0m\n'
 else
     printf '\033[31mSetup stopped (exit %s). The message above says why.\033[0m\n' "$STATUS"
-    printf 'Nothing is half-deployed — fix it and double-click this file again.\n'
+    printf 'Whatever already succeeded is kept — the script skips those steps on\n'
+    printf 'the next run. Fix the reason above and double-click this file again.\n'
 fi
 echo
 read -rp "Press Return to close. "

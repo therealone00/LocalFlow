@@ -20,6 +20,17 @@ ROOT_DIR="$(cd "${SERVER_DIR}/.." && pwd)"
 
 cd "${SERVER_DIR}"
 
+# Runs a command with a real terminal attached while capturing its output.
+#
+# Piping wrangler through tee makes it believe it is non-interactive, at which
+# point it silently answers its own prompts with defaults — that is how the
+# workers.dev subdomain question got auto-answered "no". `script` gives it a
+# genuine PTY, so prompts still reach the user.
+run_capture() {
+    local logfile="$1"; shift
+    script -q "${logfile}" "$@" </dev/tty
+}
+
 bold() { printf '\033[1m%s\033[0m\n' "$1"; }
 step() { printf '\n\033[1m==> %s\033[0m\n' "$1"; }
 warn() { printf '\033[33m%s\033[0m\n' "$1"; }
@@ -99,7 +110,7 @@ if grep -q 'REPLACE_WITH_KV_NAMESPACE_ID' wrangler.toml; then
     # tee rather than $(...) so wrangler keeps printing to the terminal and its
     # output can still be parsed.
     KV_LOG="$(mktemp)"
-    npx wrangler kv namespace create LICENSES 2>&1 | tee "${KV_LOG}" || true
+    run_capture "${KV_LOG}" npx wrangler kv namespace create LICENSES || true
     KV_ID="$(grep -oE 'id[[:space:]]*=[[:space:]]*"[0-9a-f]{32}"' "${KV_LOG}" \
         | grep -oE '[0-9a-f]{32}' | head -1)"
     [ -n "${KV_ID}" ] || KV_ID="$(grep -oE '[0-9a-f]{32}' "${KV_LOG}" | head -1)"
@@ -128,7 +139,29 @@ If a key has ever been shared anywhere, roll it in Stripe first and paste the
 new one.
 NOTE
 
-read -rsp $'\nStripe secret key (sk_live_… or sk_test_…): ' STRIPE_KEY; echo
+EXISTING_SECRETS="$(npx wrangler secret list 2>/dev/null || true)"
+
+secret_already_set() {
+    echo "${EXISTING_SECRETS}" | grep -q "\"$1\""
+}
+
+ask_replace() {
+    local answer
+    read -rp "$1 is already set. Replace it? [y/N] " answer </dev/tty
+    case "${answer}" in [yY]*) return 0 ;; *) return 1 ;; esac
+}
+
+SKIP_STRIPE_KEY=false
+if secret_already_set "STRIPE_SECRET_KEY" && ! ask_replace "STRIPE_SECRET_KEY"; then
+    SKIP_STRIPE_KEY=true
+    echo "Keeping the existing Stripe secret key."
+fi
+
+if [ "${SKIP_STRIPE_KEY}" = true ]; then
+    STRIPE_KEY=""
+else
+    read -rsp $'\nStripe secret key (sk_live_… or sk_test_…): ' STRIPE_KEY </dev/tty; echo
+fi
 if [ -n "${STRIPE_KEY}" ]; then
     case "${STRIPE_KEY}" in
         sk_live_*|sk_test_*) : ;;
@@ -140,7 +173,17 @@ else
     warn "Skipped — the Worker will not be able to reach Stripe until this is set."
 fi
 
-read -rsp $'Stripe webhook signing secret (whsec_…, blank to skip): ' WEBHOOK_SECRET; echo
+SKIP_WEBHOOK=false
+if secret_already_set "STRIPE_WEBHOOK_SECRET" && ! ask_replace "STRIPE_WEBHOOK_SECRET"; then
+    SKIP_WEBHOOK=true
+    echo "Keeping the existing webhook signing secret."
+fi
+
+if [ "${SKIP_WEBHOOK}" = true ]; then
+    WEBHOOK_SECRET=""
+else
+    read -rsp $'Stripe webhook signing secret (whsec_…, blank to skip): ' WEBHOOK_SECRET </dev/tty; echo
+fi
 if [ -n "${WEBHOOK_SECRET}" ]; then
     case "${WEBHOOK_SECRET}" in
         whsec_*) : ;;
@@ -153,16 +196,42 @@ else
 fi
 
 step "Uploading the license signing key"
-node -e "process.stdout.write(require('${SERVER_DIR}/.signing-key.json').privateKey)" \
-    | npx wrangler secret put LICENSE_SIGNING_KEY
+if secret_already_set "LICENSE_SIGNING_KEY"; then
+    echo "Already uploaded — leaving it alone."
+    echo "Replacing it would invalidate every license already issued."
+else
+    node -e "process.stdout.write(require('${SERVER_DIR}/.signing-key.json').privateKey)" \
+        | npx wrangler secret put LICENSE_SIGNING_KEY
+fi
 
 # ---------------------------------------------------------------- 5. deploy
 step "Deploying the Worker"
+cat <<'NOTE'
+If this is your first Worker, Cloudflare will ask whether to register a
+workers.dev subdomain. Answer yes — that is the address your Worker gets.
+NOTE
+
 DEPLOY_LOG="$(mktemp)"
-npx wrangler deploy 2>&1 | tee "${DEPLOY_LOG}"
-WORKER_URL="$(grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' "${DEPLOY_LOG}" | head -1)"
+run_capture "${DEPLOY_LOG}" npx wrangler deploy || true
+WORKER_URL="$(grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' "${DEPLOY_LOG}" \
+    | grep -v 'dash.cloudflare.com' | head -1)"
+
+if [ -z "${WORKER_URL}" ]; then
+    if grep -q 'workers.dev subdomain' "${DEPLOY_LOG}"; then
+        ONBOARDING="$(grep -oE 'https://dash\.cloudflare\.com/[a-f0-9]+/workers/onboarding' "${DEPLOY_LOG}" | head -1)"
+        rm -f "${DEPLOY_LOG}"
+        die "Your Cloudflare account has no workers.dev subdomain yet.
+
+     Register one here (one-time, takes a minute):
+       ${ONBOARDING:-https://dash.cloudflare.com/ -> Workers & Pages -> Get started}
+
+     Then double-click this file again. Your KV namespace and secrets are
+     already in place, so it will pick up where it left off."
+    fi
+    rm -f "${DEPLOY_LOG}"
+    die "Deploy did not produce a Worker URL. The output above says why."
+fi
 rm -f "${DEPLOY_LOG}"
-[ -n "${WORKER_URL}" ] || die "Deploy finished but no Worker URL was found in the output. Set LICENSING_API in docs/*.html by hand."
 
 # ---------------------------------------------------------------- 6. wire the site
 step "Pointing the website at ${WORKER_URL}"

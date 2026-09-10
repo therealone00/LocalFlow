@@ -6,7 +6,7 @@ compatibility_date = "2024-11-01"
 # key again from the success page without a second payment.
 [[kv_namespaces]]
 binding = "LICENSES"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "e37a0da0854342118fffbb7a5b9cd6c0"
 
 [vars]
 # The exact origins allowed to call the checkout endpoint. Anything else is
