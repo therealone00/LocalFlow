@@ -3,20 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>LocalFlow — On-device dictation for macOS</title>
-<meta name="description" content="Hold a key, talk, and your words are typed into whatever app you are in. Runs entirely on your Mac. Free, with a €15 one-time Pro upgrade.">
+<title>LocalFlow — Free Speech-to-Text &amp; Dictation for macOS</title>
+<meta name="description" content="Free on-device speech-to-text for Mac. Hold a key, talk, and your words are typed into any app — no cloud, no subscription. Pro upgrade is €15, once.">
+<meta name="robots" content="index, follow">
+<meta name="author" content="loomlytic">
 <link rel="canonical" href="https://loomlytic.com/">
 <meta name="theme-color" content="#08080B">
 <meta name="color-scheme" content="dark">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="LocalFlow">
+<meta property="og:locale" content="en_US">
 <meta property="og:url" content="https://loomlytic.com/">
-<meta property="og:title" content="LocalFlow — On-device dictation for macOS">
-<meta property="og:description" content="Hold a key, talk, and your words are typed into whatever app you are in. Runs entirely on your Mac.">
+<meta property="og:title" content="LocalFlow — Free Speech-to-Text & Dictation for macOS">
+<meta property="og:description" content="Free on-device speech-to-text for Mac. Hold a key, talk, and your words are typed into any app — no cloud, no subscription.">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="LocalFlow — On-device dictation for macOS">
-<meta name="twitter:description" content="Hold a key, talk, and your words are typed into whatever app you are in. Runs entirely on your Mac.">
+<meta name="twitter:title" content="LocalFlow — Free Speech-to-Text & Dictation for macOS">
+<meta name="twitter:description" content="Free on-device speech-to-text for Mac. Hold a key, talk, and your words are typed into any app — no cloud, no subscription.">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230D0E12'/%3E%3Cg stroke='%23EDEDED' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M9 13v6M16 8v16M23 13v6'/%3E%3C/g%3E%3C/svg%3E">
 
@@ -34,12 +37,112 @@
   "url": "https://loomlytic.com/",
   "downloadUrl": "https://github.com/therealone00/LocalFlow/releases/latest",
   "softwareVersion": "1.2.2",
-  "description": "On-device dictation for macOS. Hold a key, talk, and your words are typed into whatever app you are in.",
+  "description": "On-device speech-to-text and dictation for macOS. Hold a key, talk, and your words are typed into whatever app you are in \u2014 nothing leaves your Mac.",
+  "keywords": "speech to text, dictation, voice typing, macOS, offline, privacy, WhisperKit",
   "offers": [
-    { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "EUR" },
-    { "@type": "Offer", "name": "Pro", "price": "15", "priceCurrency": "EUR" }
+    {
+      "@type": "Offer",
+      "name": "Free",
+      "price": "0",
+      "priceCurrency": "EUR"
+    },
+    {
+      "@type": "Offer",
+      "name": "Pro",
+      "price": "15",
+      "priceCurrency": "EUR"
+    }
   ],
-  "author": { "@type": "Person", "name": "therealone00", "url": "https://github.com/therealone00" }
+  "publisher": {
+    "@type": "Organization",
+    "name": "loomlytic",
+    "url": "https://loomlytic.com/"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "loomlytic",
+  "url": "https://loomlytic.com/",
+  "sameAs": [
+    "https://github.com/therealone00/LocalFlow"
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does audio really never leave my Mac?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. There is no networking code in the transcription path. LocalFlow touches the internet exactly twice: when you download a speech model, and when you buy Pro. Pull the network cable and everything else keeps working — including your Pro license, which is verified offline."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the catch with the free version?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "There isn't one. Free is unlimited dictation with the full rule-based cleanup and two of the three speech models. No word caps, no trial period, no nag screens. Pro adds the local language model polish, the most accurate Whisper tier and per-app styles."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "The source is public. Can't I just remove the license check?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Technically, yes — and that is the price of publishing the source. Legally, no: LocalFlow is under the Elastic License 2.0, which allows you to read, fork, modify and build it, but not to remove or work around the license key. Practically: it is maintained by one person, and €15 once is what makes that sustainable. If you genuinely cannot afford it, use the free version with a clear conscience — it is a real product, not crippleware."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which languages does it handle?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Whisper's multilingual models, so most major languages. The cleanup rules are tuned for German and English. Auto-detect copes well with mixing the two mid-sentence; naming a language explicitly helps on very short phrases."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will macOS warn me when I open it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Releases are signed with a Developer ID certificate and notarised by Apple, so LocalFlow opens like any other app — no warning, no right-click trick. If you would rather not trust a prebuilt binary, it compiles from source with one script."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it work on Intel Macs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It runs, using the whisper.cpp backend instead of the Neural Engine. Expect noticeably higher latency than the sub-second figures here, which are measured on Apple Silicon."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does it need Accessibility access?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It is the only supported way for a macOS app to type into another app's text field. LocalFlow uses it to insert at your cursor and — if you leave the option on — to read the few characters before the cursor so it can match capitalisation. That context is never stored and never read from password fields."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "I lost my license key.",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It is in your purchase confirmation email from Stripe. The success page link in that email also still works — open it again and the key is there. Failing that, open an issue with your order number."
+      }
+    }
+  ]
 }
 </script>
 <style>
@@ -360,7 +463,7 @@ footer { border-top: 1px solid var(--line); padding: 32px 0; position: relative;
 
       <h1>Hold a key. Talk.<br><span class="grad">It's already typed.</span></h1>
 
-      <p class="lede">Dictation that works in every app on your Mac and never sends a byte anywhere. Your voice is transcribed on the Neural Engine in under a second, cleaned up, and typed straight at your cursor.</p>
+      <p class="lede">Speech-to-text and voice typing that works in every app on your Mac and never sends a byte anywhere. Your voice is transcribed on the Neural Engine in under a second, cleaned up, and typed straight at your cursor.</p>
 
       <div class="cta-row">
         <a class="btn btn-primary" href="https://github.com/therealone00/LocalFlow/releases/latest/download/LocalFlow.dmg">
@@ -548,6 +651,7 @@ footer { border-top: 1px solid var(--line); padding: 32px 0; position: relative;
       <div class="section-head">
         <span class="eyebrow">Comparison</span>
         <h2>Against the alternatives.</h2>
+        <p class="lede">How LocalFlow compares as a Wispr Flow alternative or a Superwhisper alternative — same job, nothing leaves your Mac.</p>
       </div>
       <div class="table-wrap">
         <table>
